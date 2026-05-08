@@ -1,0 +1,520 @@
+#!/usr/bin/env python3
+"""Harvest lessons from source repositories defined in data/repos.yml."""
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import frontmatter
+import yaml
+from slugify import slugify
+
+ROOT = Path(__file__).resolve().parent.parent
+REPOS_YML = ROOT / "data" / "repos.yml"
+TMP_DIR = ROOT / "tmp" / "repos"
+GENERATED_DIR = ROOT / "src" / "content" / "generated"
+EXPORTS_DIR = ROOT / "public" / "exports"
+
+REQUIRED_REPO_FIELDS = {"id", "name", "owner", "repo", "branch", "lessons_path"}
+
+VALID_LESSON_TYPES = {
+    "architecture", "implementation", "testing", "deployment", "debugging",
+    "data-design", "ai-assisted-development", "documentation", "maintenance",
+    "process", "other",
+}
+
+VALID_STATUSES = {"active", "superseded", "draft", "deprecated"}
+
+warnings = []
+errors = []
+
+
+def warn(msg: str) -> None:
+    warnings.append(msg)
+    print(f"  WARNING: {msg}", file=sys.stderr)
+
+
+def error(msg: str) -> None:
+    errors.append(msg)
+    print(f"  ERROR: {msg}", file=sys.stderr)
+
+
+def load_repos() -> list[dict]:
+    """Load and validate data/repos.yml."""
+    if not REPOS_YML.exists():
+        error(f"Missing {REPOS_YML}")
+        return []
+
+    with open(REPOS_YML, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    if not isinstance(data, dict) or "repos" not in data:
+        error("repos.yml must contain a top-level 'repos' list")
+        return []
+
+    repos = data["repos"]
+    if not isinstance(repos, list):
+        error("repos.yml 'repos' must be a list")
+        return []
+
+    seen_ids = set()
+    valid = []
+    for repo in repos:
+        if not isinstance(repo, dict):
+            error(f"Invalid repo entry: {repo}")
+            continue
+
+        missing = REQUIRED_REPO_FIELDS - set(repo.keys())
+        if missing:
+            error(f"Repo entry missing fields {missing}: {repo.get('id', '?')}")
+            continue
+
+        rid = repo["id"]
+        if not re.match(r"^[a-z0-9][a-z0-9-]*$", rid):
+            error(f"Invalid repo ID format: {rid}")
+            continue
+
+        if rid in seen_ids:
+            error(f"Duplicate repo ID: {rid}")
+            continue
+        seen_ids.add(rid)
+
+        if not repo.get("enabled", True):
+            print(f"  Skipping disabled repo: {rid}")
+            continue
+
+        valid.append(repo)
+
+    return valid
+
+
+def clone_repo(repo: dict) -> Path | None:
+    """Clone a repo to tmp/repos/{id}. Returns clone path or None on failure."""
+    rid = repo["id"]
+    dest = TMP_DIR / rid
+
+    owner = repo["owner"]
+    name = repo["repo"]
+    branch = repo["branch"]
+
+    token = os.environ.get("LESSONS_REPO_TOKEN")
+    if token:
+        url = f"https://x-access-token:{token}@github.com/{owner}/{name}.git"
+    else:
+        url = f"https://github.com/{owner}/{name}.git"
+
+    # Never print the URL when token is present
+    display_url = f"https://github.com/{owner}/{name}.git"
+    print(f"  Cloning {rid} from {display_url} (branch: {branch})...")
+
+    try:
+        subprocess.run(
+            ["git", "clone", "--depth", "1", "--branch", branch, url, str(dest)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as e:
+        error(f"Failed to clone {rid}: {e.stderr.strip()}")
+        return None
+
+    return dest
+
+
+def normalize_tags(tags) -> list[str]:
+    """Normalize tags: lowercase, trim, hyphens for spaces, dedup."""
+    if not tags:
+        return []
+    if isinstance(tags, str):
+        tags = [t.strip() for t in tags.split(",")]
+
+    seen = set()
+    result = []
+    for tag in tags:
+        if not isinstance(tag, str):
+            tag = str(tag)
+        normalized = slugify(tag.strip())
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            result.append(normalized)
+    return result
+
+
+def make_slug(post: frontmatter.Post, filepath: Path, lessons_root: Path) -> str:
+    """Generate slug from frontmatter slug, or path relative to lessons root.
+
+    When lessons live in subdirectories (e.g. block1/index.md, block2/index.md),
+    the subdirectory is included in the slug to avoid collisions.
+    """
+    if post.get("slug"):
+        return slugify(post["slug"])
+    # Use path relative to lessons root (without extension) to preserve subdirectory context
+    try:
+        rel = filepath.relative_to(lessons_root).with_suffix("")
+        parts = rel.parts
+        return slugify("-".join(parts))
+    except ValueError:
+        return slugify(filepath.stem)
+
+
+def extract_title(post: frontmatter.Post, filepath: Path) -> tuple[str, bool]:
+    """Extract title from frontmatter, first H1, or filename. Returns (title, inferred)."""
+    if post.get("title"):
+        return post["title"], False
+
+    # Try first H1 in content
+    for line in post.content.split("\n"):
+        m = re.match(r"^#\s+(.+)$", line.strip())
+        if m:
+            return m.group(1).strip(), False
+
+    # Infer from filename
+    title = filepath.stem.replace("-", " ").replace("_", " ").title()
+    return title, True
+
+
+def parse_lesson(filepath: Path, repo: dict) -> dict | None:
+    """Parse a single lesson markdown file into a normalized record."""
+    rid = repo["id"]
+
+    try:
+        post = frontmatter.load(filepath)
+    except Exception as e:
+        error(f"Unreadable lesson file {filepath}: {e}")
+        return None
+
+    content = post.content.strip()
+    if not content:
+        error(f"Empty lesson content: {filepath}")
+        return None
+
+    title, inferred = extract_title(post, filepath)
+    if inferred:
+        warn(f"Title inferred from filename: {filepath.name} -> '{title}'")
+
+    # Source path relative to lessons_path
+    lessons_root = TMP_DIR / rid / repo["lessons_path"]
+
+    lesson_slug = make_slug(post, filepath, lessons_root)
+    lesson_id = f"{rid}-{lesson_slug}"
+    try:
+        rel_path = filepath.relative_to(lessons_root)
+    except ValueError:
+        rel_path = filepath.name
+
+    source_url = (
+        f"https://github.com/{repo['owner']}/{repo['repo']}"
+        f"/blob/{repo['branch']}/{repo['lessons_path']}/{rel_path}"
+    )
+
+    project_url = repo.get("project_url", f"https://github.com/{repo['owner']}/{repo['repo']}")
+
+    # Frontmatter fields
+    summary = post.get("summary", "")
+    date = post.get("date")
+    updated = post.get("updated")
+    phase = post.get("phase")
+    lesson_type = post.get("lesson_type")
+    status = post.get("status", "active")
+    tags = normalize_tags(post.get("tags", []))
+
+    # Convert dates to strings
+    if isinstance(date, datetime):
+        date = date.strftime("%Y-%m-%d")
+    elif date is not None:
+        date = str(date)
+
+    if isinstance(updated, datetime):
+        updated = updated.strftime("%Y-%m-%d")
+    elif updated is not None:
+        updated = str(updated)
+
+    # Warnings for missing recommended fields
+    if not summary:
+        warn(f"Missing summary: {lesson_id}")
+    if not date:
+        warn(f"Missing date: {lesson_id}")
+    if not tags:
+        warn(f"Missing tags: {lesson_id}")
+    if not phase:
+        warn(f"Missing phase: {lesson_id}")
+    if not lesson_type:
+        warn(f"Missing lesson_type: {lesson_id}")
+
+    # Validate controlled vocabularies
+    if lesson_type and lesson_type not in VALID_LESSON_TYPES:
+        warn(f"Unknown lesson_type '{lesson_type}': {lesson_id}")
+    if status not in VALID_STATUSES:
+        warn(f"Unknown status '{status}': {lesson_id}")
+
+    # Short content warning
+    word_count = len(content.split())
+    if word_count < 50:
+        warn(f"Short content ({word_count} words): {lesson_id}")
+
+    reading_minutes = max(1, round(word_count / 200))
+
+    return {
+        "id": lesson_id,
+        "title": title,
+        "summary": summary or "",
+        "repo_id": rid,
+        "repo_name": repo["name"],
+        "repo_owner": repo["owner"],
+        "repo_slug": repo["repo"],
+        "source_path": str(rel_path),
+        "source_url": source_url,
+        "project_url": project_url,
+        "date": date,
+        "updated": updated,
+        "phase": phase,
+        "lesson_type": lesson_type,
+        "status": status or "active",
+        "tags": tags,
+        "source_files": post.get("source_files", []) or [],
+        "related_prs": post.get("related_prs", []) or [],
+        "related_issues": post.get("related_issues", []) or [],
+        "related_commits": post.get("related_commits", []) or [],
+        "audience": post.get("audience", []) or [],
+        "content": content,
+        "word_count": word_count,
+        "reading_minutes": reading_minutes,
+    }
+
+
+def scan_lessons(repo: dict, clone_path: Path) -> list[dict]:
+    """Scan all .md files in the lessons path (recursive)."""
+    rid = repo["id"]
+    lessons_dir = clone_path / repo["lessons_path"]
+
+    if not lessons_dir.exists():
+        error(f"Lessons path not found: {lessons_dir} (repo: {rid})")
+        return []
+
+    md_files = sorted(lessons_dir.rglob("*.md"))
+    # Exclude README.md files
+    md_files = [f for f in md_files if f.name.lower() != "readme.md"]
+
+    if not md_files:
+        warn(f"No lesson files found in {lessons_dir} (repo: {rid})")
+        return []
+
+    lessons = []
+    for md_file in md_files:
+        lesson = parse_lesson(md_file, repo)
+        if lesson:
+            lessons.append(lesson)
+
+    return lessons
+
+
+def check_duplicate_ids(lessons: list[dict]) -> None:
+    """Check for duplicate lesson IDs."""
+    seen = {}
+    for lesson in lessons:
+        lid = lesson["id"]
+        if lid in seen:
+            error(f"Duplicate lesson ID: {lid} (first in {seen[lid]}, also in {lesson['repo_id']})")
+        else:
+            seen[lid] = lesson["repo_id"]
+
+
+def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
+    """Generate aggregate JSON indexes."""
+    GENERATED_DIR.mkdir(parents=True, exist_ok=True)
+
+    # lessons.json
+    write_json(GENERATED_DIR / "lessons.json", lessons)
+
+    # repos.json — repo metadata with lesson counts
+    repo_index = []
+    for repo in repos:
+        rid = repo["id"]
+        repo_lessons = [l for l in lessons if l["repo_id"] == rid]
+        all_tags = set()
+        for l in repo_lessons:
+            all_tags.update(l["tags"])
+        dates = [l["date"] for l in repo_lessons if l["date"]]
+        repo_index.append({
+            "id": rid,
+            "name": repo["name"],
+            "owner": repo["owner"],
+            "repo": repo["repo"],
+            "branch": repo["branch"],
+            "project_url": repo.get("project_url", ""),
+            "lesson_count": len(repo_lessons),
+            "tags": sorted(all_tags),
+            "recent_date": max(dates) if dates else None,
+        })
+    write_json(GENERATED_DIR / "repos.json", repo_index)
+
+    # tags.json — tag name + count + lesson IDs
+    tag_map: dict[str, list[str]] = {}
+    for l in lessons:
+        for tag in l["tags"]:
+            tag_map.setdefault(tag, []).append(l["id"])
+    tags_index = sorted(
+        [{"tag": t, "count": len(ids), "lesson_ids": sorted(ids)} for t, ids in tag_map.items()],
+        key=lambda x: (-x["count"], x["tag"]),
+    )
+    write_json(GENERATED_DIR / "tags.json", tags_index)
+
+    # phases.json
+    phase_map: dict[str, list[str]] = {}
+    for l in lessons:
+        p = l["phase"] or "unspecified"
+        phase_map.setdefault(p, []).append(l["id"])
+    phases_index = sorted(
+        [{"phase": p, "count": len(ids), "lesson_ids": sorted(ids)} for p, ids in phase_map.items()],
+        key=lambda x: (-x["count"], x["phase"]),
+    )
+    write_json(GENERATED_DIR / "phases.json", phases_index)
+
+    # lesson_types.json
+    type_map: dict[str, list[str]] = {}
+    for l in lessons:
+        t = l["lesson_type"] or "unspecified"
+        type_map.setdefault(t, []).append(l["id"])
+    types_index = sorted(
+        [{"lesson_type": t, "count": len(ids), "lesson_ids": sorted(ids)} for t, ids in type_map.items()],
+        key=lambda x: (-x["count"], x["lesson_type"]),
+    )
+    write_json(GENERATED_DIR / "lesson_types.json", types_index)
+
+
+def generate_exports(lessons: list[dict]) -> None:
+    """Generate AI-readable export files."""
+    EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # lessons-pack.json — full records
+    write_json(EXPORTS_DIR / "lessons-pack.json", lessons)
+
+    # lessons-index.json — compact records
+    index = [
+        {
+            "id": l["id"],
+            "title": l["title"],
+            "repo": l["repo_id"],
+            "summary": l["summary"],
+            "tags": l["tags"],
+            "url": f"/lessons/{l['id']}",
+        }
+        for l in lessons
+    ]
+    write_json(EXPORTS_DIR / "lessons-index.json", index)
+
+    # lessons-pack.md — all lessons in markdown
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    lines = [
+        f"# Lessons Pack",
+        f"",
+        f"Generated: {timestamp}",
+        f"Total lessons: {len(lessons)}",
+        f"",
+    ]
+
+    # Group by repo
+    by_repo: dict[str, list[dict]] = {}
+    for l in lessons:
+        by_repo.setdefault(l["repo_id"], []).append(l)
+
+    for repo_id in sorted(by_repo):
+        repo_lessons = by_repo[repo_id]
+        lines.append(f"## {repo_lessons[0]['repo_name']} ({repo_id})")
+        lines.append("")
+        for l in sorted(repo_lessons, key=lambda x: x["title"]):
+            lines.append(f"### {l['title']}")
+            lines.append("")
+            lines.append(f"- **ID:** {l['id']}")
+            lines.append(f"- **Source:** {l['source_url']}")
+            if l["tags"]:
+                lines.append(f"- **Tags:** {', '.join(l['tags'])}")
+            lines.append("")
+            lines.append(l["content"])
+            lines.append("")
+            lines.append("---")
+            lines.append("")
+
+    (EXPORTS_DIR / "lessons-pack.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_json(path: Path, data) -> None:
+    """Write deterministic JSON."""
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, sort_keys=True, ensure_ascii=False)
+        f.write("\n")
+
+
+def main() -> int:
+    print("Lessons Hub Harvester")
+    print("=" * 40)
+
+    # Load repos
+    repos = load_repos()
+    if errors:
+        print(f"\nFATAL: {len(errors)} error(s) loading repos. Aborting.")
+        return 1
+
+    if not repos:
+        print("\nNo enabled repos found.")
+        return 0
+
+    print(f"\n{len(repos)} enabled repo(s) to harvest.\n")
+
+    # Clean and create tmp directory
+    if TMP_DIR.exists():
+        # On Windows, git clone creates read-only files that rmtree can't delete
+        def on_rm_error(func, path, exc_info):
+            os.chmod(path, 0o777)
+            func(path)
+        shutil.rmtree(TMP_DIR, onexc=on_rm_error)
+    TMP_DIR.mkdir(parents=True)
+
+    # Clone and scan
+    all_lessons = []
+    repos_scanned = 0
+    for repo in repos:
+        clone_path = clone_repo(repo)
+        if clone_path is None:
+            continue
+        repos_scanned += 1
+        lessons = scan_lessons(repo, clone_path)
+        all_lessons.extend(lessons)
+        print(f"  Found {len(lessons)} lesson(s) in {repo['id']}")
+
+    if errors:
+        print(f"\nFATAL: {len(errors)} error(s) during harvest. Aborting.")
+        return 1
+
+    # Check duplicate IDs
+    check_duplicate_ids(all_lessons)
+    if errors:
+        print(f"\nFATAL: {len(errors)} error(s) — duplicate IDs. Aborting.")
+        return 1
+
+    # Generate outputs
+    print("\nGenerating indexes...")
+    generate_indexes(all_lessons, repos)
+
+    print("Generating export packs...")
+    generate_exports(all_lessons)
+
+    # Summary
+    print("\n" + "=" * 40)
+    print("Harvest Summary")
+    print(f"  Repos scanned:  {repos_scanned}")
+    print(f"  Lessons found:  {len(all_lessons)}")
+    print(f"  Warnings:       {len(warnings)}")
+    print(f"  Errors:         {len(errors)}")
+    print("=" * 40)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

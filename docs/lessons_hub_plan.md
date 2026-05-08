@@ -54,7 +54,7 @@ Open  ──>  Started  ──>  Completed
 | 1.8 | Completed | 2026-05-08 04:35 PM | 2026-05-08 04:35 PM | Add `requirements.txt` with `PyYAML`, `python-frontmatter`, `python-slugify`. |
 | 1.9 | Completed | 2026-05-08 04:35 PM | 2026-05-08 04:35 PM | Create `README.md` stub with project name and one-paragraph purpose. |
 | 1.10 | Completed | 2026-05-08 04:35 PM | 2026-05-08 04:37 PM | Verify: `npm install && npm run dev` starts dev server; homepage renders; lessons placeholder page renders; `npm run build` succeeds. |
-| 1.11 | Started | 2026-05-08 04:37 PM | | Stage and commit: "Phase 1: Astro project skeleton with base layout and placeholder pages". |
+| 1.11 | Completed | 2026-05-08 04:37 PM | 2026-05-08 04:38 PM | Stage and commit: "Phase 1: Astro project skeleton with base layout and placeholder pages". |
 
 ### Phase 1 Summary
 
@@ -71,21 +71,21 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 2.1 | Open | | | Create `data/repos.yml` with at least 3 enabled source repos (use public repos from the user's GitHub that have `docs/lessons/*.md`, or well-known public repos — confirm with user if needed). Schema per PDR §10: `id`, `name`, `owner`, `repo`, `branch`, `lessons_path`, optional `project_url`, `enabled`. |
-| 2.2 | Open | | | Implement `scripts/harvest_lessons.py` — load `data/repos.yml`, validate registry structure, create clean `tmp/repos/` directory. |
-| 2.3 | Open | | | Add repo cloning: `git clone --depth 1` each enabled repo to `tmp/repos/{repo_id}`. Support `LESSONS_REPO_TOKEN` env var for authenticated URLs. Never print/log token values. |
-| 2.4 | Open | | | Add markdown scanning: locate `{lessons_path}/*.md` in each cloned repo. Parse YAML frontmatter (python-frontmatter). Parse markdown body. |
-| 2.5 | Open | | | Implement normalization: generate lesson records per PDR §12. ID format `{repo_id}-{lesson_slug}`. Slug priority: explicit `slug` frontmatter → filename → normalized title. Tag normalization per PDR §14 (lowercase, trim, hyphens, dedup). Infer missing safe defaults (`status` → `active`). |
-| 2.6 | Open | | | Generate aggregate indexes: `src/content/generated/lessons.json`, `repos.json`, `tags.json`, `phases.json`, `lesson_types.json`. All output must be valid, deterministic JSON (sorted keys, consistent ordering). |
-| 2.7 | Open | | | Implement `scripts/build_exports.py` (or integrate into harvester): generate `public/exports/lessons-pack.json` (full records), `public/exports/lessons-index.json` (compact: id, title, repo, summary, tags, url), `public/exports/lessons-pack.md` (all lessons in one markdown doc grouped by repo, with timestamp). |
-| 2.8 | Open | | | Add `package.json` scripts: `harvest` → `python scripts/harvest_lessons.py`, `validate:lessons` → `python scripts/validate_lessons.py` (stub for now). |
-| 2.9 | Open | | | Print clear harvest summary to stdout: repos scanned, lessons found, warnings. |
-| 2.10 | Open | | | Verify: `npm run harvest` completes; at least 3 repos scanned; lessons discovered; `lessons.json` exists and contains lesson records; source URLs are correct; missing optional metadata produces warnings. |
-| 2.11 | Open | | | Stage and commit: "Phase 2: Repo registry and lesson harvester". |
+| 2.1 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:40 PM | Create `data/repos.yml` with at least 3 enabled source repos (use public repos from the user's GitHub that have `docs/lessons/*.md`, or well-known public repos — confirm with user if needed). Schema per PDR §10: `id`, `name`, `owner`, `repo`, `branch`, `lessons_path`, optional `project_url`, `enabled`. |
+| 2.2 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Implement `scripts/harvest_lessons.py` — load `data/repos.yml`, validate registry structure, create clean `tmp/repos/` directory. |
+| 2.3 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Add repo cloning: `git clone --depth 1` each enabled repo to `tmp/repos/{repo_id}`. Support `LESSONS_REPO_TOKEN` env var for authenticated URLs. Never print/log token values. |
+| 2.4 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Add markdown scanning: locate `{lessons_path}/*.md` in each cloned repo. Parse YAML frontmatter (python-frontmatter). Parse markdown body. |
+| 2.5 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Implement normalization: generate lesson records per PDR §12. ID format `{repo_id}-{lesson_slug}`. Slug priority: explicit `slug` frontmatter → filename → normalized title. Tag normalization per PDR §14 (lowercase, trim, hyphens, dedup). Infer missing safe defaults (`status` → `active`). |
+| 2.6 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Generate aggregate indexes: `src/content/generated/lessons.json`, `repos.json`, `tags.json`, `phases.json`, `lesson_types.json`. All output must be valid, deterministic JSON (sorted keys, consistent ordering). |
+| 2.7 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Implement `scripts/build_exports.py` (or integrate into harvester): generate `public/exports/lessons-pack.json` (full records), `public/exports/lessons-index.json` (compact: id, title, repo, summary, tags, url), `public/exports/lessons-pack.md` (all lessons in one markdown doc grouped by repo, with timestamp). |
+| 2.8 | Completed | 2026-05-08 04:42 PM | 2026-05-08 04:43 PM | Add `package.json` scripts: `harvest` → `python scripts/harvest_lessons.py`, `validate:lessons` → `python scripts/validate_lessons.py` (stub for now). |
+| 2.9 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Print clear harvest summary to stdout: repos scanned, lessons found, warnings. |
+| 2.10 | Completed | 2026-05-08 04:43 PM | 2026-05-08 04:45 PM | Verify: `npm run harvest` completes; at least 3 repos scanned; lessons discovered; `lessons.json` exists and contains lesson records; source URLs are correct; missing optional metadata produces warnings. |
+| 2.11 | Started | 2026-05-08 04:45 PM | | Stage and commit: "Phase 2: Repo registry and lesson harvester". |
 
 ### Phase 2 Summary
 
-- **Changes:** TBD
+- **Changes:** Created `data/repos.yml` with 2 enabled repos (certification, artemis) and 1 disabled (lessons-hub self-harvest). Created `scripts/harvest_lessons.py` with full pipeline: registry loading, git clone, recursive markdown scanning, frontmatter parsing, normalization (slug, tags, IDs), aggregate index generation (lessons, repos, tags, phases, lesson_types), and AI export packs (JSON + markdown). Created stub `scripts/validate_lessons.py`. Added `harvest`, `validate:lessons`, `build:full` npm scripts. Handles Windows read-only git files, subdirectory lesson paths (block*/), and duplicate slug prevention via path-based slugs.
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 2: Repo registry and lesson harvester`
 

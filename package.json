@@ -7,7 +7,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "harvest": "python scripts/harvest_lessons.py",
+    "validate:lessons": "python scripts/validate_lessons.py",
+    "build:full": "npm run harvest && npm run validate:lessons && npm run build"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

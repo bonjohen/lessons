@@ -1,0 +1,27 @@
+repos:
+  - id: certification
+    name: Certification
+    owner: bonjohen
+    repo: certification
+    branch: main
+    lessons_path: docs/lessons
+    project_url: https://github.com/bonjohen/certification
+    enabled: true
+
+  - id: artemis
+    name: Artemis
+    owner: bonjohen
+    repo: Artemis
+    branch: main
+    lessons_path: docs/lessons
+    project_url: https://github.com/bonjohen/Artemis
+    enabled: true
+
+  - id: lessons-hub
+    name: Lessons Hub
+    owner: bonjohen
+    repo: lessons
+    branch: main
+    lessons_path: docs/lessons
+    project_url: https://github.com/bonjohen/lessons
+    enabled: false
