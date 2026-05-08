@@ -157,7 +157,7 @@ Open  ──>  Started  ──>  Completed
 | 5.3 | Completed | 2026-05-08 04:54 PM | 2026-05-08 04:54 PM | Wire `src/components/SearchBox.astro` to Pagefind UI — include Pagefind CSS/JS, add labeled search input. |
 | 5.4 | Completed | 2026-05-08 04:54 PM | 2026-05-08 04:54 PM | Add Pagefind `data-pagefind-body` attributes to lesson detail pages so lesson titles and body text are indexed. |
 | 5.5 | Completed | 2026-05-08 04:54 PM | 2026-05-08 04:55 PM | Verify: `npm run build:full` succeeds; search index generated in `dist/pagefind/`; search box on lessons page returns results for lesson titles and body keywords. |
-| 5.6 | Started | 2026-05-08 04:55 PM | | Stage and commit: "Phase 5: Pagefind static search". |
+| 5.6 | Completed | 2026-05-08 04:55 PM | 2026-05-08 04:55 PM | Stage and commit: "Phase 5: Pagefind static search". |
 
 ### Phase 5 Summary
 
@@ -174,14 +174,14 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 6.1 | Open | | | Verify or refine `scripts/build_exports.py`: `lessons-pack.json` contains full normalized records; `lessons-index.json` contains compact records (id, title, repo, summary, tags, url); `lessons-pack.md` has generated timestamp, lessons grouped by repo, title, source URL, tags, full content. |
-| 6.2 | Open | | | Ensure export generation is integrated into `npm run harvest` or called separately — either way, `build:full` must produce all three export files in `public/exports/`. |
-| 6.3 | Open | | | Verify: after `npm run build:full`, `dist/exports/lessons-pack.json`, `dist/exports/lessons-index.json`, `dist/exports/lessons-pack.md` all exist and are valid. Markdown export contains all lessons. JSON validates. |
-| 6.4 | Open | | | Stage and commit: "Phase 6: AI-readable export packs". |
+| 6.1 | Completed | 2026-05-08 04:55 PM | 2026-05-08 04:56 PM | Verify or refine `scripts/build_exports.py`: `lessons-pack.json` contains full normalized records; `lessons-index.json` contains compact records (id, title, repo, summary, tags, url); `lessons-pack.md` has generated timestamp, lessons grouped by repo, title, source URL, tags, full content. |
+| 6.2 | Completed | 2026-05-08 04:55 PM | 2026-05-08 04:56 PM | Ensure export generation is integrated into `npm run harvest` or called separately — either way, `build:full` must produce all three export files in `public/exports/`. |
+| 6.3 | Completed | 2026-05-08 04:55 PM | 2026-05-08 04:56 PM | Verify: after `npm run build:full`, `dist/exports/lessons-pack.json`, `dist/exports/lessons-index.json`, `dist/exports/lessons-pack.md` all exist and are valid. Markdown export contains all lessons. JSON validates. |
+| 6.4 | Started | 2026-05-08 04:56 PM | | Stage and commit: "Phase 6: AI-readable export packs". |
 
 ### Phase 6 Summary
 
-- **Changes:** TBD
+- **Changes:** Export generation was integrated into the harvester in Phase 2. Verified all three export files (lessons-pack.json, lessons-index.json, lessons-pack.md) are produced by `build:full` and appear in `dist/exports/`. JSON validates. Markdown export contains timestamp, all 90 lessons grouped by repo.
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 6: AI-readable export packs`
 
