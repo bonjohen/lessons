@@ -81,7 +81,7 @@ Open  ──>  Started  ──>  Completed
 | 2.8 | Completed | 2026-05-08 04:42 PM | 2026-05-08 04:43 PM | Add `package.json` scripts: `harvest` → `python scripts/harvest_lessons.py`, `validate:lessons` → `python scripts/validate_lessons.py` (stub for now). |
 | 2.9 | Completed | 2026-05-08 04:40 PM | 2026-05-08 04:42 PM | Print clear harvest summary to stdout: repos scanned, lessons found, warnings. |
 | 2.10 | Completed | 2026-05-08 04:43 PM | 2026-05-08 04:45 PM | Verify: `npm run harvest` completes; at least 3 repos scanned; lessons discovered; `lessons.json` exists and contains lesson records; source URLs are correct; missing optional metadata produces warnings. |
-| 2.11 | Started | 2026-05-08 04:45 PM | | Stage and commit: "Phase 2: Repo registry and lesson harvester". |
+| 2.11 | Completed | 2026-05-08 04:45 PM | 2026-05-08 04:46 PM | Stage and commit: "Phase 2: Repo registry and lesson harvester". |
 
 ### Phase 2 Summary
 
@@ -98,16 +98,16 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 3.1 | Open | | | Implement `scripts/validate_lessons.py` — load generated JSON files from `src/content/generated/`. Output must use labeled severity: `ERROR`, `WARNING`, `INFO`. Exit code non-zero on any ERROR. |
-| 3.2 | Open | | | Implement hard-error checks per PDR §17.1: missing/invalid `data/repos.yml`, duplicate repo IDs, invalid repo ID format, missing required repo fields, empty lesson content, duplicate lesson IDs, invalid generated JSON, required generated files missing. |
-| 3.3 | Open | | | Implement warning checks per PDR §17.2: missing summary, tags, date, phase, lesson_type; unknown lesson_type; non-normalized tag casing; short content; title inferred from filename. |
-| 3.4 | Open | | | Wire `validate:lessons` script in `package.json` → `python scripts/validate_lessons.py`. |
-| 3.5 | Open | | | Verify: `npm run validate:lessons` passes on valid harvest output; inject a duplicate ID and confirm ERROR + non-zero exit; confirm warnings for missing summary/date/tags. |
-| 3.6 | Open | | | Stage and commit: "Phase 3: Lesson validation with error/warning severity". |
+| 3.1 | Completed | 2026-05-08 04:46 PM | 2026-05-08 04:47 PM | Implement `scripts/validate_lessons.py` — load generated JSON files from `src/content/generated/`. Output must use labeled severity: `ERROR`, `WARNING`, `INFO`. Exit code non-zero on any ERROR. |
+| 3.2 | Completed | 2026-05-08 04:46 PM | 2026-05-08 04:47 PM | Implement hard-error checks per PDR §17.1: missing/invalid `data/repos.yml`, duplicate repo IDs, invalid repo ID format, missing required repo fields, empty lesson content, duplicate lesson IDs, invalid generated JSON, required generated files missing. |
+| 3.3 | Completed | 2026-05-08 04:46 PM | 2026-05-08 04:47 PM | Implement warning checks per PDR §17.2: missing summary, tags, date, phase, lesson_type; unknown lesson_type; non-normalized tag casing; short content; title inferred from filename. |
+| 3.4 | Completed | 2026-05-08 04:46 PM | 2026-05-08 04:47 PM | Wire `validate:lessons` script in `package.json` → `python scripts/validate_lessons.py`. |
+| 3.5 | Completed | 2026-05-08 04:47 PM | 2026-05-08 04:47 PM | Verify: `npm run validate:lessons` passes on valid harvest output; inject a duplicate ID and confirm ERROR + non-zero exit; confirm warnings for missing summary/date/tags. |
+| 3.6 | Started | 2026-05-08 04:47 PM | | Stage and commit: "Phase 3: Lesson validation with error/warning severity". |
 
 ### Phase 3 Summary
 
-- **Changes:** TBD
+- **Changes:** Replaced stub `scripts/validate_lessons.py` with full implementation. Validates repos.yml structure, required generated files, lesson records (duplicate IDs, empty content, missing title as errors; missing summary/date/tags/phase/lesson_type, unknown controlled values, short content as warnings).
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 3: Lesson validation with error/warning severity`
 
