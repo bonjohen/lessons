@@ -1,0 +1,133 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = 'Lessons Hub' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/" class="site-title">Lessons Hub</a>
+        <ul>
+          <li><a href="/lessons/">Lessons</a></li>
+          <li><a href="/repos/">Repos</a></li>
+          <li><a href="/tags/">Tags</a></li>
+          <li><a href="/phases/">Phases</a></li>
+          <li><a href="/types/">Types</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>Lessons Hub &mdash; a lessons-learned library across projects.</p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: #fafafa;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  header {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .site-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: #1a1a1a;
+  }
+
+  nav ul {
+    display: flex;
+    list-style: none;
+    gap: 1.25rem;
+  }
+
+  nav a {
+    color: #2563eb;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    text-decoration: underline;
+  }
+
+  main {
+    min-height: 60vh;
+    padding-bottom: 2rem;
+  }
+
+  footer {
+    border-top: 1px solid #e0e0e0;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+    color: #666;
+    font-size: 0.875rem;
+  }
+
+  h1 { font-size: 2rem; margin-bottom: 1rem; }
+  h2 { font-size: 1.5rem; margin: 1.5rem 0 0.75rem; }
+  h3 { font-size: 1.25rem; margin: 1.25rem 0 0.5rem; }
+  p { margin-bottom: 0.75rem; }
+
+  a {
+    color: #2563eb;
+  }
+
+  code {
+    background: #f0f0f0;
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background: #f0f0f0;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+  }
+</style>

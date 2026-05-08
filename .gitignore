@@ -1,0 +1,14 @@
+# Astro
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Temp
+tmp/
+
+# Generated content (rebuilt by harvester)
+src/content/generated/*.json
+public/exports/*.json
+public/exports/*.md

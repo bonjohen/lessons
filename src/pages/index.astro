@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Lessons Hub">
+  <h1>Lessons Hub</h1>
+  <p>A searchable library of engineering lessons learned across projects. Browse by repository, tag, phase, or lesson type.</p>
+
+  <section>
+    <h2>At a Glance</h2>
+    <ul class="stats">
+      <li><strong>0</strong> Repos</li>
+      <li><strong>0</strong> Lessons</li>
+      <li><strong>0</strong> Tags</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Recent Lessons</h2>
+    <p><em>No lessons yet. Run the harvester to populate.</em></p>
+  </section>
+
+  <section>
+    <h2>Browse</h2>
+    <ul>
+      <li><a href="/lessons/">All Lessons</a></li>
+      <li><a href="/repos/">Repos</a></li>
+      <li><a href="/tags/">Tags</a></li>
+      <li><a href="/phases/">Phases</a></li>
+      <li><a href="/types/">Types</a></li>
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .stats {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    padding: 1rem 0;
+  }
+
+  .stats li {
+    font-size: 1.1rem;
+  }
+
+  .stats strong {
+    font-size: 1.5rem;
+    display: block;
+  }
+</style>
