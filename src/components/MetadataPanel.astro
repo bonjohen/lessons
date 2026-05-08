@@ -1,0 +1,87 @@
+---
+import type { Lesson } from '../lib/data';
+
+interface Props {
+  lesson: Lesson;
+}
+
+const { lesson } = Astro.props;
+---
+
+<aside class="metadata-panel">
+  <dl>
+    <dt>Repository</dt>
+    <dd><a href={`/repos/${lesson.repo_id}`}>{lesson.repo_name}</a></dd>
+
+    {lesson.date && (
+      <>
+        <dt>Date</dt>
+        <dd>{lesson.date}</dd>
+      </>
+    )}
+
+    {lesson.updated && (
+      <>
+        <dt>Updated</dt>
+        <dd>{lesson.updated}</dd>
+      </>
+    )}
+
+    {lesson.phase && (
+      <>
+        <dt>Phase</dt>
+        <dd><a href={`/phases/${lesson.phase}`}>{lesson.phase}</a></dd>
+      </>
+    )}
+
+    {lesson.lesson_type && (
+      <>
+        <dt>Type</dt>
+        <dd><a href={`/types/${lesson.lesson_type}`}>{lesson.lesson_type}</a></dd>
+      </>
+    )}
+
+    <dt>Status</dt>
+    <dd>{lesson.status}</dd>
+
+    <dt>Reading time</dt>
+    <dd>{lesson.reading_minutes} min ({lesson.word_count} words)</dd>
+
+    <dt>Source</dt>
+    <dd><a href={lesson.source_url}>View markdown</a></dd>
+
+    {lesson.project_url && (
+      <>
+        <dt>Project</dt>
+        <dd><a href={lesson.project_url}>Project page</a></dd>
+      </>
+    )}
+  </dl>
+</aside>
+
+<style>
+  .metadata-panel {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  dt {
+    font-weight: 600;
+    color: #555;
+  }
+
+  dd {
+    margin: 0;
+  }
+</style>

@@ -1,8 +1,92 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import LessonList from '../../components/LessonList.astro';
+import { getLessons, getRepos, getTags } from '../../lib/data';
+
+const lessons = getLessons();
+const repos = getRepos();
+const tags = getTags();
+
+const allTypes = [...new Set(lessons.map((l) => l.lesson_type).filter(Boolean))].sort();
+const allPhases = [...new Set(lessons.map((l) => l.phase).filter(Boolean))].sort();
+const allStatuses = [...new Set(lessons.map((l) => l.status))].sort();
 ---
 
 <BaseLayout title="All Lessons - Lessons Hub">
-  <h1>All Lessons</h1>
-  <p><em>No lessons yet. Run the harvester to populate.</em></p>
+  <h1>All Lessons ({lessons.length})</h1>
+
+  <div class="filters" id="filters">
+    <select id="filter-repo">
+      <option value="">All repos</option>
+      {repos.map((r) => <option value={r.id}>{r.name}</option>)}
+    </select>
+    <select id="filter-type">
+      <option value="">All types</option>
+      {allTypes.map((t) => <option value={t}>{t}</option>)}
+    </select>
+    <select id="filter-phase">
+      <option value="">All phases</option>
+      {allPhases.map((p) => <option value={p}>{p}</option>)}
+    </select>
+    <select id="filter-status">
+      <option value="">All statuses</option>
+      {allStatuses.map((s) => <option value={s}>{s}</option>)}
+    </select>
+  </div>
+
+  <div id="lesson-list">
+    <LessonList lessons={lessons} />
+  </div>
 </BaseLayout>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const cards = document.querySelectorAll<HTMLElement>(".lesson-card");
+
+    function getVal(id: string): string {
+      return (document.getElementById(id) as HTMLSelectElement)?.value ?? "";
+    }
+
+    function applyFilters() {
+      const repo = getVal("filter-repo");
+      const type = getVal("filter-type");
+      const phase = getVal("filter-phase");
+      const status = getVal("filter-status");
+
+      cards.forEach((card) => {
+        const r = card.dataset.repo ?? "";
+        const t = card.dataset.type ?? "";
+        const p = card.dataset.phase ?? "";
+        const s = card.dataset.status ?? "";
+
+        const show =
+          (!repo || r === repo) &&
+          (!type || t === type) &&
+          (!phase || p === phase) &&
+          (!status || s === status);
+
+        card.style.display = show ? "" : "none";
+      });
+    }
+
+    document.querySelectorAll("#filters select").forEach((sel) => {
+      sel.addEventListener("change", applyFilters);
+    });
+  });
+</script>
+
+<style>
+  .filters {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .filters select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+</style>

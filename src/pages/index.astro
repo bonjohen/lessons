@@ -1,23 +1,39 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import LessonCard from '../components/LessonCard.astro';
+import { getLessons, getRepos, getTags } from '../lib/data';
+
+const lessons = getLessons();
+const repos = getRepos();
+const tags = getTags();
+
+// Recent lessons: sorted by date desc, limit 10
+const recent = [...lessons]
+  .filter((l) => l.date)
+  .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+  .slice(0, 10);
 ---
 
 <BaseLayout title="Lessons Hub">
   <h1>Lessons Hub</h1>
-  <p>A searchable library of engineering lessons learned across projects. Browse by repository, tag, phase, or lesson type.</p>
+  <p>A searchable library of engineering lessons learned across projects.</p>
 
   <section>
     <h2>At a Glance</h2>
     <ul class="stats">
-      <li><strong>0</strong> Repos</li>
-      <li><strong>0</strong> Lessons</li>
-      <li><strong>0</strong> Tags</li>
+      <li><strong>{repos.length}</strong> Repos</li>
+      <li><strong>{lessons.length}</strong> Lessons</li>
+      <li><strong>{tags.length}</strong> Tags</li>
     </ul>
   </section>
 
   <section>
     <h2>Recent Lessons</h2>
-    <p><em>No lessons yet. Run the harvester to populate.</em></p>
+    {recent.length > 0 ? (
+      recent.map((lesson) => <LessonCard lesson={lesson} />)
+    ) : (
+      <p><em>No dated lessons yet.</em></p>
+    )}
   </section>
 
   <section>

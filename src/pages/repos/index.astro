@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RepoCard from '../../components/RepoCard.astro';
+import { getRepos } from '../../lib/data';
+
+const repos = getRepos();
+---
+
+<BaseLayout title="Repos - Lessons Hub">
+  <h1>Repos ({repos.length})</h1>
+  {repos.map((repo) => <RepoCard repo={repo} />)}
+</BaseLayout>

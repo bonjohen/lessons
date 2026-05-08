@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LessonList from '../../components/LessonList.astro';
+import TagList from '../../components/TagList.astro';
+import { getRepos, getLessons } from '../../lib/data';
+
+export function getStaticPaths() {
+  const repos = getRepos();
+  const lessons = getLessons();
+  return repos.map((repo) => ({
+    params: { repo: repo.id },
+    props: {
+      repo,
+      repoLessons: lessons.filter((l) => l.repo_id === repo.id),
+    },
+  }));
+}
+
+const { repo, repoLessons } = Astro.props;
+const phases = [...new Set(repoLessons.map((l) => l.phase).filter(Boolean))].sort();
+---
+
+<BaseLayout title={`${repo.name} - Lessons Hub`}>
+  <nav class="breadcrumb">
+    <a href="/repos/">Repos</a> &raquo; <span>{repo.name}</span>
+  </nav>
+
+  <h1>{repo.name}</h1>
+  <p>{repo.lesson_count} lesson{repo.lesson_count !== 1 ? 's' : ''}</p>
+  {repo.project_url && <p><a href={repo.project_url}>Project page</a></p>}
+
+  {repo.tags.length > 0 && (
+    <section>
+      <h2>Tags</h2>
+      <TagList tags={repo.tags} />
+    </section>
+  )}
+
+  {phases.length > 0 && (
+    <section>
+      <h2>Phases</h2>
+      <ul>
+        {phases.map((p) => <li><a href={`/phases/${p}`}>{p}</a></li>)}
+      </ul>
+    </section>
+  )}
+
+  <section>
+    <h2>Lessons</h2>
+    <LessonList lessons={repoLessons} />
+  </section>
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 1rem;
+  }
+</style>

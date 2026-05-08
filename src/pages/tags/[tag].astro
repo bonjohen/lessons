@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LessonList from '../../components/LessonList.astro';
+import { getTags, getLessons, getRepos } from '../../lib/data';
+
+export function getStaticPaths() {
+  const tags = getTags();
+  const lessons = getLessons();
+  const repos = getRepos();
+
+  return tags.map((t) => {
+    const tagLessons = lessons.filter((l) => l.tags.includes(t.tag));
+    const repoIds = [...new Set(tagLessons.map((l) => l.repo_id))];
+    const tagRepos = repos.filter((r) => repoIds.includes(r.id));
+    // Related tags: tags that co-occur with this tag
+    const relatedTags = [...new Set(tagLessons.flatMap((l) => l.tags).filter((tag) => tag !== t.tag))];
+
+    return {
+      params: { tag: t.tag },
+      props: { tag: t, tagLessons, tagRepos, relatedTags },
+    };
+  });
+}
+
+const { tag, tagLessons, tagRepos, relatedTags } = Astro.props;
+---
+
+<BaseLayout title={`${tag.tag} - Tags - Lessons Hub`}>
+  <nav class="breadcrumb">
+    <a href="/tags/">Tags</a> &raquo; <span>{tag.tag}</span>
+  </nav>
+
+  <h1>{tag.tag} ({tag.count} lesson{tag.count !== 1 ? 's' : ''})</h1>
+
+  {tagRepos.length > 0 && (
+    <p>Found in: {tagRepos.map((r, i) => (
+      <>{i > 0 && ', '}<a href={`/repos/${r.id}`}>{r.name}</a></>
+    ))}</p>
+  )}
+
+  {relatedTags.length > 0 && (
+    <section>
+      <h2>Related Tags</h2>
+      <div class="related-tags">
+        {relatedTags.slice(0, 15).map((t) => (
+          <a href={`/tags/${t}`} class="tag">{t}</a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section>
+    <h2>Lessons</h2>
+    <LessonList lessons={tagLessons} />
+  </section>
+</BaseLayout>
+
+<style>
+  .breadcrumb { font-size: 0.85rem; color: #777; margin-bottom: 1rem; }
+  .related-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tag {
+    background: #e8f0fe; color: #1a56db;
+    padding: 0.2em 0.6em; border-radius: 3px;
+    font-size: 0.8rem; text-decoration: none;
+  }
+  .tag:hover { background: #c5d9f7; }
+</style>

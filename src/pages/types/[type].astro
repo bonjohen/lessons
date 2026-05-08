@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LessonList from '../../components/LessonList.astro';
+import { getLessonTypes, getLessons } from '../../lib/data';
+
+export function getStaticPaths() {
+  const types = getLessonTypes();
+  const lessons = getLessons();
+  return types.map((t) => ({
+    params: { type: t.lesson_type },
+    props: { typeEntry: t, typeLessons: lessons.filter((l) => (l.lesson_type ?? 'unspecified') === t.lesson_type) },
+  }));
+}
+
+const { typeEntry, typeLessons } = Astro.props;
+---
+
+<BaseLayout title={`${typeEntry.lesson_type} - Types - Lessons Hub`}>
+  <nav class="breadcrumb">
+    <a href="/types/">Types</a> &raquo; <span>{typeEntry.lesson_type}</span>
+  </nav>
+  <h1>{typeEntry.lesson_type} ({typeEntry.count} lesson{typeEntry.count !== 1 ? 's' : ''})</h1>
+  <LessonList lessons={typeLessons} />
+</BaseLayout>
+
+<style>
+  .breadcrumb { font-size: 0.85rem; color: #777; margin-bottom: 1rem; }
+</style>

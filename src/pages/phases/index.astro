@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPhases } from '../../lib/data';
+
+const phases = getPhases();
+---
+
+<BaseLayout title="Phases - Lessons Hub">
+  <h1>Phases ({phases.length})</h1>
+  <ul class="group-list">
+    {phases.map((p) => (
+      <li>
+        <a href={`/phases/${p.phase}`}>{p.phase}</a>
+        <span class="count">({p.count})</span>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .group-list { list-style: none; }
+  .group-list li { padding: 0.4rem 0; font-size: 1rem; }
+  .count { color: #777; font-size: 0.85rem; }
+</style>

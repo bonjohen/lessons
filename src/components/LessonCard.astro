@@ -1,0 +1,95 @@
+---
+import type { Lesson } from '../lib/data';
+
+interface Props {
+  lesson: Lesson;
+}
+
+const { lesson } = Astro.props;
+---
+
+<article class="lesson-card" data-repo={lesson.repo_id} data-type={lesson.lesson_type ?? ''} data-phase={lesson.phase ?? ''} data-status={lesson.status}>
+  <h3><a href={`/lessons/${lesson.id}`}>{lesson.title}</a></h3>
+  {lesson.summary && <p class="summary">{lesson.summary}</p>}
+  <div class="meta">
+    <span class="repo"><a href={`/repos/${lesson.repo_id}`}>{lesson.repo_name}</a></span>
+    {lesson.date && <span class="date">{lesson.date}</span>}
+    {lesson.lesson_type && <span class="type">{lesson.lesson_type}</span>}
+    {lesson.status !== 'active' && <span class={`status status-${lesson.status}`}>{lesson.status}</span>}
+  </div>
+  {lesson.tags.length > 0 && (
+    <div class="tags">
+      {lesson.tags.map((tag) => (
+        <a href={`/tags/${tag}`} class="tag">{tag}</a>
+      ))}
+    </div>
+  )}
+</article>
+
+<style>
+  .lesson-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    background: #fff;
+  }
+
+  .lesson-card h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem;
+  }
+
+  .lesson-card h3 a {
+    text-decoration: none;
+    color: #1a1a1a;
+  }
+
+  .lesson-card h3 a:hover {
+    color: #2563eb;
+  }
+
+  .summary {
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #777;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: #e8f0fe;
+    color: #1a56db;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    text-decoration: none;
+  }
+
+  .tag:hover {
+    background: #c5d9f7;
+  }
+
+  .status {
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    font-size: 0.75rem;
+  }
+
+  .status-draft { background: #fef3c7; color: #92400e; }
+  .status-superseded { background: #fce7f3; color: #9d174d; }
+  .status-deprecated { background: #fee2e2; color: #991b1b; }
+</style>

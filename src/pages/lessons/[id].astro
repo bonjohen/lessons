@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MetadataPanel from '../../components/MetadataPanel.astro';
+import TagList from '../../components/TagList.astro';
+import { getLessons } from '../../lib/data';
+import { marked } from 'marked';
+
+export function getStaticPaths() {
+  const lessons = getLessons();
+  return lessons.map((lesson) => ({
+    params: { id: lesson.id },
+    props: { lesson },
+  }));
+}
+
+const { lesson } = Astro.props;
+const htmlContent = await marked(lesson.content);
+
+// Related lessons: share at least one tag
+const allLessons = getLessons();
+const related = allLessons
+  .filter((l) => l.id !== lesson.id && l.tags.some((t) => lesson.tags.includes(t)))
+  .slice(0, 5);
+---
+
+<BaseLayout title={`${lesson.title} - Lessons Hub`}>
+  <nav class="breadcrumb">
+    <a href="/lessons/">All Lessons</a> &raquo;
+    <a href={`/repos/${lesson.repo_id}`}>{lesson.repo_name}</a> &raquo;
+    <span>{lesson.title}</span>
+  </nav>
+
+  <h1>{lesson.title}</h1>
+  {lesson.summary && <p class="summary">{lesson.summary}</p>}
+
+  <MetadataPanel lesson={lesson} />
+
+  {lesson.tags.length > 0 && (
+    <section>
+      <h2>Tags</h2>
+      <TagList tags={lesson.tags} />
+    </section>
+  )}
+
+  <section class="lesson-content" data-pagefind-body>
+    <Fragment set:html={htmlContent} />
+  </section>
+
+  {(lesson.related_prs.length > 0 || lesson.related_issues.length > 0 || lesson.related_commits.length > 0) && (
+    <section>
+      <h2>Related References</h2>
+      {lesson.related_prs.length > 0 && (
+        <>
+          <h3>Pull Requests</h3>
+          <ul>{lesson.related_prs.map((pr) => <li>{pr}</li>)}</ul>
+        </>
+      )}
+      {lesson.related_issues.length > 0 && (
+        <>
+          <h3>Issues</h3>
+          <ul>{lesson.related_issues.map((i) => <li>{i}</li>)}</ul>
+        </>
+      )}
+      {lesson.related_commits.length > 0 && (
+        <>
+          <h3>Commits</h3>
+          <ul>{lesson.related_commits.map((c) => <li><code>{c}</code></li>)}</ul>
+        </>
+      )}
+    </section>
+  )}
+
+  {related.length > 0 && (
+    <section>
+      <h2>Related Lessons</h2>
+      <ul>
+        {related.map((r) => (
+          <li><a href={`/lessons/${r.id}`}>{r.title}</a> <span class="related-repo">({r.repo_name})</span></li>
+        ))}
+      </ul>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 1rem;
+  }
+
+  .summary {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: 1rem;
+  }
+
+  .lesson-content {
+    line-height: 1.7;
+    margin-top: 1.5rem;
+  }
+
+  .lesson-content :global(h1) { font-size: 1.6rem; }
+  .lesson-content :global(h2) { font-size: 1.3rem; }
+  .lesson-content :global(h3) { font-size: 1.1rem; }
+
+  .lesson-content :global(table) {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .lesson-content :global(th),
+  .lesson-content :global(td) {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+  }
+
+  .lesson-content :global(th) {
+    background: #f5f5f5;
+    font-weight: 600;
+  }
+
+  .lesson-content :global(blockquote) {
+    border-left: 3px solid #ccc;
+    padding-left: 1rem;
+    color: #555;
+    margin: 1rem 0;
+  }
+
+  .related-repo {
+    color: #777;
+    font-size: 0.85rem;
+  }
+</style>

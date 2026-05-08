@@ -1,0 +1,60 @@
+---
+import type { Repo } from '../lib/data';
+
+interface Props {
+  repo: Repo;
+}
+
+const { repo } = Astro.props;
+---
+
+<article class="repo-card">
+  <h3><a href={`/repos/${repo.id}`}>{repo.name}</a></h3>
+  <div class="meta">
+    <span>{repo.lesson_count} lesson{repo.lesson_count !== 1 ? 's' : ''}</span>
+    {repo.recent_date && <span>Latest: {repo.recent_date}</span>}
+    {repo.project_url && <a href={repo.project_url}>Project</a>}
+  </div>
+  {repo.tags.length > 0 && (
+    <div class="tags">
+      {repo.tags.slice(0, 8).map((tag) => (
+        <a href={`/tags/${tag}`} class="tag">{tag}</a>
+      ))}
+      {repo.tags.length > 8 && <span class="tag-more">+{repo.tags.length - 8} more</span>}
+    </div>
+  )}
+</article>
+
+<style>
+  .repo-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    background: #fff;
+  }
+
+  .repo-card h3 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+  .repo-card h3 a { text-decoration: none; color: #1a1a1a; }
+  .repo-card h3 a:hover { color: #2563eb; }
+
+  .meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #777;
+    margin-bottom: 0.5rem;
+  }
+
+  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .tag {
+    background: #e8f0fe;
+    color: #1a56db;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    text-decoration: none;
+  }
+  .tag:hover { background: #c5d9f7; }
+  .tag-more { font-size: 0.75rem; color: #777; }
+</style>

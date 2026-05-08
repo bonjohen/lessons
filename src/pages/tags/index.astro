@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getTags } from '../../lib/data';
+
+const tags = getTags();
+---
+
+<BaseLayout title="Tags - Lessons Hub">
+  <h1>Tags ({tags.length})</h1>
+  <div class="tag-grid">
+    {tags.map((t) => (
+      <a href={`/tags/${t.tag}`} class="tag-item">
+        <span class="tag-name">{t.tag}</span>
+        <span class="tag-count">{t.count}</span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #e8f0fe;
+    color: #1a56db;
+    padding: 0.3em 0.7em;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .tag-item:hover { background: #c5d9f7; }
+
+  .tag-count {
+    background: #1a56db;
+    color: white;
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    font-size: 0.75rem;
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import type { Lesson } from '../lib/data';
+import LessonCard from './LessonCard.astro';
+
+interface Props {
+  lessons: Lesson[];
+}
+
+const { lessons } = Astro.props;
+
+// Sort: date desc (nulls last), then repo name asc, then title asc
+const sorted = [...lessons].sort((a, b) => {
+  if (a.date && b.date) {
+    const cmp = b.date.localeCompare(a.date);
+    if (cmp !== 0) return cmp;
+  } else if (a.date && !b.date) return -1;
+  else if (!a.date && b.date) return 1;
+
+  const repoCmp = a.repo_name.localeCompare(b.repo_name);
+  if (repoCmp !== 0) return repoCmp;
+
+  return a.title.localeCompare(b.title);
+});
+---
+
+<div class="lesson-list">
+  {sorted.map((lesson) => (
+    <LessonCard lesson={lesson} />
+  ))}
+  {sorted.length === 0 && <p><em>No lessons found.</em></p>}
+</div>

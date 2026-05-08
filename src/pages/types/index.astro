@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLessonTypes } from '../../lib/data';
+
+const types = getLessonTypes();
+---
+
+<BaseLayout title="Lesson Types - Lessons Hub">
+  <h1>Lesson Types ({types.length})</h1>
+  <ul class="group-list">
+    {types.map((t) => (
+      <li>
+        <a href={`/types/${t.lesson_type}`}>{t.lesson_type}</a>
+        <span class="count">({t.count})</span>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .group-list { list-style: none; }
+  .group-list li { padding: 0.4rem 0; font-size: 1rem; }
+  .count { color: #777; font-size: 0.85rem; }
+</style>

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LessonList from '../../components/LessonList.astro';
+import { getPhases, getLessons } from '../../lib/data';
+
+export function getStaticPaths() {
+  const phases = getPhases();
+  const lessons = getLessons();
+  return phases.map((p) => ({
+    params: { phase: p.phase },
+    props: { phase: p, phaseLessons: lessons.filter((l) => (l.phase ?? 'unspecified') === p.phase) },
+  }));
+}
+
+const { phase, phaseLessons } = Astro.props;
+---
+
+<BaseLayout title={`${phase.phase} - Phases - Lessons Hub`}>
+  <nav class="breadcrumb">
+    <a href="/phases/">Phases</a> &raquo; <span>{phase.phase}</span>
+  </nav>
+  <h1>{phase.phase} ({phase.count} lesson{phase.count !== 1 ? 's' : ''})</h1>
+  <LessonList lessons={phaseLessons} />
+</BaseLayout>
+
+<style>
+  .breadcrumb { font-size: 0.85rem; color: #777; margin-bottom: 1rem; }
+</style>

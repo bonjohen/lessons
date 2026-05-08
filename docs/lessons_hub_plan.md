@@ -103,7 +103,7 @@ Open  ──>  Started  ──>  Completed
 | 3.3 | Completed | 2026-05-08 04:46 PM | 2026-05-08 04:47 PM | Implement warning checks per PDR §17.2: missing summary, tags, date, phase, lesson_type; unknown lesson_type; non-normalized tag casing; short content; title inferred from filename. |
 | 3.4 | Completed | 2026-05-08 04:46 PM | 2026-05-08 04:47 PM | Wire `validate:lessons` script in `package.json` → `python scripts/validate_lessons.py`. |
 | 3.5 | Completed | 2026-05-08 04:47 PM | 2026-05-08 04:47 PM | Verify: `npm run validate:lessons` passes on valid harvest output; inject a duplicate ID and confirm ERROR + non-zero exit; confirm warnings for missing summary/date/tags. |
-| 3.6 | Started | 2026-05-08 04:47 PM | | Stage and commit: "Phase 3: Lesson validation with error/warning severity". |
+| 3.6 | Completed | 2026-05-08 04:47 PM | 2026-05-08 04:48 PM | Stage and commit: "Phase 3: Lesson validation with error/warning severity". |
 
 ### Phase 3 Summary
 
@@ -120,26 +120,26 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 4.1 | Open | | | Create helper to load generated JSON in Astro — a shared TypeScript module (`src/lib/data.ts` or similar) that reads and types the generated JSON files. |
-| 4.2 | Open | | | Create `src/components/LessonCard.astro` — title, summary, repo name, date, tags, lesson_type, status badge. |
-| 4.3 | Open | | | Create `src/components/LessonList.astro` — sorted list of LessonCard components. Default sort: date desc → updated desc → repo name asc → title asc. Lessons without dates sort after dated lessons. |
-| 4.4 | Open | | | Create `src/components/RepoCard.astro` — repo name, lesson count, project link, recent lesson date, top tags. |
-| 4.5 | Open | | | Create `src/components/TagList.astro` — linked tag badges. |
-| 4.6 | Open | | | Create `src/components/MetadataPanel.astro` — repo, date, updated, phase, type, status, source markdown link, project link. |
-| 4.7 | Open | | | Update `src/pages/index.astro` — real repo/lesson/tag counts, recent lessons (date desc, limit 5-10), links to lessons/repos/tags/phases/types. |
-| 4.8 | Open | | | Update `src/pages/lessons/index.astro` — all lessons with LessonList, client-side filtering by repo/tag/phase/lesson_type/status. |
-| 4.9 | Open | | | Create `src/pages/lessons/[id].astro` — lesson detail: title, summary, MetadataPanel, rendered markdown body, related PRs/issues/commits, related lessons by shared tags, back links. Markdown rendering must support headings, paragraphs, lists, tables, links, code, blockquotes. |
-| 4.10 | Open | | | Create `src/pages/repos/index.astro` — all repos with RepoCard, lesson count, recent date, top tags, project links. |
-| 4.11 | Open | | | Create `src/pages/repos/[repo].astro` — repo detail: name, project URL, lesson count, lessons from this repo, tags used, phases represented. |
-| 4.12 | Open | | | Create `src/pages/tags/index.astro` and `src/pages/tags/[tag].astro` — tag list (count desc → name asc), lessons for selected tag, related tags, repos using tag. |
-| 4.13 | Open | | | Create `src/pages/phases/index.astro`, `src/pages/phases/[phase].astro`, `src/pages/types/index.astro`, `src/pages/types/[type].astro` — lessons grouped by phase and lesson type. |
-| 4.14 | Open | | | Create `src/components/SearchBox.astro` — placeholder for Pagefind UI (wired in Phase 5). |
-| 4.15 | Open | | | Verify: `npm run build` succeeds; each lesson has a detail page at `/lessons/{id}`; all repo/tag/phase/type pages render; lesson counts correct; source repo links work. |
-| 4.16 | Open | | | Stage and commit: "Phase 4: Static pages — lessons, repos, tags, phases, types". |
+| 4.1 | Completed | 2026-05-08 04:48 PM | 2026-05-08 04:49 PM | Create helper to load generated JSON in Astro — a shared TypeScript module (`src/lib/data.ts` or similar) that reads and types the generated JSON files. |
+| 4.2 | Completed | 2026-05-08 04:49 PM | 2026-05-08 04:49 PM | Create `src/components/LessonCard.astro` — title, summary, repo name, date, tags, lesson_type, status badge. |
+| 4.3 | Completed | 2026-05-08 04:49 PM | 2026-05-08 04:49 PM | Create `src/components/LessonList.astro` — sorted list of LessonCard components. Default sort: date desc → updated desc → repo name asc → title asc. Lessons without dates sort after dated lessons. |
+| 4.4 | Completed | 2026-05-08 04:49 PM | 2026-05-08 04:50 PM | Create `src/components/RepoCard.astro` — repo name, lesson count, project link, recent lesson date, top tags. |
+| 4.5 | Completed | 2026-05-08 04:50 PM | 2026-05-08 04:50 PM | Create `src/components/TagList.astro` — linked tag badges. |
+| 4.6 | Completed | 2026-05-08 04:50 PM | 2026-05-08 04:50 PM | Create `src/components/MetadataPanel.astro` — repo, date, updated, phase, type, status, source markdown link, project link. |
+| 4.7 | Completed | 2026-05-08 04:50 PM | 2026-05-08 04:50 PM | Update `src/pages/index.astro` — real repo/lesson/tag counts, recent lessons (date desc, limit 5-10), links to lessons/repos/tags/phases/types. |
+| 4.8 | Completed | 2026-05-08 04:50 PM | 2026-05-08 04:51 PM | Update `src/pages/lessons/index.astro` — all lessons with LessonList, client-side filtering by repo/tag/phase/lesson_type/status. |
+| 4.9 | Completed | 2026-05-08 04:51 PM | 2026-05-08 04:51 PM | Create `src/pages/lessons/[id].astro` — lesson detail: title, summary, MetadataPanel, rendered markdown body, related PRs/issues/commits, related lessons by shared tags, back links. Markdown rendering must support headings, paragraphs, lists, tables, links, code, blockquotes. |
+| 4.10 | Completed | 2026-05-08 04:51 PM | 2026-05-08 04:51 PM | Create `src/pages/repos/index.astro` — all repos with RepoCard, lesson count, recent date, top tags, project links. |
+| 4.11 | Completed | 2026-05-08 04:51 PM | 2026-05-08 04:51 PM | Create `src/pages/repos/[repo].astro` — repo detail: name, project URL, lesson count, lessons from this repo, tags used, phases represented. |
+| 4.12 | Completed | 2026-05-08 04:51 PM | 2026-05-08 04:52 PM | Create `src/pages/tags/index.astro` and `src/pages/tags/[tag].astro` — tag list (count desc → name asc), lessons for selected tag, related tags, repos using tag. |
+| 4.13 | Completed | 2026-05-08 04:52 PM | 2026-05-08 04:52 PM | Create `src/pages/phases/index.astro`, `src/pages/phases/[phase].astro`, `src/pages/types/index.astro`, `src/pages/types/[type].astro` — lessons grouped by phase and lesson type. |
+| 4.14 | Completed | 2026-05-08 04:52 PM | 2026-05-08 04:52 PM | Create `src/components/SearchBox.astro` — placeholder for Pagefind UI (wired in Phase 5). |
+| 4.15 | Completed | 2026-05-08 04:52 PM | 2026-05-08 04:52 PM | Verify: `npm run build` succeeds; each lesson has a detail page at `/lessons/{id}`; all repo/tag/phase/type pages render; lesson counts correct; source repo links work. |
+| 4.16 | Started | 2026-05-08 04:52 PM | | Stage and commit: "Phase 4: Static pages — lessons, repos, tags, phases, types". |
 
 ### Phase 4 Summary
 
-- **Changes:** TBD
+- **Changes:** Created `src/lib/data.ts` (typed JSON loader via imports), 6 components (LessonCard, LessonList, RepoCard, TagList, MetadataPanel, SearchBox placeholder), updated homepage with real stats and recent lessons, updated lessons index with client-side filtering, created lesson detail pages with markdown rendering (marked), repo index/detail pages, tag index/detail pages, phase index/detail pages, type index/detail pages. Installed `marked` for markdown rendering. Updated `tsconfig.json` for JSON module resolution. 100 pages built.
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 4: Static pages — lessons, repos, tags, phases, types`
 
