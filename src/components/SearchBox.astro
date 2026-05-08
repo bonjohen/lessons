@@ -1,7 +1,19 @@
 ---
-// Placeholder for Pagefind search UI — wired in Phase 5
+// Pagefind search UI
 ---
 
-<div id="search" class="search-box">
-  <p><em>Search will be available after Pagefind is integrated.</em></p>
-</div>
+<div id="search" class="search-box"></div>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script is:inline src="/pagefind/pagefind-ui.js"></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    new PagefindUI({ element: "#search", showSubResults: true });
+  });
+</script>
+
+<style>
+  .search-box {
+    margin-bottom: 1.5rem;
+  }
+</style>

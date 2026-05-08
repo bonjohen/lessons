@@ -135,7 +135,7 @@ Open  ──>  Started  ──>  Completed
 | 4.13 | Completed | 2026-05-08 04:52 PM | 2026-05-08 04:52 PM | Create `src/pages/phases/index.astro`, `src/pages/phases/[phase].astro`, `src/pages/types/index.astro`, `src/pages/types/[type].astro` — lessons grouped by phase and lesson type. |
 | 4.14 | Completed | 2026-05-08 04:52 PM | 2026-05-08 04:52 PM | Create `src/components/SearchBox.astro` — placeholder for Pagefind UI (wired in Phase 5). |
 | 4.15 | Completed | 2026-05-08 04:52 PM | 2026-05-08 04:52 PM | Verify: `npm run build` succeeds; each lesson has a detail page at `/lessons/{id}`; all repo/tag/phase/type pages render; lesson counts correct; source repo links work. |
-| 4.16 | Started | 2026-05-08 04:52 PM | | Stage and commit: "Phase 4: Static pages — lessons, repos, tags, phases, types". |
+| 4.16 | Completed | 2026-05-08 04:52 PM | 2026-05-08 04:53 PM | Stage and commit: "Phase 4: Static pages — lessons, repos, tags, phases, types". |
 
 ### Phase 4 Summary
 
@@ -152,16 +152,16 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 5.1 | Open | | | Install Pagefind: `npm install --save-dev pagefind`. |
-| 5.2 | Open | | | Add `package.json` script `index` → `npx pagefind --site dist`. Update `build:full` to chain: `harvest → validate:lessons → build → index`. |
-| 5.3 | Open | | | Wire `src/components/SearchBox.astro` to Pagefind UI — include Pagefind CSS/JS, add labeled search input. |
-| 5.4 | Open | | | Add Pagefind `data-pagefind-body` attributes to lesson detail pages so lesson titles and body text are indexed. |
-| 5.5 | Open | | | Verify: `npm run build:full` succeeds; search index generated in `dist/pagefind/`; search box on lessons page returns results for lesson titles and body keywords. |
-| 5.6 | Open | | | Stage and commit: "Phase 5: Pagefind static search". |
+| 5.1 | Completed | 2026-05-08 04:53 PM | 2026-05-08 04:53 PM | Install Pagefind: `npm install --save-dev pagefind`. |
+| 5.2 | Completed | 2026-05-08 04:53 PM | 2026-05-08 04:54 PM | Add `package.json` script `index` → `npx pagefind --site dist`. Update `build:full` to chain: `harvest → validate:lessons → build → index`. |
+| 5.3 | Completed | 2026-05-08 04:54 PM | 2026-05-08 04:54 PM | Wire `src/components/SearchBox.astro` to Pagefind UI — include Pagefind CSS/JS, add labeled search input. |
+| 5.4 | Completed | 2026-05-08 04:54 PM | 2026-05-08 04:54 PM | Add Pagefind `data-pagefind-body` attributes to lesson detail pages so lesson titles and body text are indexed. |
+| 5.5 | Completed | 2026-05-08 04:54 PM | 2026-05-08 04:55 PM | Verify: `npm run build:full` succeeds; search index generated in `dist/pagefind/`; search box on lessons page returns results for lesson titles and body keywords. |
+| 5.6 | Started | 2026-05-08 04:55 PM | | Stage and commit: "Phase 5: Pagefind static search". |
 
 ### Phase 5 Summary
 
-- **Changes:** TBD
+- **Changes:** Installed Pagefind as devDependency. Added `index` and updated `build:full` npm scripts. Wired SearchBox component to Pagefind UI (CSS/JS from `/pagefind/`). Lesson detail pages already had `data-pagefind-body`. Added SearchBox to lessons index page. Pagefind indexes 90 pages, 5091 words.
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 5: Pagefind static search`
 
