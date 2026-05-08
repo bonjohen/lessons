@@ -177,7 +177,7 @@ Open  ──>  Started  ──>  Completed
 | 6.1 | Completed | 2026-05-08 04:55 PM | 2026-05-08 04:56 PM | Verify or refine `scripts/build_exports.py`: `lessons-pack.json` contains full normalized records; `lessons-index.json` contains compact records (id, title, repo, summary, tags, url); `lessons-pack.md` has generated timestamp, lessons grouped by repo, title, source URL, tags, full content. |
 | 6.2 | Completed | 2026-05-08 04:55 PM | 2026-05-08 04:56 PM | Ensure export generation is integrated into `npm run harvest` or called separately — either way, `build:full` must produce all three export files in `public/exports/`. |
 | 6.3 | Completed | 2026-05-08 04:55 PM | 2026-05-08 04:56 PM | Verify: after `npm run build:full`, `dist/exports/lessons-pack.json`, `dist/exports/lessons-index.json`, `dist/exports/lessons-pack.md` all exist and are valid. Markdown export contains all lessons. JSON validates. |
-| 6.4 | Started | 2026-05-08 04:56 PM | | Stage and commit: "Phase 6: AI-readable export packs". |
+| 6.4 | Completed | 2026-05-08 04:56 PM | 2026-05-08 04:56 PM | Stage and commit: "Phase 6: AI-readable export packs". |
 
 ### Phase 6 Summary
 
@@ -194,15 +194,15 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 7.1 | Open | | | Create `.github/workflows/build-deploy.yml` — triggers: push to `main`, `workflow_dispatch`, daily `schedule` cron. |
-| 7.2 | Open | | | Workflow steps: checkout → setup Python 3.11+ → setup Node → `pip install -r requirements.txt` → `npm install` → `npm run harvest` (with optional `LESSONS_REPO_TOKEN` secret) → `npm run validate:lessons` → `npm run build` → `npm run index` → upload Pages artifact → deploy to GitHub Pages. |
-| 7.3 | Open | | | Configure GitHub Pages deployment action (`actions/deploy-pages@v4` or current). Set `permissions: pages: write, id-token: write` on the job. |
-| 7.4 | Open | | | Verify: workflow YAML is valid; review against PDR §23 requirements; confirm it works without `LESSONS_REPO_TOKEN` for public repos. |
-| 7.5 | Open | | | Stage and commit: "Phase 7: GitHub Actions build and Pages deployment". |
+| 7.1 | Completed | 2026-05-08 04:56 PM | 2026-05-08 04:57 PM | Create `.github/workflows/build-deploy.yml` — triggers: push to `main`, `workflow_dispatch`, daily `schedule` cron. |
+| 7.2 | Completed | 2026-05-08 04:56 PM | 2026-05-08 04:57 PM | Workflow steps: checkout → setup Python 3.11+ → setup Node → `pip install -r requirements.txt` → `npm install` → `npm run harvest` (with optional `LESSONS_REPO_TOKEN` secret) → `npm run validate:lessons` → `npm run build` → `npm run index` → upload Pages artifact → deploy to GitHub Pages. |
+| 7.3 | Completed | 2026-05-08 04:56 PM | 2026-05-08 04:57 PM | Configure GitHub Pages deployment action (`actions/deploy-pages@v4` or current). Set `permissions: pages: write, id-token: write` on the job. |
+| 7.4 | Completed | 2026-05-08 04:57 PM | 2026-05-08 04:57 PM | Verify: workflow YAML is valid; review against PDR §23 requirements; confirm it works without `LESSONS_REPO_TOKEN` for public repos. |
+| 7.5 | Started | 2026-05-08 04:57 PM | | Stage and commit: "Phase 7: GitHub Actions build and Pages deployment". |
 
 ### Phase 7 Summary
 
-- **Changes:** TBD
+- **Changes:** Created `.github/workflows/build-deploy.yml` with push/dispatch/daily cron triggers. Two-job workflow: build (checkout, Python 3.11, Node 20, install deps, harvest with optional token, validate, build, Pagefind index, upload artifact) and deploy (deploy-pages@v4). Permissions set for Pages + OIDC.
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 7: GitHub Actions build and Pages deployment`
 
