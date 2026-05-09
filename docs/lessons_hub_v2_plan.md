@@ -71,24 +71,24 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 2.1 | Open | | | Implement vector adapter interface: `backend/app/adapters/vector/base.py` — abstract class with `index_chunks(chunks, embeddings)`, `query(embedding, top_k, filters)`, `delete_collection()`. |
-| 2.2 | Open | | | Implement ChromaDB adapter: `backend/app/adapters/vector/chromadb_adapter.py` — persist to `data/chromadb/`, collection per corpus version. |
-| 2.3 | Open | | | Implement LLM adapter interface: `backend/app/adapters/llm/base.py` — abstract class with `embed(texts) -> list[list[float]]`, `chat(messages) -> str`. |
-| 2.4 | Open | | | Implement Ollama adapter: `backend/app/adapters/llm/ollama_adapter.py` — `nomic-embed-text` for embed, `llama3.2:3b` for chat. Handle connection errors gracefully. |
-| 2.5 | Open | | | Implement `scripts/embed_rag_corpus.py` — load `data/rag-chunks.json`, embed chunk texts via LLM adapter, index into ChromaDB via vector adapter. Idempotent (delete + re-index). |
-| 2.6 | Open | | | Implement `backend/app/rag/retriever.py` — query vector store with embedded query, return top-k chunks with similarity scores + lesson metadata. |
-| 2.7 | Open | | | Implement `backend/app/rag/prompt_builder.py` — build system prompt with retrieved lesson context, citation format instructions, grounding rules. |
-| 2.8 | Open | | | Implement `backend/app/rag/generator.py` — call LLM adapter with built prompt, parse response, extract lesson citations. |
-| 2.9 | Open | | | Implement `backend/app/api/retrieve.py` (`POST /api/retrieve`) and `backend/app/api/chat.py` (`POST /api/chat`) per PDR 12.1-12.2. Wire into main router. |
-| 2.10 | Open | | | Implement `src/components/ChatPanel.astro` — client-side JS `<script>` block, fetch to backend, loading/streaming indicator, lesson card display for cited lessons, "backend unavailable" fallback state. |
-| 2.11 | Open | | | Implement `src/pages/ask.astro` — "Ask the Lessons" page embedding ChatPanel. Add "Ask" link to nav in `src/layouts/BaseLayout.astro`. |
-| 2.12 | Open | | | Write tests: `backend/tests/test_retrieve.py` (mock vector adapter returns relevant chunks), `backend/tests/test_chat.py` (mock LLM adapter, response includes lesson links), `backend/tests/test_adapters.py` (ChromaDB adapter CRUD). Verify: all tests green, Astro builds. Stage and commit. |
+| 2.1 | Completed | 2026-05-09 02:38 PM (PST) | 2026-05-09 02:39 PM (PST) | Implement vector adapter interface: `backend/app/adapters/vector/base.py` — abstract class with `index_chunks(chunks, embeddings)`, `query(embedding, top_k, filters)`, `delete_collection()`. |
+| 2.2 | Completed | 2026-05-09 02:39 PM (PST) | 2026-05-09 02:40 PM (PST) | Implement ChromaDB adapter: `backend/app/adapters/vector/chromadb_adapter.py` — persist to `data/chromadb/`, collection per corpus version. |
+| 2.3 | Completed | 2026-05-09 02:39 PM (PST) | 2026-05-09 02:39 PM (PST) | Implement LLM adapter interface: `backend/app/adapters/llm/base.py` — abstract class with `embed(texts) -> list[list[float]]`, `chat(messages) -> str`. |
+| 2.4 | Completed | 2026-05-09 02:39 PM (PST) | 2026-05-09 02:40 PM (PST) | Implement Ollama adapter: `backend/app/adapters/llm/ollama_adapter.py` — `nomic-embed-text` for embed, `llama3.1:8b` for chat. Handle connection errors gracefully. |
+| 2.5 | Completed | 2026-05-09 02:40 PM (PST) | 2026-05-09 02:40 PM (PST) | Implement `scripts/embed_rag_corpus.py` — load `data/rag-chunks.json`, embed chunk texts via LLM adapter, index into ChromaDB via vector adapter. Idempotent (delete + re-index). |
+| 2.6 | Completed | 2026-05-09 02:40 PM (PST) | 2026-05-09 02:41 PM (PST) | Implement `backend/app/rag/retriever.py` — query vector store with embedded query, return top-k chunks with similarity scores + lesson metadata. |
+| 2.7 | Completed | 2026-05-09 02:41 PM (PST) | 2026-05-09 02:41 PM (PST) | Implement `backend/app/rag/prompt_builder.py` — build system prompt with retrieved lesson context, citation format instructions, grounding rules. |
+| 2.8 | Completed | 2026-05-09 02:41 PM (PST) | 2026-05-09 02:41 PM (PST) | Implement `backend/app/rag/generator.py` — call LLM adapter with built prompt, parse response, extract lesson citations. |
+| 2.9 | Completed | 2026-05-09 02:41 PM (PST) | 2026-05-09 02:42 PM (PST) | Implement `backend/app/api/retrieve.py` (`POST /api/retrieve`) and `backend/app/api/chat.py` (`POST /api/chat`) per PDR 12.1-12.2. Wire into main router. |
+| 2.10 | Completed | 2026-05-09 02:42 PM (PST) | 2026-05-09 02:42 PM (PST) | Implement `src/components/ChatPanel.astro` — client-side JS `<script>` block, fetch to backend, loading/streaming indicator, lesson card display for cited lessons, "backend unavailable" fallback state. |
+| 2.11 | Completed | 2026-05-09 02:42 PM (PST) | 2026-05-09 02:42 PM (PST) | Implement `src/pages/ask.astro` — "Ask the Lessons" page embedding ChatPanel. Add "Ask" link to nav in `src/layouts/BaseLayout.astro`. |
+| 2.12 | Completed | 2026-05-09 02:42 PM (PST) | 2026-05-09 02:43 PM (PST) | Write tests: `backend/tests/test_chat.py` (mock generator, response includes lesson links), `backend/tests/test_adapters.py` (ChromaDB adapter CRUD). Verify: all 92 tests green, 150 Astro pages build. Stage and commit. |
 
 ### Phase 2 Summary
 
-- **Changes:** TBD
+- **Changes:** Created vector adapter (base + ChromaDB), LLM adapter (base + Ollama), RAG pipeline (retriever, prompt builder, generator), API endpoints (chat, retrieve), dependency injection (_deps.py), embedding script, frontend ChatPanel component, Ask page. Added "Ask" to nav. 16 backend tests, 76 project tests all green.
 - **Changes hosted at:** TBD
-- **Commit:** `Phase 2: Vector index, retrieval, chat endpoint, and frontend chat panel`
+- **Commit:** `feat: Phase 2 — vector index, retrieval, chat endpoint, and frontend chat panel`
 
 ## Phase 3: Gap Detection
 
