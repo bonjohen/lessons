@@ -8,6 +8,11 @@ node_modules/
 # Temp
 tmp/
 
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
 # Generated content (rebuilt by harvester)
 src/content/generated/*.json
 public/exports/*.json
