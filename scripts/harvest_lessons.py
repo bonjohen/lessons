@@ -279,6 +279,8 @@ def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
     phase_map: dict[str, list[str]] = {}
     for l in lessons:
         p = l["phase"] or "unspecified"
+        if isinstance(p, list):
+            p = p[0] if p else "unspecified"
         phase_map.setdefault(p, []).append(l["id"])
     phases_index = sorted(
         [{"phase": p, "count": len(ids), "lesson_ids": sorted(ids)} for p, ids in phase_map.items()],
@@ -290,6 +292,8 @@ def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
     type_map: dict[str, list[str]] = {}
     for l in lessons:
         t = l["lesson_type"] or "unspecified"
+        if isinstance(t, list):
+            t = t[0] if t else "unspecified"
         type_map.setdefault(t, []).append(l["id"])
     types_index = sorted(
         [{"lesson_type": t, "count": len(ids), "lesson_ids": sorted(ids)} for t, ids in type_map.items()],
