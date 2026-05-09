@@ -198,7 +198,7 @@ Open  ──>  Started  ──>  Completed
 | 7.2 | Completed | 2026-05-08 04:56 PM | 2026-05-08 04:57 PM | Workflow steps: checkout → setup Python 3.11+ → setup Node → `pip install -r requirements.txt` → `npm install` → `npm run harvest` (with optional `LESSONS_REPO_TOKEN` secret) → `npm run validate:lessons` → `npm run build` → `npm run index` → upload Pages artifact → deploy to GitHub Pages. |
 | 7.3 | Completed | 2026-05-08 04:56 PM | 2026-05-08 04:57 PM | Configure GitHub Pages deployment action (`actions/deploy-pages@v4` or current). Set `permissions: pages: write, id-token: write` on the job. |
 | 7.4 | Completed | 2026-05-08 04:57 PM | 2026-05-08 04:57 PM | Verify: workflow YAML is valid; review against PDR §23 requirements; confirm it works without `LESSONS_REPO_TOKEN` for public repos. |
-| 7.5 | Started | 2026-05-08 04:57 PM | | Stage and commit: "Phase 7: GitHub Actions build and Pages deployment". |
+| 7.5 | Completed | 2026-05-08 04:57 PM | 2026-05-08 04:57 PM | Stage and commit: "Phase 7: GitHub Actions build and Pages deployment". |
 
 ### Phase 7 Summary
 
@@ -215,17 +215,17 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 8.1 | Open | | | Write full `README.md` per PDR §36: purpose, architecture summary, source repo contract, how to add a repo, how to write a lesson, local dev commands, build commands, deployment notes, export files, troubleshooting, V1 scope, non-goals, future ideas. |
-| 8.2 | Open | | | Create `docs/lesson-template.md` — complete lesson template with frontmatter fields, required/optional sections, tagging rules, example lesson. |
-| 8.3 | Open | | | Create `docs/lesson-schema.md` — all frontmatter fields, types, controlled vocabularies for `lesson_type` and `status`, ID/slug generation rules, tag normalization rules. |
-| 8.4 | Open | | | Create `docs/adding-a-repo.md` — step-by-step guide: edit `data/repos.yml`, required fields, run harvest to test, commit. |
-| 8.5 | Open | | | Create `docs/architecture.md` — data flow diagram (text), component map, script responsibilities, generated file inventory, build pipeline sequence. |
-| 8.6 | Open | | | Verify: all doc files exist and are accurate against the implemented system. |
-| 8.7 | Open | | | Stage and commit: "Phase 8: Documentation — README, lesson template, schema, architecture". |
+| 8.1 | Completed | 2026-05-08 04:58 PM | 2026-05-08 04:59 PM | Write full `README.md` per PDR §36: purpose, architecture summary, source repo contract, how to add a repo, how to write a lesson, local dev commands, build commands, deployment notes, export files, troubleshooting, V1 scope, non-goals, future ideas. |
+| 8.2 | Completed | 2026-05-08 04:59 PM | 2026-05-08 04:59 PM | Create `docs/lesson-template.md` — complete lesson template with frontmatter fields, required/optional sections, tagging rules, example lesson. |
+| 8.3 | Completed | 2026-05-08 04:59 PM | 2026-05-08 05:00 PM | Create `docs/lesson-schema.md` — all frontmatter fields, types, controlled vocabularies for `lesson_type` and `status`, ID/slug generation rules, tag normalization rules. |
+| 8.4 | Completed | 2026-05-08 05:00 PM | 2026-05-08 05:00 PM | Create `docs/adding-a-repo.md` — step-by-step guide: edit `data/repos.yml`, required fields, run harvest to test, commit. |
+| 8.5 | Completed | 2026-05-08 05:00 PM | 2026-05-08 05:00 PM | Create `docs/architecture.md` — data flow diagram (text), component map, script responsibilities, generated file inventory, build pipeline sequence. |
+| 8.6 | Completed | 2026-05-08 05:00 PM | 2026-05-08 05:00 PM | Verify: all doc files exist and are accurate against the implemented system. |
+| 8.7 | Started | 2026-05-08 05:00 PM | | Stage and commit: "Phase 8: Documentation — README, lesson template, schema, architecture". |
 
 ### Phase 8 Summary
 
-- **Changes:** TBD
+- **Changes:** Wrote full README.md (purpose, architecture, source contract, adding repos, local dev, commands, deployment, exports, validation, V1 scope, testing). Created docs/lesson-template.md, docs/lesson-schema.md, docs/adding-a-repo.md, docs/architecture.md.
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 8: Documentation — README, lesson template, schema, architecture`
 
