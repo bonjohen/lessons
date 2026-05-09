@@ -1,3 +1,4 @@
 PyYAML
 python-frontmatter
 python-slugify
+pytest

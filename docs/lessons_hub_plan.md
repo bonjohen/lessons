@@ -221,7 +221,7 @@ Open  ──>  Started  ──>  Completed
 | 8.4 | Completed | 2026-05-08 05:00 PM | 2026-05-08 05:00 PM | Create `docs/adding-a-repo.md` — step-by-step guide: edit `data/repos.yml`, required fields, run harvest to test, commit. |
 | 8.5 | Completed | 2026-05-08 05:00 PM | 2026-05-08 05:00 PM | Create `docs/architecture.md` — data flow diagram (text), component map, script responsibilities, generated file inventory, build pipeline sequence. |
 | 8.6 | Completed | 2026-05-08 05:00 PM | 2026-05-08 05:00 PM | Verify: all doc files exist and are accurate against the implemented system. |
-| 8.7 | Started | 2026-05-08 05:00 PM | | Stage and commit: "Phase 8: Documentation — README, lesson template, schema, architecture". |
+| 8.7 | Completed | 2026-05-08 05:00 PM | 2026-05-08 05:01 PM | Stage and commit: "Phase 8: Documentation — README, lesson template, schema, architecture". |
 
 ### Phase 8 Summary
 
@@ -238,17 +238,17 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 9.1 | Open | | | Add `pytest` to `requirements.txt`. |
-| 9.2 | Open | | | Create `tests/test_repo_config.py` — valid config, duplicate repo ID, missing required field, invalid ID format. |
-| 9.3 | Open | | | Create `tests/test_lesson_parsing.py` — valid frontmatter, missing title inferred from H1, missing title inferred from filename, empty content error. |
-| 9.4 | Open | | | Create `tests/test_slug_generation.py` — explicit slug, filename-based slug, title-based slug, kebab-case normalization, duplicate ID detection. |
-| 9.5 | Open | | | Create `tests/test_validation.py` — valid lessons pass, duplicate ID errors, missing summary/date/tags warn, unknown lesson_type warns. |
-| 9.6 | Open | | | Verify: `pytest` passes all tests. |
-| 9.7 | Open | | | Stage and commit: "Phase 9: Python test suite for harvester and validation". |
+| 9.1 | Completed | 2026-05-08 05:01 PM | 2026-05-08 05:01 PM | Add `pytest` to `requirements.txt`. |
+| 9.2 | Completed | 2026-05-08 05:01 PM | 2026-05-08 05:02 PM | Create `tests/test_repo_config.py` — valid config, duplicate repo ID, missing required field, invalid ID format. |
+| 9.3 | Completed | 2026-05-08 05:02 PM | 2026-05-08 05:02 PM | Create `tests/test_lesson_parsing.py` — valid frontmatter, missing title inferred from H1, missing title inferred from filename, empty content error. |
+| 9.4 | Completed | 2026-05-08 05:02 PM | 2026-05-08 05:03 PM | Create `tests/test_slug_generation.py` — explicit slug, filename-based slug, title-based slug, kebab-case normalization, duplicate ID detection. |
+| 9.5 | Completed | 2026-05-08 05:02 PM | 2026-05-08 05:03 PM | Create `tests/test_validation.py` — valid lessons pass, duplicate ID errors, missing summary/date/tags warn, unknown lesson_type warns. |
+| 9.6 | Completed | 2026-05-08 05:03 PM | 2026-05-08 05:03 PM | Verify: `pytest` passes all tests. |
+| 9.7 | Started | 2026-05-08 05:03 PM | | Stage and commit: "Phase 9: Python test suite for harvester and validation". |
 
 ### Phase 9 Summary
 
-- **Changes:** TBD
+- **Changes:** Added pytest to requirements.txt. Created 4 test files (28 tests total): test_repo_config.py (6 tests), test_lesson_parsing.py (6 tests), test_slug_generation.py (7 tests), test_validation.py (9 tests). All pass.
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 9: Python test suite for harvester and validation`
 
