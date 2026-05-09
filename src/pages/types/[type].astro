@@ -22,7 +22,3 @@ const { typeEntry, typeLessons } = Astro.props;
   <h1>{typeEntry.lesson_type} ({typeEntry.count} lesson{typeEntry.count !== 1 ? 's' : ''})</h1>
   <LessonList lessons={typeLessons} />
 </BaseLayout>
-
-<style>
-  .breadcrumb { font-size: 0.85rem; color: #777; margin-bottom: 1rem; }
-</style>

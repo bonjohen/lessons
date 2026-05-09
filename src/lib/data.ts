@@ -1,8 +1,12 @@
-// @ts-nocheck — JSON imports are untyped; we cast them below
+// @ts-expect-error — JSON imports lack type declarations
 import lessonsData from "../content/generated/lessons.json";
+// @ts-expect-error — JSON imports lack type declarations
 import reposData from "../content/generated/repos.json";
+// @ts-expect-error — JSON imports lack type declarations
 import tagsData from "../content/generated/tags.json";
+// @ts-expect-error — JSON imports lack type declarations
 import phasesData from "../content/generated/phases.json";
+// @ts-expect-error — JSON imports lack type declarations
 import lessonTypesData from "../content/generated/lesson_types.json";
 
 export interface Lesson {

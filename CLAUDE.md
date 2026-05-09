@@ -34,7 +34,6 @@ npm run dev                  # Astro dev server
 ```bash
 python scripts/harvest_lessons.py    # Harvest lessons from repos in data/repos.yml
 python scripts/validate_lessons.py   # Validate generated lesson data
-python scripts/build_exports.py      # Generate AI export packs
 ```
 
 ## Testing

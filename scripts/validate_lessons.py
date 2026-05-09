@@ -27,19 +27,19 @@ info_count = 0
 def log_error(msg: str) -> None:
     global error_count
     error_count += 1
-    print(f"  ERROR: {msg}")
+    print(f"  ERROR: {msg}", file=sys.stderr)
 
 
 def log_warning(msg: str) -> None:
     global warning_count
     warning_count += 1
-    print(f"  WARNING: {msg}")
+    print(f"  WARNING: {msg}", file=sys.stderr)
 
 
 def log_info(msg: str) -> None:
     global info_count
     info_count += 1
-    print(f"  INFO: {msg}")
+    print(f"  INFO: {msg}", file=sys.stderr)
 
 
 def load_json(filename: str) -> list | None:
