@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LessonList from '../../components/LessonList.astro';
 import { getTags, getLessons, getRepos } from '../../lib/data';
+import { url } from '../../lib/url';
 
 export function getStaticPaths() {
   const tags = getTags();
@@ -27,14 +28,14 @@ const { tag, tagLessons, tagRepos, relatedTags } = Astro.props;
 
 <BaseLayout title={`${tag.tag} - Tags - Lessons Hub`}>
   <nav class="breadcrumb">
-    <a href="/tags/">Tags</a> &raquo; <span>{tag.tag}</span>
+    <a href={url('/tags/')}>Tags</a> &raquo; <span>{tag.tag}</span>
   </nav>
 
   <h1>{tag.tag} ({tag.count} lesson{tag.count !== 1 ? 's' : ''})</h1>
 
   {tagRepos.length > 0 && (
     <p>Found in: {tagRepos.map((r, i) => (
-      <>{i > 0 && ', '}<a href={`/repos/${r.id}`}>{r.name}</a></>
+      <>{i > 0 && ', '}<a href={url(`/repos/${r.id}`)}>{r.name}</a></>
     ))}</p>
   )}
 
@@ -43,7 +44,7 @@ const { tag, tagLessons, tagRepos, relatedTags } = Astro.props;
       <h2>Related Tags</h2>
       <div class="related-tags">
         {relatedTags.slice(0, 15).map((t) => (
-          <a href={`/tags/${t}`} class="tag">{t}</a>
+          <a href={url(`/tags/${t}`)} class="tag">{t}</a>
         ))}
       </div>
     </section>

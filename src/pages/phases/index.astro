@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPhases } from '../../lib/data';
+import { url } from '../../lib/url';
 
 const phases = getPhases();
 ---
@@ -10,7 +11,7 @@ const phases = getPhases();
   <ul class="group-list">
     {phases.map((p) => (
       <li>
-        <a href={`/phases/${p.phase}`}>{p.phase}</a>
+        <a href={url(`/phases/${p.phase}`)}>{p.phase}</a>
         <span class="count">({p.count})</span>
       </li>
     ))}

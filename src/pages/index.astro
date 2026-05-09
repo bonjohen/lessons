@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LessonCard from '../components/LessonCard.astro';
 import { getLessons, getRepos, getTags } from '../lib/data';
+import { url } from '../lib/url';
 
 const lessons = getLessons();
 const repos = getRepos();
@@ -39,11 +40,11 @@ const recent = [...lessons]
   <section>
     <h2>Browse</h2>
     <ul>
-      <li><a href="/lessons/">All Lessons</a></li>
-      <li><a href="/repos/">Repos</a></li>
-      <li><a href="/tags/">Tags</a></li>
-      <li><a href="/phases/">Phases</a></li>
-      <li><a href="/types/">Types</a></li>
+      <li><a href={url('/lessons/')}>All Lessons</a></li>
+      <li><a href={url('/repos/')}>Repos</a></li>
+      <li><a href={url('/tags/')}>Tags</a></li>
+      <li><a href={url('/phases/')}>Phases</a></li>
+      <li><a href={url('/types/')}>Types</a></li>
     </ul>
   </section>
 </BaseLayout>

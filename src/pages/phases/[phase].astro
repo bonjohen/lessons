@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LessonList from '../../components/LessonList.astro';
 import { getPhases, getLessons } from '../../lib/data';
+import { url } from '../../lib/url';
 
 export function getStaticPaths() {
   const phases = getPhases();
@@ -17,7 +18,7 @@ const { phase, phaseLessons } = Astro.props;
 
 <BaseLayout title={`${phase.phase} - Phases - Lessons Hub`}>
   <nav class="breadcrumb">
-    <a href="/phases/">Phases</a> &raquo; <span>{phase.phase}</span>
+    <a href={url('/phases/')}>Phases</a> &raquo; <span>{phase.phase}</span>
   </nav>
   <h1>{phase.phase} ({phase.count} lesson{phase.count !== 1 ? 's' : ''})</h1>
   <LessonList lessons={phaseLessons} />

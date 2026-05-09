@@ -1,5 +1,6 @@
 ---
 import type { Lesson } from '../lib/data';
+import { url } from '../lib/url';
 
 interface Props {
   lesson: Lesson;
@@ -9,10 +10,10 @@ const { lesson } = Astro.props;
 ---
 
 <article class="lesson-card" data-repo={lesson.repo_id} data-type={lesson.lesson_type ?? ''} data-phase={lesson.phase ?? ''} data-status={lesson.status}>
-  <h3><a href={`/lessons/${lesson.id}`}>{lesson.title}</a></h3>
+  <h3><a href={url(`/lessons/${lesson.id}`)}>{lesson.title}</a></h3>
   {lesson.summary && <p class="summary">{lesson.summary}</p>}
   <div class="meta">
-    <span class="repo"><a href={`/repos/${lesson.repo_id}`}>{lesson.repo_name}</a></span>
+    <span class="repo"><a href={url(`/repos/${lesson.repo_id}`)}>{lesson.repo_name}</a></span>
     {lesson.date && <span class="date">{lesson.date}</span>}
     {lesson.lesson_type && <span class="type">{lesson.lesson_type}</span>}
     {lesson.status !== 'active' && <span class={`status status-${lesson.status}`}>{lesson.status}</span>}
@@ -20,7 +21,7 @@ const { lesson } = Astro.props;
   {lesson.tags.length > 0 && (
     <div class="tags">
       {lesson.tags.map((tag) => (
-        <a href={`/tags/${tag}`} class="tag">{tag}</a>
+        <a href={url(`/tags/${tag}`)} class="tag">{tag}</a>
       ))}
     </div>
   )}

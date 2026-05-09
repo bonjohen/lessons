@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getLessonTypes } from '../../lib/data';
+import { url } from '../../lib/url';
 
 const types = getLessonTypes();
 ---
@@ -10,7 +11,7 @@ const types = getLessonTypes();
   <ul class="group-list">
     {types.map((t) => (
       <li>
-        <a href={`/types/${t.lesson_type}`}>{t.lesson_type}</a>
+        <a href={url(`/types/${t.lesson_type}`)}>{t.lesson_type}</a>
         <span class="count">({t.count})</span>
       </li>
     ))}

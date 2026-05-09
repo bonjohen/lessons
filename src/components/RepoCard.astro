@@ -1,5 +1,6 @@
 ---
 import type { Repo } from '../lib/data';
+import { url } from '../lib/url';
 
 interface Props {
   repo: Repo;
@@ -9,7 +10,7 @@ const { repo } = Astro.props;
 ---
 
 <article class="repo-card">
-  <h3><a href={`/repos/${repo.id}`}>{repo.name}</a></h3>
+  <h3><a href={url(`/repos/${repo.id}`)}>{repo.name}</a></h3>
   <div class="meta">
     <span>{repo.lesson_count} lesson{repo.lesson_count !== 1 ? 's' : ''}</span>
     {repo.recent_date && <span>Latest: {repo.recent_date}</span>}
@@ -18,7 +19,7 @@ const { repo } = Astro.props;
   {repo.tags.length > 0 && (
     <div class="tags">
       {repo.tags.slice(0, 8).map((tag) => (
-        <a href={`/tags/${tag}`} class="tag">{tag}</a>
+        <a href={url(`/tags/${tag}`)} class="tag">{tag}</a>
       ))}
       {repo.tags.length > 8 && <span class="tag-more">+{repo.tags.length - 8} more</span>}
     </div>

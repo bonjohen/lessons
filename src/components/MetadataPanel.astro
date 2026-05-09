@@ -1,5 +1,6 @@
 ---
 import type { Lesson } from '../lib/data';
+import { url } from '../lib/url';
 
 interface Props {
   lesson: Lesson;
@@ -11,7 +12,7 @@ const { lesson } = Astro.props;
 <aside class="metadata-panel">
   <dl>
     <dt>Repository</dt>
-    <dd><a href={`/repos/${lesson.repo_id}`}>{lesson.repo_name}</a></dd>
+    <dd><a href={url(`/repos/${lesson.repo_id}`)}>{lesson.repo_name}</a></dd>
 
     {lesson.date && (
       <>
@@ -30,14 +31,14 @@ const { lesson } = Astro.props;
     {lesson.phase && (
       <>
         <dt>Phase</dt>
-        <dd><a href={`/phases/${lesson.phase}`}>{lesson.phase}</a></dd>
+        <dd><a href={url(`/phases/${lesson.phase}`)}>{lesson.phase}</a></dd>
       </>
     )}
 
     {lesson.lesson_type && (
       <>
         <dt>Type</dt>
-        <dd><a href={`/types/${lesson.lesson_type}`}>{lesson.lesson_type}</a></dd>
+        <dd><a href={url(`/types/${lesson.lesson_type}`)}>{lesson.lesson_type}</a></dd>
       </>
     )}
 

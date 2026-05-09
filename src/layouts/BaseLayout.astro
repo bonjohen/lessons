@@ -1,4 +1,6 @@
 ---
+import { url } from '../lib/url';
+
 interface Props {
   title?: string;
 }
@@ -16,13 +18,13 @@ const { title = 'Lessons Hub' } = Astro.props;
   <body>
     <header>
       <nav>
-        <a href="/" class="site-title">Lessons Hub</a>
+        <a href={url('/')} class="site-title">Lessons Hub</a>
         <ul>
-          <li><a href="/lessons/">Lessons</a></li>
-          <li><a href="/repos/">Repos</a></li>
-          <li><a href="/tags/">Tags</a></li>
-          <li><a href="/phases/">Phases</a></li>
-          <li><a href="/types/">Types</a></li>
+          <li><a href={url('/lessons/')}>Lessons</a></li>
+          <li><a href={url('/repos/')}>Repos</a></li>
+          <li><a href={url('/tags/')}>Tags</a></li>
+          <li><a href={url('/phases/')}>Phases</a></li>
+          <li><a href={url('/types/')}>Types</a></li>
         </ul>
       </nav>
     </header>

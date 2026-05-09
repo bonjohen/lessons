@@ -1,11 +1,11 @@
 ---
-// Pagefind search UI
+import { url } from '../lib/url';
 ---
 
 <div id="search" class="search-box"></div>
 
-<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-<script is:inline src="/pagefind/pagefind-ui.js"></script>
+<link href={url('/pagefind/pagefind-ui.css')} rel="stylesheet" />
+<script is:inline src={url('/pagefind/pagefind-ui.js')}></script>
 <script is:inline>
   window.addEventListener('DOMContentLoaded', () => {
     new PagefindUI({ element: "#search", showSubResults: true });

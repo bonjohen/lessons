@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import MetadataPanel from '../../components/MetadataPanel.astro';
 import TagList from '../../components/TagList.astro';
 import { getLessons } from '../../lib/data';
+import { url } from '../../lib/url';
 import { marked } from 'marked';
 import sanitizeHtml from 'sanitize-html';
 
@@ -35,8 +36,8 @@ const related = allLessons
 
 <BaseLayout title={`${lesson.title} - Lessons Hub`}>
   <nav class="breadcrumb">
-    <a href="/lessons/">All Lessons</a> &raquo;
-    <a href={`/repos/${lesson.repo_id}`}>{lesson.repo_name}</a> &raquo;
+    <a href={url('/lessons/')}>All Lessons</a> &raquo;
+    <a href={url(`/repos/${lesson.repo_id}`)}>{lesson.repo_name}</a> &raquo;
     <span>{lesson.title}</span>
   </nav>
 
@@ -85,7 +86,7 @@ const related = allLessons
       <h2>Related Lessons</h2>
       <ul>
         {related.map((r) => (
-          <li><a href={`/lessons/${r.id}`}>{r.title}</a> <span class="related-repo">({r.repo_name})</span></li>
+          <li><a href={url(`/lessons/${r.id}`)}>{r.title}</a> <span class="related-repo">({r.repo_name})</span></li>
         ))}
       </ul>
     </section>
