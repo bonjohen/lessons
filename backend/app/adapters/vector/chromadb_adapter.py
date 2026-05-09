@@ -87,17 +87,19 @@ class ChromaDBAdapter(VectorAdapter):
                 metadata = results["metadatas"][0][i] if results["metadatas"] else {}
                 document = results["documents"][0][i] if results["documents"] else ""
 
-                items.append({
-                    "chunk_id": chunk_id,
-                    "chunk_text": document,
-                    "similarity_score": round(similarity, 4),
-                    "lesson_id": metadata.get("lesson_id", ""),
-                    "title": metadata.get("title", ""),
-                    "heading_path": metadata.get("heading_path", ""),
-                    "tags": metadata.get("tags", "").split(",") if metadata.get("tags") else [],
-                    "lesson_url": metadata.get("lesson_url", ""),
-                    "repo_id": metadata.get("repo_id", ""),
-                })
+                items.append(
+                    {
+                        "chunk_id": chunk_id,
+                        "chunk_text": document,
+                        "similarity_score": round(similarity, 4),
+                        "lesson_id": metadata.get("lesson_id", ""),
+                        "title": metadata.get("title", ""),
+                        "heading_path": metadata.get("heading_path", ""),
+                        "tags": metadata.get("tags", "").split(",") if metadata.get("tags") else [],
+                        "lesson_url": metadata.get("lesson_url", ""),
+                        "repo_id": metadata.get("repo_id", ""),
+                    }
+                )
 
         return items
 

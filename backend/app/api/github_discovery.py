@@ -3,10 +3,10 @@
 from fastapi import APIRouter, HTTPException
 
 from app.api._deps import get_gap_store
-from app.discovery.github_search import GitHubSearcher
 from app.discovery.candidate_scorer import score_candidate
-from app.discovery.repo_intake import clone_or_pull, save_candidate_repo, build_candidate_record
+from app.discovery.github_search import GitHubSearcher
 from app.discovery.lesson_extractor import detect_extractable_content, generate_candidate_lesson
+from app.discovery.repo_intake import build_candidate_record, clone_or_pull, save_candidate_repo
 from app.discovery.todo_writer import create_todo
 
 router = APIRouter()
@@ -36,11 +36,13 @@ async def search_github(
     candidates = []
     for repo in results:
         score, reasons = score_candidate(repo, gap)
-        candidates.append({
-            **repo,
-            "score": score,
-            "score_reasons": reasons,
-        })
+        candidates.append(
+            {
+                **repo,
+                "score": score,
+                "score_reasons": reasons,
+            }
+        )
 
     # Sort by score descending
     candidates.sort(key=lambda c: c["score"], reverse=True)

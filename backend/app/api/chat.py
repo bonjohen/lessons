@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
+from app.api._deps import get_gap_store, get_generator
 from app.models.schemas import ChatRequest, ChatResponse, RelevantLesson
-from app.api._deps import get_generator, get_gap_store
 from app.rag.gap_detector import detect_gap
 
 router = APIRouter()

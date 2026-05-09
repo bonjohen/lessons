@@ -9,7 +9,15 @@ from pathlib import Path
 DEFAULT_GAPS_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "gaps" / "corpus-gaps.json"
 
 # Valid status transitions
-VALID_STATUSES = {"open", "searching", "candidates_found", "lessons_staged", "owner_coordination_needed", "resolved", "closed_no_action"}
+VALID_STATUSES = {
+    "open",
+    "searching",
+    "candidates_found",
+    "lessons_staged",
+    "owner_coordination_needed",
+    "resolved",
+    "closed_no_action",
+}
 
 
 class GapStore:

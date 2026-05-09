@@ -91,12 +91,12 @@ def generate_candidate_lesson(
     phase: discovery
     lesson_type: other
     status: candidate_external
-    tags: [{', '.join(gap.get('missing_concepts', [])[:5])}]
+    tags: [{", ".join(gap.get("missing_concepts", [])[:5])}]
     source_project: "{owner}/{repo_name}"
     source_project_url: "{github_url}"
     source_owner: "{owner}"
     source_repo: "{repo_name}"
-    source_license: "{candidate.get('license', 'unknown')}"
+    source_license: "{candidate.get("license", "unknown")}"
     harvested_date: {today}
     review_status: needs_review
     coordination_status: owner_not_contacted
@@ -117,9 +117,9 @@ def generate_candidate_lesson(
     ## Source Project
 
     - **Repository:** [{owner}/{repo_name}]({github_url})
-    - **Language:** {candidate.get('primary_language', 'Unknown')}
-    - **Stars:** {candidate.get('stars', 0)}
-    - **License:** {candidate.get('license', 'Unknown')}
+    - **Language:** {candidate.get("primary_language", "Unknown")}
+    - **Stars:** {candidate.get("stars", 0)}
+    - **License:** {candidate.get("license", "Unknown")}
 
     ## Lesson
 
@@ -131,7 +131,7 @@ def generate_candidate_lesson(
 
     ## Evidence From Project
 
-    {chr(10).join(evidence_parts) if evidence_parts else 'No specific evidence files detected.'}
+    {chr(10).join(evidence_parts) if evidence_parts else "No specific evidence files detected."}
 
     ## Why This May Belong in Lessons Hub
 
@@ -142,7 +142,9 @@ def generate_candidate_lesson(
     """)
 
     attribution = ATTRIBUTION_TEMPLATE.format(
-        owner=owner, repo_name=repo_name, github_url=github_url,
+        owner=owner,
+        repo_name=repo_name,
+        github_url=github_url,
     )
 
     review_notes = dedent("""\

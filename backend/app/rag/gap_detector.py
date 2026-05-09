@@ -40,8 +40,17 @@ GAP_TYPES = {
 
 # Keywords suggesting platform-specific queries
 PLATFORM_KEYWORDS = [
-    "aws", "azure", "gcp", "docker", "kubernetes", "terraform",
-    "heroku", "vercel", "netlify", "cloudflare", "digitalocean",
+    "aws",
+    "azure",
+    "gcp",
+    "docker",
+    "kubernetes",
+    "terraform",
+    "heroku",
+    "vercel",
+    "netlify",
+    "cloudflare",
+    "digitalocean",
 ]
 
 
@@ -128,7 +137,10 @@ def detect_gap(
         "trigger_query": query,
         "normalized_topic": topic,
         "missing_concepts": _extract_concepts(query),
-        "retrieval_summary": f"{len(chunks)} chunks retrieved, {len(distinct_lessons)} distinct lessons, max score {max(scores) if scores else 0:.2f}",
+        "retrieval_summary": (
+            f"{len(chunks)} chunks retrieved, {len(distinct_lessons)} distinct lessons, "
+            f"max score {max(scores) if scores else 0:.2f}"
+        ),
         "best_matching_lessons": list(distinct_lessons)[:5],
         "confidence_score": max(scores) if scores else 0.0,
         "suggested_github_queries": _suggest_github_queries(query, topic),
@@ -173,10 +185,47 @@ def _normalize_topic(query: str) -> str:
 
 def _extract_concepts(query: str) -> list[str]:
     """Extract key concepts from the query."""
-    stop_words = {"i", "my", "me", "the", "a", "an", "is", "are", "was", "were", "do", "does",
-                  "have", "has", "had", "what", "how", "why", "when", "where", "about", "any",
-                  "lessons", "lesson", "material", "content", "documentation", "in", "on", "for",
-                  "to", "of", "and", "or", "with", "from", "that", "this", "it"}
+    stop_words = {
+        "i",
+        "my",
+        "me",
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "do",
+        "does",
+        "have",
+        "has",
+        "had",
+        "what",
+        "how",
+        "why",
+        "when",
+        "where",
+        "about",
+        "any",
+        "lessons",
+        "lesson",
+        "material",
+        "content",
+        "documentation",
+        "in",
+        "on",
+        "for",
+        "to",
+        "of",
+        "and",
+        "or",
+        "with",
+        "from",
+        "that",
+        "this",
+        "it",
+    }
     words = re.findall(r"\b[a-z][a-z0-9-]+\b", query.lower())
     return [w for w in words if w not in stop_words and len(w) > 2][:10]
 

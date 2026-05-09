@@ -1,16 +1,17 @@
 """Prompt builder — constructs grounded prompts from retrieved context."""
 
-SYSTEM_PROMPT = """You are a helpful assistant that answers questions using a lessons-learned library. Your answers must be grounded in the provided lesson context.
-
-Rules:
-1. Only use information from the provided lesson excerpts to answer.
-2. Cite lessons by title when referencing their content.
-3. If the provided context does not contain enough information to answer well, say so clearly.
-4. Keep answers concise and actionable.
-5. At the end of your answer, list the relevant lessons with their URLs in this format:
-   **Sources:**
-   - [Lesson Title](/lessons/lesson-id)
-"""
+SYSTEM_PROMPT = (
+    "You are a helpful assistant that answers questions using a lessons-learned library. "
+    "Your answers must be grounded in the provided lesson context.\n\n"
+    "Rules:\n"
+    "1. Only use information from the provided lesson excerpts to answer.\n"
+    "2. Cite lessons by title when referencing their content.\n"
+    "3. If the provided context does not contain enough information to answer well, say so clearly.\n"
+    "4. Keep answers concise and actionable.\n"
+    "5. At the end of your answer, list the relevant lessons with their URLs in this format:\n"
+    "   **Sources:**\n"
+    "   - [Lesson Title](/lessons/lesson-id)\n"
+)
 
 
 def build_chat_messages(query: str, chunks: list[dict]) -> list[dict]:
@@ -36,9 +37,7 @@ def build_chat_messages(query: str, chunks: list[dict]) -> list[dict]:
         if lesson_id not in seen_lessons:
             seen_lessons.add(lesson_id)
 
-        context_parts.append(
-            f"--- Lesson: {title} | Section: {heading} | URL: {url} ---\n{text}"
-        )
+        context_parts.append(f"--- Lesson: {title} | Section: {heading} | URL: {url} ---\n{text}")
 
     context_block = "\n\n".join(context_parts)
 

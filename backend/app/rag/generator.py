@@ -38,13 +38,15 @@ class Generator:
             lid = chunk.get("lesson_id", "")
             if lid and lid not in seen:
                 seen.add(lid)
-                relevant_lessons.append({
-                    "lesson_id": lid,
-                    "title": chunk.get("title", ""),
-                    "repo_name": chunk.get("repo_id", ""),
-                    "similarity_score": chunk.get("similarity_score", 0.0),
-                    "lesson_url": chunk.get("lesson_url", ""),
-                })
+                relevant_lessons.append(
+                    {
+                        "lesson_id": lid,
+                        "title": chunk.get("title", ""),
+                        "repo_name": chunk.get("repo_id", ""),
+                        "similarity_score": chunk.get("similarity_score", 0.0),
+                        "lesson_url": chunk.get("lesson_url", ""),
+                    }
+                )
 
         return {
             "answer": answer,

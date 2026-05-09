@@ -147,19 +147,19 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 5.1 | Open | | | Add pytest to CI: update `.github/workflows/build-deploy.yml` to run `pytest tests/` and `pytest backend/tests/` with mocked adapters. |
-| 5.2 | Open | | | Add RAG corpus build + validate (`npm run corpus && npm run validate:corpus`) to CI pipeline after harvest+validate. |
-| 5.3 | Open | | | Add backend linting: `ruff check backend/` and `ruff format --check backend/` to CI. |
-| 5.4 | Open | | | Create staging deployment workflow `.github/workflows/deploy-staging.yml` — on merge to main, deploy static + backend. |
-| 5.5 | Open | | | Create production deployment workflow `.github/workflows/deploy-production.yml` — `environment: production` with approval gate. Same artifacts as staging. |
-| 5.6 | Open | | | Add smoke test job: curl health, retrieve, chat endpoints after staging deploy. |
-| 5.7 | Open | | | Verify: push to a test branch triggers CI, all checks pass. Stage and commit. |
+| 5.1 | Completed | 2026-05-09 10:03 PM (PST) | 2026-05-09 10:07 PM (PST) | Add pytest to CI: update `.github/workflows/build-deploy.yml` to run `pytest tests/` and `pytest backend/tests/` with mocked adapters. |
+| 5.2 | Completed | 2026-05-09 10:03 PM (PST) | 2026-05-09 10:07 PM (PST) | Add RAG corpus build + validate (`npm run corpus && npm run validate:corpus`) to CI pipeline after harvest+validate. |
+| 5.3 | Completed | 2026-05-09 10:03 PM (PST) | 2026-05-09 10:07 PM (PST) | Add backend linting: `ruff check backend/` and `ruff format --check backend/` to CI. |
+| 5.4 | Completed | 2026-05-09 10:07 PM (PST) | 2026-05-09 10:08 PM (PST) | Create staging deployment workflow `.github/workflows/deploy-staging.yml` — on merge to main, deploy static + backend. |
+| 5.5 | Completed | 2026-05-09 10:07 PM (PST) | 2026-05-09 10:08 PM (PST) | Create production deployment workflow `.github/workflows/deploy-production.yml` — `environment: production` with approval gate. Same artifacts as staging. |
+| 5.6 | Completed | 2026-05-09 10:08 PM (PST) | 2026-05-09 10:08 PM (PST) | Add smoke test job: curl health, retrieve, chat endpoints after staging deploy. |
+| 5.7 | Completed | 2026-05-09 10:09 PM (PST) | 2026-05-09 10:09 PM (PST) | Verify: push to a test branch triggers CI, all checks pass. Stage and commit. |
 
 ### Phase 5 Summary
 
-- **Changes:** TBD
+- **Changes:** Updated `build-deploy.yml` with PR trigger, pytest (root + backend), ruff lint/format checks, RAG corpus build/validate steps. Created `deploy-staging.yml` (build + deploy + smoke test) and `deploy-production.yml` (approval-gated via `environment: production`). Fixed 17 ruff lint issues and formatted 12 backend files. 76 project tests + 44 backend tests green, 152 pages build.
 - **Changes hosted at:** TBD
-- **Commit:** `Phase 5: CI/CD safety with PR checks, staging, and production approval gate`
+- **Commit:** `feat: Phase 5 — CI/CD safety with PR checks, staging, and production approval gate`
 
 ## Phase 6: AWS Deployment
 

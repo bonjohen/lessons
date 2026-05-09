@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from app.models.schemas import ChunkResult, RetrieveRequest, RetrieveResponse
 from app.api._deps import get_retriever
+from app.models.schemas import ChunkResult, RetrieveRequest, RetrieveResponse
 
 router = APIRouter()
 

@@ -27,8 +27,8 @@ def create_todo(
         "todo_id": todo_id,
         "title": f"Coordinate with owner for candidate lesson from {owner}/{repo_name}",
         "notes": (
-            f"Review generated lesson, verify attribution, and decide whether to contact "
-            f"the source project owner about contributing or referencing the lesson."
+            "Review generated lesson, verify attribution, and decide whether to contact "
+            "the source project owner about contributing or referencing the lesson."
         ),
         "status": "open",
         "priority": 2,

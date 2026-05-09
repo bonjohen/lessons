@@ -54,20 +54,22 @@ class GitHubSearcher:
                         continue
                     seen.add(full_name)
 
-                    results.append({
-                        "github_url": item["html_url"],
-                        "full_name": full_name,
-                        "owner": item["owner"]["login"],
-                        "repo_name": item["name"],
-                        "description": item.get("description") or "",
-                        "primary_language": item.get("language") or "",
-                        "stars": item.get("stargazers_count", 0),
-                        "last_updated": item.get("updated_at", ""),
-                        "license": (item.get("license") or {}).get("spdx_id", ""),
-                        "clone_url": item["clone_url"],
-                        "topics": item.get("topics", []),
-                        "has_wiki": item.get("has_wiki", False),
-                    })
+                    results.append(
+                        {
+                            "github_url": item["html_url"],
+                            "full_name": full_name,
+                            "owner": item["owner"]["login"],
+                            "repo_name": item["name"],
+                            "description": item.get("description") or "",
+                            "primary_language": item.get("language") or "",
+                            "stars": item.get("stargazers_count", 0),
+                            "last_updated": item.get("updated_at", ""),
+                            "license": (item.get("license") or {}).get("spdx_id", ""),
+                            "clone_url": item["clone_url"],
+                            "topics": item.get("topics", []),
+                            "has_wiki": item.get("has_wiki", False),
+                        }
+                    )
 
                     if len(results) >= max_results:
                         return results

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import subprocess
-from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -22,7 +21,8 @@ def clone_or_pull(owner: str, repo_name: str, clone_url: str) -> Path:
     else:
         subprocess.run(
             ["git", "clone", "--depth", "1", clone_url, str(repo_dir)],
-            capture_output=True, timeout=120,
+            capture_output=True,
+            timeout=120,
         )
 
     return repo_dir
@@ -38,7 +38,9 @@ def save_candidate_repo(candidate: dict):
             repos = json.load(f)
 
     # Update or append
-    existing_idx = next((i for i, r in enumerate(repos) if r["candidate_repo_id"] == candidate["candidate_repo_id"]), None)
+    existing_idx = next(
+        (i for i, r in enumerate(repos) if r["candidate_repo_id"] == candidate["candidate_repo_id"]), None
+    )
     if existing_idx is not None:
         repos[existing_idx] = candidate
     else:

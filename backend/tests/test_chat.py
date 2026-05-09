@@ -14,7 +14,8 @@ def _mock_generator(answer="Test answer", lessons=None):
     gen = MagicMock()
     gen.generate.return_value = {
         "answer": answer,
-        "relevant_lessons": lessons or [
+        "relevant_lessons": lessons
+        or [
             {
                 "lesson_id": "test-lesson-1",
                 "title": "Test Lesson",

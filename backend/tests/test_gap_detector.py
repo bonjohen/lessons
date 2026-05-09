@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.rag.gap_detector import detect_gap, _normalize_topic, _extract_concepts, _suggest_github_queries
+from app.rag.gap_detector import _extract_concepts, _normalize_topic, _suggest_github_queries, detect_gap
 from app.rag.gap_store import GapStore
 
 
@@ -23,7 +23,9 @@ class TestDetectGap:
 
     def test_no_gap_when_strong_retrieval(self):
         chunks = self._chunks([0.85, 0.72, 0.65], ["l1", "l2", "l3"])
-        result = detect_gap("How do I test?", chunks, "Here is how to test using pytest...", [{"lesson_id": "l1"}, {"lesson_id": "l2"}])
+        result = detect_gap(
+            "How do I test?", chunks, "Here is how to test using pytest...", [{"lesson_id": "l1"}, {"lesson_id": "l2"}]
+        )
         assert result is None
 
     def test_gap_when_no_relevant_chunks(self):
@@ -39,7 +41,9 @@ class TestDetectGap:
 
     def test_gap_when_weak_answer_language(self):
         chunks = self._chunks([0.6, 0.5], ["l1", "l2"])
-        result = detect_gap("What about Kubernetes?", chunks, "The corpus does not appear to contain material about Kubernetes.", [])
+        result = detect_gap(
+            "What about Kubernetes?", chunks, "The corpus does not appear to contain material about Kubernetes.", []
+        )
         assert result is not None
         assert "weak_answer_language" in result["detection_reasons"]
 
@@ -99,8 +103,14 @@ class TestGapStore:
     def test_update_existing(self, store):
         gap = {"gap_id": "gap_123", "status": "open", "trigger_query": "first query", "normalized_topic": "test"}
         store.create_or_update(gap)
-        gap2 = {"gap_id": "gap_123", "status": "open", "trigger_query": "second query", "normalized_topic": "test",
-                "retrieval_summary": "updated", "confidence_score": 0.5}
+        gap2 = {
+            "gap_id": "gap_123",
+            "status": "open",
+            "trigger_query": "second query",
+            "normalized_topic": "test",
+            "retrieval_summary": "updated",
+            "confidence_score": 0.5,
+        }
         stored = store.create_or_update(gap2)
         assert store.count() == 1
         assert "second query" in str(stored.get("additional_queries", []))

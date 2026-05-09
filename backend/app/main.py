@@ -5,11 +5,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.health import router as health_router
 from app.api.chat import router as chat_router
-from app.api.retrieve import router as retrieve_router
 from app.api.gaps import router as gaps_router
 from app.api.github_discovery import router as discovery_router
+from app.api.health import router as health_router
+from app.api.retrieve import router as retrieve_router
 from app.api.todos import router as todos_router
 
 

@@ -1,13 +1,9 @@
-name: Build and Deploy
+name: Deploy Staging
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '0 6 * * *'  # Daily at 6:00 UTC
 
 permissions:
   contents: read
@@ -15,8 +11,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: staging
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -55,25 +51,10 @@ jobs:
       - name: Run backend tests
         run: cd backend && pytest tests/
 
-      - name: Harvest lessons
-        run: npm run harvest
+      - name: Full build pipeline
+        run: npm run build:full
         env:
           LESSONS_REPO_TOKEN: ${{ secrets.LESSONS_REPO_TOKEN }}
-
-      - name: Validate lessons
-        run: npm run validate:lessons
-
-      - name: Build RAG corpus
-        run: npm run corpus
-
-      - name: Validate RAG corpus
-        run: npm run validate:corpus
-
-      - name: Build site
-        run: npm run build
-
-      - name: Index with Pagefind
-        run: npm run index
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -81,13 +62,41 @@ jobs:
           path: dist
 
   deploy:
-    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
-      name: github-pages
+      name: staging
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages (staging)
         id: deployment
         uses: actions/deploy-pages@v4
+
+  smoke-test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify site is reachable
+        run: |
+          SITE_URL="${{ needs.deploy.outputs.page_url || 'https://bonjohen.github.io/lessons/' }}"
+          echo "Checking $SITE_URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$SITE_URL")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
+            echo "Smoke test FAILED: got HTTP $STATUS"
+            exit 1
+          fi
+          echo "Smoke test PASSED"
+
+      - name: Verify lessons page loads
+        run: |
+          SITE_URL="${{ needs.deploy.outputs.page_url || 'https://bonjohen.github.io/lessons/' }}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${SITE_URL}lessons/")
+          echo "Lessons page HTTP status: $STATUS"
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
+            echo "Lessons page smoke test FAILED"
+            exit 1
+          fi
+          echo "Lessons page smoke test PASSED"

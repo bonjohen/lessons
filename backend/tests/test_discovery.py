@@ -1,20 +1,15 @@
 """Tests for GitHub discovery with mocked responses."""
 
 import json
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import patch
 
 from app.discovery.candidate_scorer import score_candidate
 from app.discovery.lesson_extractor import (
-    ATTRIBUTION_TEMPLATE,
     detect_extractable_content,
     generate_candidate_lesson,
 )
-from app.discovery.todo_writer import create_todo, list_todos, TODOS_PATH
 from app.discovery.repo_intake import build_candidate_record
-
+from app.discovery.todo_writer import create_todo, list_todos
 
 MOCK_REPO = {
     "github_url": "https://github.com/example/project",
