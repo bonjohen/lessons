@@ -1,92 +1,60 @@
 """Tests for repo config parsing and validation."""
 
-import tempfile
 from pathlib import Path
 
 import yaml
 import pytest
 
-
-def write_repos_yml(tmp_path: Path, data: dict) -> Path:
-    p = tmp_path / "repos.yml"
-    p.write_text(yaml.dump(data), encoding="utf-8")
-    return p
+from lesson_core import validate_repo_entry, find_duplicate_ids
 
 
-def validate_repo_entry(repo: dict) -> list[str]:
-    """Simplified repo validation matching harvester logic."""
-    import re
-    errors = []
-    required = {"id", "name", "owner", "repo", "branch", "lessons_path"}
-    missing = required - set(repo.keys())
-    if missing:
-        errors.append(f"missing fields: {missing}")
-    rid = repo.get("id", "")
-    if rid and not re.match(r"^[a-z0-9][a-z0-9-]*$", rid):
-        errors.append(f"invalid ID format: {rid}")
-    return errors
+def _make_repo(**overrides) -> dict:
+    base = {
+        "id": "my-project",
+        "name": "My Project",
+        "owner": "user",
+        "repo": "my-project",
+        "branch": "main",
+        "lessons_path": "docs/lessons",
+    }
+    base.update(overrides)
+    return base
 
 
 class TestRepoConfig:
     def test_valid_config(self):
-        repo = {
-            "id": "my-project",
-            "name": "My Project",
-            "owner": "user",
-            "repo": "my-project",
-            "branch": "main",
-            "lessons_path": "docs/lessons",
-        }
-        assert validate_repo_entry(repo) == []
+        assert validate_repo_entry(_make_repo()) == []
 
     def test_duplicate_repo_id(self):
-        repos = [
-            {"id": "proj", "name": "P1", "owner": "u", "repo": "p1", "branch": "main", "lessons_path": "docs/lessons"},
-            {"id": "proj", "name": "P2", "owner": "u", "repo": "p2", "branch": "main", "lessons_path": "docs/lessons"},
-        ]
-        seen = set()
-        dupes = []
-        for r in repos:
-            if r["id"] in seen:
-                dupes.append(r["id"])
-            seen.add(r["id"])
-        assert dupes == ["proj"]
+        repos = [_make_repo(id="proj"), _make_repo(id="proj")]
+        assert find_duplicate_ids(repos) == ["proj"]
+
+    def test_no_duplicates(self):
+        repos = [_make_repo(id="a"), _make_repo(id="b")]
+        assert find_duplicate_ids(repos) == []
 
     def test_missing_required_field(self):
-        repo = {
-            "id": "test",
-            "name": "Test",
-            # missing owner, repo, branch, lessons_path
-        }
+        repo = {"id": "test", "name": "Test"}
         errors = validate_repo_entry(repo)
         assert len(errors) == 1
         assert "missing fields" in errors[0]
 
     def test_invalid_id_format(self):
-        repo = {
-            "id": "Bad_ID",
-            "name": "Test",
-            "owner": "u",
-            "repo": "r",
-            "branch": "main",
-            "lessons_path": "docs/lessons",
-        }
-        errors = validate_repo_entry(repo)
+        errors = validate_repo_entry(_make_repo(id="Bad_ID"))
         assert any("invalid ID format" in e for e in errors)
 
     def test_valid_id_formats(self):
         for rid in ["myproject", "my-project", "project123", "a"]:
-            repo = {
-                "id": rid, "name": "T", "owner": "u", "repo": "r",
-                "branch": "main", "lessons_path": "docs/lessons",
-            }
-            assert validate_repo_entry(repo) == [], f"ID '{rid}' should be valid"
+            assert validate_repo_entry(_make_repo(id=rid)) == [], f"ID '{rid}' should be valid"
+
+    def test_non_dict_entry(self):
+        errors = validate_repo_entry("not-a-dict")
+        assert any("not a dict" in e for e in errors)
 
     def test_repos_yml_structure(self, tmp_path):
-        data = {"repos": [
-            {"id": "test", "name": "Test", "owner": "u", "repo": "r", "branch": "main", "lessons_path": "docs/lessons"},
-        ]}
-        p = write_repos_yml(tmp_path, data)
+        data = {"repos": [_make_repo()]}
+        p = tmp_path / "repos.yml"
+        p.write_text(yaml.dump(data), encoding="utf-8")
         loaded = yaml.safe_load(p.read_text(encoding="utf-8"))
         assert "repos" in loaded
         assert isinstance(loaded["repos"], list)

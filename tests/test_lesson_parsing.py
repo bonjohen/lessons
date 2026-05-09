@@ -1,33 +1,21 @@
 """Tests for lesson frontmatter parsing and title inference."""
 
-import tempfile
 from pathlib import Path
 
 import frontmatter
 import pytest
 
-
-def extract_title(post, filepath: Path) -> tuple[str, bool]:
-    """Extract title — mirrors harvester logic."""
-    import re
-    if post.get("title"):
-        return post["title"], False
-    for line in post.content.split("\n"):
-        m = re.match(r"^#\s+(.+)$", line.strip())
-        if m:
-            return m.group(1).strip(), False
-    title = filepath.stem.replace("-", " ").replace("_", " ").title()
-    return title, True
+from lesson_core import extract_title, coerce_date, build_source_url, compute_reading_time
 
 
-class TestLessonParsing:
-    def test_valid_frontmatter(self, tmp_path):
+class TestTitleExtraction:
+    def test_title_from_frontmatter(self, tmp_path):
         md = tmp_path / "lesson.md"
-        md.write_text("---\ntitle: My Lesson\nsummary: A test\n---\n\nBody text here.", encoding="utf-8")
+        md.write_text("---\ntitle: My Lesson\n---\n\nBody text.", encoding="utf-8")
         post = frontmatter.load(str(md))
-        assert post["title"] == "My Lesson"
-        assert post["summary"] == "A test"
-        assert post.content.strip() == "Body text here."
+        title, inferred = extract_title(post, md)
+        assert title == "My Lesson"
+        assert not inferred
 
     def test_title_from_h1(self, tmp_path):
         md = tmp_path / "lesson.md"
@@ -45,22 +33,41 @@ class TestLessonParsing:
         assert title == "My Lesson Name"
         assert inferred
 
-    def test_empty_content_detected(self, tmp_path):
-        md = tmp_path / "empty.md"
-        md.write_text("---\ntitle: Empty\n---\n", encoding="utf-8")
-        post = frontmatter.load(str(md))
-        assert post.content.strip() == ""
-
-    def test_frontmatter_with_tags(self, tmp_path):
-        md = tmp_path / "tagged.md"
-        md.write_text("---\ntitle: Tagged\ntags: [python, testing]\n---\n\nContent.", encoding="utf-8")
-        post = frontmatter.load(str(md))
-        assert post["tags"] == ["python", "testing"]
-
-    def test_no_frontmatter(self, tmp_path):
-        md = tmp_path / "plain.md"
-        md.write_text("# Just a Heading\n\nPlain markdown without frontmatter.", encoding="utf-8")
+    def test_frontmatter_title_preferred_over_h1(self, tmp_path):
+        md = tmp_path / "lesson.md"
+        md.write_text("---\ntitle: FM Title\n---\n\n# H1 Title\n\nBody.", encoding="utf-8")
         post = frontmatter.load(str(md))
         title, inferred = extract_title(post, md)
-        assert title == "Just a Heading"
+        assert title == "FM Title"
         assert not inferred
+
+
+class TestCoerceDate:
+    def test_none(self):
+        assert coerce_date(None) is None
+
+    def test_string(self):
+        assert coerce_date("2025-01-15") == "2025-01-15"
+
+    def test_datetime(self):
+        from datetime import datetime
+        dt = datetime(2025, 3, 15, 10, 30)
+        assert coerce_date(dt) == "2025-03-15"
+
+
+class TestBuildSourceUrl:
+    def test_basic(self):
+        repo = {"owner": "user", "repo": "proj", "branch": "main", "lessons_path": "docs/lessons"}
+        url = build_source_url(repo, "my-lesson.md")
+        assert url == "https://github.com/user/proj/blob/main/docs/lessons/my-lesson.md"
+
+
+class TestComputeReadingTime:
+    def test_minimum_one_minute(self):
+        assert compute_reading_time(10) == 1
+
+    def test_200_words(self):
+        assert compute_reading_time(200) == 1
+
+    def test_400_words(self):
+        assert compute_reading_time(400) == 2

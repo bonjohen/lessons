@@ -2,33 +2,22 @@
 """Validate harvested lesson data against PDR requirements."""
 
 import json
-import re
 import sys
 from pathlib import Path
 
 import yaml
 
+from lesson_core import (
+    REQUIRED_REPO_FIELDS,
+    REPO_ID_PATTERN,
+    validate_repo_entry,
+    find_duplicate_ids,
+    validate_lesson_record,
+)
+
 ROOT = Path(__file__).resolve().parent.parent
 REPOS_YML = ROOT / "data" / "repos.yml"
 GENERATED_DIR = ROOT / "src" / "content" / "generated"
-
-REQUIRED_GENERATED_FILES = [
-    "lessons.json",
-    "repos.json",
-    "tags.json",
-    "phases.json",
-    "lesson_types.json",
-]
-
-REQUIRED_REPO_FIELDS = {"id", "name", "owner", "repo", "branch", "lessons_path"}
-
-VALID_LESSON_TYPES = {
-    "architecture", "implementation", "testing", "deployment", "debugging",
-    "data-design", "ai-assisted-development", "documentation", "maintenance",
-    "process", "other",
-}
-
-VALID_STATUSES = {"active", "superseded", "draft", "deprecated"}
 
 error_count = 0
 warning_count = 0
@@ -92,79 +81,30 @@ def validate_repos_yml() -> bool:
         log_error("repos.yml 'repos' must be a list")
         return False
 
-    seen_ids = set()
     for repo in repos:
-        if not isinstance(repo, dict):
-            log_error(f"Invalid repo entry: {repo}")
-            continue
+        entry_errors = validate_repo_entry(repo)
+        for msg in entry_errors:
+            log_error(f"Repo '{repo.get('id', '?') if isinstance(repo, dict) else '?'}': {msg}")
 
-        missing = REQUIRED_REPO_FIELDS - set(repo.keys())
-        if missing:
-            log_error(f"Repo '{repo.get('id', '?')}' missing fields: {missing}")
-
-        rid = repo.get("id", "")
-        if rid and not re.match(r"^[a-z0-9][a-z0-9-]*$", rid):
-            log_error(f"Invalid repo ID format: {rid}")
-
-        if rid in seen_ids:
-            log_error(f"Duplicate repo ID: {rid}")
-        elif rid:
-            seen_ids.add(rid)
+    dupes = find_duplicate_ids(repos if all(isinstance(r, dict) for r in repos) else [r for r in repos if isinstance(r, dict)])
+    for dup in dupes:
+        log_error(f"Duplicate repo ID: {dup}")
 
     return True
 
 
 def validate_lessons(lessons: list) -> None:
     """Validate lesson records."""
-    seen_ids = set()
+    dupes = find_duplicate_ids(lessons)
+    for dup in dupes:
+        log_error(f"Duplicate lesson ID: {dup}")
 
     for lesson in lessons:
-        lid = lesson.get("id", "")
-
-        # Hard errors
-        if lid in seen_ids:
-            log_error(f"Duplicate lesson ID: {lid}")
-        elif lid:
-            seen_ids.add(lid)
-
-        if not lesson.get("content", "").strip():
-            log_error(f"Empty lesson content: {lid}")
-
-        if not lesson.get("title"):
-            log_error(f"Missing title: {lid}")
-
-        # Warnings for missing recommended fields
-        if not lesson.get("summary"):
-            log_warning(f"Missing summary: {lid}")
-
-        if not lesson.get("date"):
-            log_warning(f"Missing date: {lid}")
-
-        if not lesson.get("tags"):
-            log_warning(f"Missing tags: {lid}")
-
-        if not lesson.get("phase"):
-            log_warning(f"Missing phase: {lid}")
-
-        lt = lesson.get("lesson_type")
-        if not lt:
-            log_warning(f"Missing lesson_type: {lid}")
-        elif lt not in VALID_LESSON_TYPES:
-            log_warning(f"Unknown lesson_type '{lt}': {lid}")
-
-        status = lesson.get("status")
-        if status and status not in VALID_STATUSES:
-            log_warning(f"Unknown status '{status}': {lid}")
-
-        # Tag normalization check
-        for tag in lesson.get("tags", []):
-            if tag != tag.lower() or " " in tag:
-                log_warning(f"Non-normalized tag '{tag}': {lid}")
-
-        # Short content
-        wc = lesson.get("word_count", 0)
-        if 0 < wc < 50:
-            log_warning(f"Short content ({wc} words): {lid}")
+        errs, warns = validate_lesson_record(lesson)
+        for msg in errs:
+            log_error(msg)
+        for msg in warns:
+            log_warning(msg)
 
 
 def main() -> int:

@@ -4,6 +4,7 @@ import MetadataPanel from '../../components/MetadataPanel.astro';
 import TagList from '../../components/TagList.astro';
 import { getLessons } from '../../lib/data';
 import { marked } from 'marked';
+import sanitizeHtml from 'sanitize-html';
 
 export function getStaticPaths() {
   const lessons = getLessons();
@@ -14,7 +15,16 @@ export function getStaticPaths() {
 }
 
 const { lesson } = Astro.props;
-const htmlContent = await marked(lesson.content);
+const htmlContent = sanitizeHtml(await marked(lesson.content), {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'details', 'summary']),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'title', 'width', 'height'],
+    code: ['class'],
+    span: ['class'],
+    pre: ['class'],
+  },
+});
 
 // Related lessons: share at least one tag
 const allLessons = getLessons();

@@ -1,6 +1,14 @@
-"""Tests for validation rules."""
+"""Tests for validation rules using production code from lesson_core."""
 
 import pytest
+
+from lesson_core import (
+    validate_lesson_record,
+    find_duplicate_ids,
+    normalize_tags,
+    VALID_LESSON_TYPES,
+    VALID_STATUSES,
+)
 
 
 def make_lesson(**overrides) -> dict:
@@ -35,80 +43,74 @@ def make_lesson(**overrides) -> dict:
     return base
 
 
-VALID_LESSON_TYPES = {
-    "architecture", "implementation", "testing", "deployment", "debugging",
-    "data-design", "ai-assisted-development", "documentation", "maintenance",
-    "process", "other",
-}
-
-
 class TestValidation:
     def test_valid_lesson_passes(self):
-        lesson = make_lesson()
-        errors = []
-        warnings = []
-        if not lesson["content"].strip():
-            errors.append("empty content")
-        if not lesson["title"]:
-            errors.append("missing title")
-        if not lesson["summary"]:
-            warnings.append("missing summary")
+        errors, warnings = validate_lesson_record(make_lesson())
         assert errors == []
-        assert warnings == []
 
-    def test_duplicate_id_error(self):
-        lessons = [make_lesson(id="a"), make_lesson(id="a")]
-        seen = set()
-        dupes = []
-        for l in lessons:
-            if l["id"] in seen:
-                dupes.append(l["id"])
-            seen.add(l["id"])
-        assert dupes == ["a"]
+    def test_empty_content_error(self):
+        errors, warnings = validate_lesson_record(make_lesson(content=""))
+        assert any("Empty lesson content" in e for e in errors)
+
+    def test_missing_title_error(self):
+        errors, warnings = validate_lesson_record(make_lesson(title=""))
+        assert any("Missing title" in e for e in errors)
 
     def test_missing_summary_warning(self):
-        lesson = make_lesson(summary="")
-        warnings = []
-        if not lesson["summary"]:
-            warnings.append("missing summary")
-        assert "missing summary" in warnings
+        errors, warnings = validate_lesson_record(make_lesson(summary=""))
+        assert any("Missing summary" in w for w in warnings)
 
     def test_missing_date_warning(self):
-        lesson = make_lesson(date=None)
-        warnings = []
-        if not lesson["date"]:
-            warnings.append("missing date")
-        assert "missing date" in warnings
+        errors, warnings = validate_lesson_record(make_lesson(date=None))
+        assert any("Missing date" in w for w in warnings)
 
     def test_missing_tags_warning(self):
-        lesson = make_lesson(tags=[])
-        warnings = []
-        if not lesson["tags"]:
-            warnings.append("missing tags")
-        assert "missing tags" in warnings
+        errors, warnings = validate_lesson_record(make_lesson(tags=[]))
+        assert any("Missing tags" in w for w in warnings)
 
     def test_unknown_lesson_type_warning(self):
-        lesson = make_lesson(lesson_type="nonexistent")
-        warnings = []
-        if lesson["lesson_type"] and lesson["lesson_type"] not in VALID_LESSON_TYPES:
-            warnings.append(f"unknown type: {lesson['lesson_type']}")
-        assert len(warnings) == 1
+        errors, warnings = validate_lesson_record(make_lesson(lesson_type="nonexistent"))
+        assert any("Unknown lesson_type" in w for w in warnings)
 
     def test_known_lesson_types_pass(self):
         for lt in VALID_LESSON_TYPES:
-            lesson = make_lesson(lesson_type=lt)
-            assert lesson["lesson_type"] in VALID_LESSON_TYPES
+            errors, warnings = validate_lesson_record(make_lesson(lesson_type=lt))
+            assert not any("lesson_type" in w for w in warnings)
 
-    def test_empty_content_error(self):
-        lesson = make_lesson(content="")
-        errors = []
-        if not lesson["content"].strip():
-            errors.append("empty content")
-        assert "empty content" in errors
+    def test_unknown_status_warning(self):
+        errors, warnings = validate_lesson_record(make_lesson(status="bogus"))
+        assert any("Unknown status" in w for w in warnings)
 
     def test_short_content_warning(self):
-        lesson = make_lesson(content="Short.", word_count=1)
-        warnings = []
-        if 0 < lesson["word_count"] < 50:
-            warnings.append("short content")
-        assert "short content" in warnings
+        errors, warnings = validate_lesson_record(make_lesson(content="Short.", word_count=1))
+        assert any("Short content" in w for w in warnings)
+
+    def test_duplicate_id_detection(self):
+        lessons = [make_lesson(id="a"), make_lesson(id="a")]
+        assert find_duplicate_ids(lessons) == ["a"]
+
+
+class TestNormalizeTags:
+    def test_basic(self):
+        assert normalize_tags(["Python", "Testing"]) == ["python", "testing"]
+
+    def test_string_input(self):
+        assert normalize_tags("python, testing") == ["python", "testing"]
+
+    def test_dedup(self):
+        assert normalize_tags(["python", "Python"]) == ["python"]
+
+    def test_none(self):
+        assert normalize_tags(None) == []
+
+    def test_empty_list(self):
+        assert normalize_tags([]) == []
+
+    def test_spaces_to_hyphens(self):
+        result = normalize_tags(["my tag"])
+        assert result == ["my-tag"]
+
+    def test_non_string_coercion(self):
+        result = normalize_tags([123])
+        assert len(result) == 1
+        assert result[0] == "123"

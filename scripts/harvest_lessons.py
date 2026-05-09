@@ -3,7 +3,6 @@
 
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -12,23 +11,23 @@ from pathlib import Path
 
 import frontmatter
 import yaml
-from slugify import slugify
+
+from lesson_core import (
+    REQUIRED_REPO_FIELDS,
+    REPO_ID_PATTERN,
+    normalize_tags,
+    make_slug,
+    extract_title,
+    coerce_date,
+    build_source_url,
+    compute_reading_time,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 REPOS_YML = ROOT / "data" / "repos.yml"
 TMP_DIR = ROOT / "tmp" / "repos"
 GENERATED_DIR = ROOT / "src" / "content" / "generated"
 EXPORTS_DIR = ROOT / "public" / "exports"
-
-REQUIRED_REPO_FIELDS = {"id", "name", "owner", "repo", "branch", "lessons_path"}
-
-VALID_LESSON_TYPES = {
-    "architecture", "implementation", "testing", "deployment", "debugging",
-    "data-design", "ai-assisted-development", "documentation", "maintenance",
-    "process", "other",
-}
-
-VALID_STATUSES = {"active", "superseded", "draft", "deprecated"}
 
 warnings = []
 errors = []
@@ -75,7 +74,7 @@ def load_repos() -> list[dict]:
             continue
 
         rid = repo["id"]
-        if not re.match(r"^[a-z0-9][a-z0-9-]*$", rid):
+        if not REPO_ID_PATTERN.match(rid):
             error(f"Invalid repo ID format: {rid}")
             continue
 
@@ -126,58 +125,6 @@ def clone_repo(repo: dict) -> Path | None:
     return dest
 
 
-def normalize_tags(tags) -> list[str]:
-    """Normalize tags: lowercase, trim, hyphens for spaces, dedup."""
-    if not tags:
-        return []
-    if isinstance(tags, str):
-        tags = [t.strip() for t in tags.split(",")]
-
-    seen = set()
-    result = []
-    for tag in tags:
-        if not isinstance(tag, str):
-            tag = str(tag)
-        normalized = slugify(tag.strip())
-        if normalized and normalized not in seen:
-            seen.add(normalized)
-            result.append(normalized)
-    return result
-
-
-def make_slug(post: frontmatter.Post, filepath: Path, lessons_root: Path) -> str:
-    """Generate slug from frontmatter slug, or path relative to lessons root.
-
-    When lessons live in subdirectories (e.g. block1/index.md, block2/index.md),
-    the subdirectory is included in the slug to avoid collisions.
-    """
-    if post.get("slug"):
-        return slugify(post["slug"])
-    # Use path relative to lessons root (without extension) to preserve subdirectory context
-    try:
-        rel = filepath.relative_to(lessons_root).with_suffix("")
-        parts = rel.parts
-        return slugify("-".join(parts))
-    except ValueError:
-        return slugify(filepath.stem)
-
-
-def extract_title(post: frontmatter.Post, filepath: Path) -> tuple[str, bool]:
-    """Extract title from frontmatter, first H1, or filename. Returns (title, inferred)."""
-    if post.get("title"):
-        return post["title"], False
-
-    # Try first H1 in content
-    for line in post.content.split("\n"):
-        m = re.match(r"^#\s+(.+)$", line.strip())
-        if m:
-            return m.group(1).strip(), False
-
-    # Infer from filename
-    title = filepath.stem.replace("-", " ").replace("_", " ").title()
-    return title, True
-
-
 def parse_lesson(filepath: Path, repo: dict) -> dict | None:
     """Parse a single lesson markdown file into a normalized record."""
     rid = repo["id"]
@@ -207,57 +154,21 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
     except ValueError:
         rel_path = filepath.name
 
-    source_url = (
-        f"https://github.com/{repo['owner']}/{repo['repo']}"
-        f"/blob/{repo['branch']}/{repo['lessons_path']}/{rel_path}"
-    )
-
+    source_url = build_source_url(repo, rel_path)
     project_url = repo.get("project_url", f"https://github.com/{repo['owner']}/{repo['repo']}")
 
     # Frontmatter fields
     summary = post.get("summary", "")
-    date = post.get("date")
-    updated = post.get("updated")
+    date = coerce_date(post.get("date"))
+    updated = coerce_date(post.get("updated"))
     phase = post.get("phase")
     lesson_type = post.get("lesson_type")
     status = post.get("status", "active")
     tags = normalize_tags(post.get("tags", []))
 
-    # Convert dates to strings
-    if isinstance(date, datetime):
-        date = date.strftime("%Y-%m-%d")
-    elif date is not None:
-        date = str(date)
-
-    if isinstance(updated, datetime):
-        updated = updated.strftime("%Y-%m-%d")
-    elif updated is not None:
-        updated = str(updated)
-
-    # Warnings for missing recommended fields
-    if not summary:
-        warn(f"Missing summary: {lesson_id}")
-    if not date:
-        warn(f"Missing date: {lesson_id}")
-    if not tags:
-        warn(f"Missing tags: {lesson_id}")
-    if not phase:
-        warn(f"Missing phase: {lesson_id}")
-    if not lesson_type:
-        warn(f"Missing lesson_type: {lesson_id}")
-
-    # Validate controlled vocabularies
-    if lesson_type and lesson_type not in VALID_LESSON_TYPES:
-        warn(f"Unknown lesson_type '{lesson_type}': {lesson_id}")
-    if status not in VALID_STATUSES:
-        warn(f"Unknown status '{status}': {lesson_id}")
-
-    # Short content warning
     word_count = len(content.split())
-    if word_count < 50:
-        warn(f"Short content ({word_count} words): {lesson_id}")
 
-    reading_minutes = max(1, round(word_count / 200))
+    reading_minutes = compute_reading_time(word_count)
 
     return {
         "id": lesson_id,

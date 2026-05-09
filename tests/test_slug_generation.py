@@ -1,22 +1,11 @@
 """Tests for slug generation and ID creation."""
 
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 import frontmatter
 import pytest
-from slugify import slugify
 
-
-def make_slug(post, filepath: Path, lessons_root: Path) -> str:
-    """Mirrors harvester slug logic."""
-    if post.get("slug"):
-        return slugify(post["slug"])
-    try:
-        rel = filepath.relative_to(lessons_root).with_suffix("")
-        parts = rel.parts
-        return slugify("-".join(parts))
-    except ValueError:
-        return slugify(filepath.stem)
+from lesson_core import make_slug, find_duplicate_ids
 
 
 class TestSlugGeneration:
@@ -34,13 +23,6 @@ class TestSlugGeneration:
         post = frontmatter.load(str(md))
         assert make_slug(post, md, lessons) == "my-lesson-name"
 
-    def test_title_based_slug(self):
-        assert slugify("Schema Drift Validation") == "schema-drift-validation"
-
-    def test_kebab_case(self):
-        assert slugify("My Great Lesson") == "my-great-lesson"
-        assert slugify("under_score_name") == "under-score-name"
-
     def test_subdirectory_slug(self, tmp_path):
         """Lessons in subdirs include the subdir in the slug."""
         lessons = tmp_path / "lessons"
@@ -52,15 +34,18 @@ class TestSlugGeneration:
         slug = make_slug(post, md, lessons)
         assert slug == "block1-index"
 
+    def test_slug_outside_lessons_root(self, tmp_path):
+        """File outside lessons_root falls back to stem."""
+        md = tmp_path / "outside.md"
+        md.write_text("---\ntitle: T\n---\nBody.", encoding="utf-8")
+        post = frontmatter.load(str(md))
+        lessons_root = tmp_path / "other"
+        lessons_root.mkdir()
+        assert make_slug(post, md, lessons_root) == "outside"
+
     def test_duplicate_id_detection(self):
-        ids = ["repo-lesson-a", "repo-lesson-b", "repo-lesson-a"]
-        seen = set()
-        dupes = []
-        for lid in ids:
-            if lid in seen:
-                dupes.append(lid)
-            seen.add(lid)
-        assert dupes == ["repo-lesson-a"]
+        items = [{"id": "a"}, {"id": "b"}, {"id": "a"}]
+        assert find_duplicate_ids(items) == ["a"]
 
     def test_id_format(self, tmp_path):
         lessons = tmp_path / "lessons"
