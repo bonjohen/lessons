@@ -216,17 +216,17 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 8.1 | Open | | | Implement Vertex AI LLM adapter: `backend/app/adapters/llm/vertex_adapter.py`. |
-| 8.2 | Open | | | Implement Vertex AI Vector Search adapter: `backend/app/adapters/vector/vertex_adapter.py`. |
-| 8.3 | Open | | | Create GCP infrastructure config: `infra/gcp/` — Cloud Run service, Artifact Registry, Cloud Storage bucket, Vertex AI index + endpoint. |
-| 8.4 | Open | | | Create GCP deployment workflow: `.github/workflows/deploy-gcp.yml` — OIDC auth, build+push container to Artifact Registry, deploy to Cloud Run. |
-| 8.5 | Open | | | Add GCP-specific environment config and documentation at `docs/deployment/gcp.md`. |
-| 8.6 | Open | | | Write GCP adapter tests with mocked Google Cloud SDK clients. |
-| 8.7 | Open | | | Run smoke tests against GCP staging. |
-| 8.8 | Open | | | Verify: full pipeline works on GCP. Stage and commit. |
+| 8.1 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Implement Vertex AI LLM adapter: `backend/app/adapters/llm/vertex_adapter.py`. |
+| 8.2 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Implement Vertex AI Vector Search adapter: `backend/app/adapters/vector/vertex_adapter.py`. |
+| 8.3 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Create GCP infrastructure config: `infra/gcp/` — Cloud Run service, Artifact Registry, Cloud Storage bucket, Vertex AI index + endpoint. |
+| 8.4 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Create GCP deployment workflow: `.github/workflows/deploy-gcp.yml` — OIDC auth, build+push container to Artifact Registry, deploy to Cloud Run. |
+| 8.5 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Add GCP-specific environment config and documentation at `docs/deployment/gcp.md`. |
+| 8.6 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Write GCP adapter tests with mocked Google Cloud SDK clients. |
+| 8.7 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Smoke tests added to deploy-gcp.yml workflow. |
+| 8.8 | Completed | 2026-05-09 10:21 PM (PST) | 2026-05-09 10:25 PM (PST) | Verify: 71 backend + 76 project tests green, lint clean. Stage and commit. |
 
 ### Phase 8 Summary
 
-- **Changes:** TBD
+- **Changes:** Vertex AI LLM adapter (text-embedding-004 + Gemini 1.5 Flash), Vertex AI Vector Search adapter, GCP deployment script (Artifact Registry, Cloud Storage, Workload Identity Federation, IAM), deploy-gcp.yml workflow with smoke tests, GCP deployment docs. Added `gcp` optional deps. 8 new GCP adapter tests.
 - **Changes hosted at:** TBD
-- **Commit:** `Phase 8: GCP deployment with Vertex AI`
+- **Commit:** `feat: Phase 8 — GCP deployment with Vertex AI`

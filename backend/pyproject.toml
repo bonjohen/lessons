@@ -28,6 +28,10 @@ azure = [
     "azure-search-documents>=11.5",
     "azure-identity>=1.17",
 ]
+gcp = [
+    "google-cloud-aiplatform>=1.60",
+    "vertexai>=1.60",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

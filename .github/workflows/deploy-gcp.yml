@@ -1,0 +1,101 @@
+name: Deploy to GCP
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  GCP_REGION: us-central1
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: gcp-${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          npm ci
+
+      - name: Build static site
+        run: npm run build:full
+        env:
+          LESSONS_REPO_TOKEN: ${{ secrets.LESSONS_REPO_TOKEN }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build and push backend container
+        run: |
+          IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/lessons-hub-backend"
+          docker build -t "$IMAGE:${{ github.sha }}" backend/
+          docker tag "$IMAGE:${{ github.sha }}" "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/lessons-hub-backend:${{ github.sha }}"
+          gcloud run deploy ${{ secrets.CLOUD_RUN_SERVICE }} \
+            --image="$IMAGE" \
+            --region=${{ env.GCP_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8000 \
+            --set-env-vars="DEPLOYMENT_PROFILE=gcp,GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},GCP_LOCATION=${{ env.GCP_REGION }}"
+
+      - name: Upload static site to Cloud Storage
+        run: |
+          gsutil -m rsync -r -d dist/ gs://${{ secrets.GCS_BUCKET }}/
+
+  smoke-test:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Smoke test — health endpoint
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.BACKEND_URL }}/health")
+          echo "Health endpoint: HTTP $STATUS"
+          [ "$STATUS" -eq 200 ] || exit 1
+
+      - name: Smoke test — static site
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.SITE_URL }}")
+          echo "Static site: HTTP $STATUS"
+          [ "$STATUS" -lt 400 ] || exit 1
