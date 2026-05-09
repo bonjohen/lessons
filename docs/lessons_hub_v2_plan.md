@@ -193,20 +193,20 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 7.1 | Open | | | Implement Azure OpenAI LLM adapter: `backend/app/adapters/llm/azure_openai_adapter.py`. |
-| 7.2 | Open | | | Implement Azure AI Search vector adapter: `backend/app/adapters/vector/azure_search_adapter.py`. |
-| 7.3 | Open | | | Create Azure infrastructure config: `infra/azure/` — Container Apps, ACR, Static Web Apps, AI Search, Key Vault. |
-| 7.4 | Open | | | Create Azure deployment workflow: `.github/workflows/deploy-azure.yml` — OIDC auth, build+push container to ACR, deploy to Container Apps. |
-| 7.5 | Open | | | Add Azure-specific environment config and documentation at `docs/deployment/azure.md`. |
-| 7.6 | Open | | | Write Azure adapter tests with mocked Azure SDK clients. |
-| 7.7 | Open | | | Run smoke tests against Azure staging. |
-| 7.8 | Open | | | Verify: full pipeline works on Azure. Stage and commit. |
+| 7.1 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Implement Azure OpenAI LLM adapter: `backend/app/adapters/llm/azure_openai_adapter.py`. |
+| 7.2 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Implement Azure AI Search vector adapter: `backend/app/adapters/vector/azure_search_adapter.py`. |
+| 7.3 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Create Azure infrastructure config: `infra/azure/` — Container Apps, ACR, Static Web Apps, AI Search, Key Vault. |
+| 7.4 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Create Azure deployment workflow: `.github/workflows/deploy-azure.yml` — OIDC auth, build+push container to ACR, deploy to Container Apps. |
+| 7.5 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Add Azure-specific environment config and documentation at `docs/deployment/azure.md`. |
+| 7.6 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Write Azure adapter tests with mocked Azure SDK clients. |
+| 7.7 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Smoke tests added to deploy-azure.yml workflow. |
+| 7.8 | Completed | 2026-05-09 10:17 PM (PST) | 2026-05-09 10:20 PM (PST) | Verify: 63 backend + 76 project tests green, lint clean. Stage and commit. |
 
 ### Phase 7 Summary
 
-- **Changes:** TBD
+- **Changes:** Azure OpenAI LLM adapter (text-embedding-3-small + gpt-4o-mini), Azure AI Search vector adapter, Bicep template (Container Apps, ACR, Static Web Apps, AI Search, Azure OpenAI, Key Vault), deploy-azure.yml workflow with smoke tests, Azure deployment docs. Added `azure` optional deps. 8 new Azure adapter tests.
 - **Changes hosted at:** TBD
-- **Commit:** `Phase 7: Azure deployment with Azure OpenAI and AI Search`
+- **Commit:** `feat: Phase 7 — Azure deployment with Azure OpenAI and AI Search`
 
 ## Phase 8: GCP Deployment
 
