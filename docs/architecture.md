@@ -1,5 +1,14 @@
 # Architecture
 
+## Repo Treatment
+
+All source repos are treated identically regardless of ownership. Whether the repo belongs to the project maintainer or an external contributor, it goes through the same pipeline: register in `data/repos.yml`, harvest, validate, render. There is no separate workflow for "external" or "candidate" repos.
+
+Each source repo gets an `index.md` checked into the lessons project that documents:
+- The source repository URL and owner
+- A brief description of the project
+- An overview of the harvested lesson files
+
 ## Data Flow
 
 ```
@@ -15,6 +24,8 @@ harvest_lessons.py
     ├─ parse YAML frontmatter + markdown body
     │
     ├─ normalize (IDs, slugs, tags, defaults)
+    │
+    ├─ check in harvested lessons + index.md per repo
     │
     ├─ generate → src/content/generated/
     │   ├─ lessons.json

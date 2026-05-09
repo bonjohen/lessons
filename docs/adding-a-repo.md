@@ -1,6 +1,6 @@
 # Adding a Source Repository
 
-Follow these steps to add a new source repository to Lessons Hub.
+Follow these steps to add a new source repository to Lessons Hub. All repos are treated identically — the same process applies whether you own the repo or it belongs to someone else.
 
 ## Prerequisites
 
@@ -71,7 +71,13 @@ npm run preview
 
 Browse to verify lessons appear on the site.
 
-## Step 5: Commit
+## Step 5: Run Harvest and Check In
+
+```bash
+npm run harvest
+```
+
+After harvesting, the lessons and a per-repo `index.md` are checked into the lessons project. The `index.md` documents the source repo URL, a brief project description, and an overview of the lesson files.
 
 ```bash
 git add data/repos.yml

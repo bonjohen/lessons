@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Lessons Hub is a static website and build pipeline that consolidates markdown-based lesson documents from multiple GitHub repositories into one searchable, browsable, AI-readable lessons library. Deployed via GitHub Pages. No backend, no database, no auth — static output only (Version 1).
+Lessons Hub is a static website and build pipeline that consolidates markdown-based lesson documents from multiple GitHub repositories into one searchable, browsable, AI-readable lessons library. All source repos — whether owned by the maintainer or by external parties — are treated identically through the same harvest pipeline. Harvested lessons are checked into the hub repo with per-repo `index.md` files. Deployed via GitHub Pages.
 
 The full specification lives in `docs/PDR.md`. Treat that as the authoritative build spec.
 
@@ -51,13 +51,15 @@ Test files live in `tests/` and cover repo config parsing, lesson frontmatter pa
 ```
 data/repos.yml → harvest_lessons.py → [clone repos to tmp/repos/] → parse docs/lessons/*.md
     → normalize → src/content/generated/*.json + public/exports/*
+    → check in lessons with index.md per source repo
     → validate_lessons.py → Astro build → Pagefind index → GitHub Pages deploy
 ```
 
 ### Key Boundaries
 
-- **Source repos** own their lessons at `docs/lessons/*.md` with optional YAML frontmatter.
-- **Hub repo** owns the registry (`data/repos.yml`), harvesting, validation, rendering, and deployment.
+- **All repos are treated identically** — whether owned by the project maintainer or by an external party. There is no separate "external" or "candidate" workflow. Every repo goes through the same harvest pipeline.
+- **Source repos** store lessons at `docs/lessons/*.md` with optional YAML frontmatter.
+- **Hub repo** owns the registry (`data/repos.yml`), harvesting, validation, rendering, and deployment. Harvested lessons are checked into the hub repo with an `index.md` per source repo documenting the source, project details, and an overview of the lesson files.
 - **Adding a new source repo** requires editing only `data/repos.yml`.
 
 ### Generated Files (not committed)
