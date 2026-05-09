@@ -25,3 +25,12 @@ repos:
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/lessons
     enabled: true
+
+  - id: jobclass
+    name: JobClass
+    owner: bonjohen
+    repo: JobClass
+    branch: main
+    lessons_path: docs/lessons
+    project_url: https://github.com/bonjohen/JobClass
+    enabled: true

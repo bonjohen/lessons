@@ -267,7 +267,7 @@ Open  ──>  Started  ──>  Completed
 | 10.4 | Completed | 2026-05-08 05:05 PM | 2026-05-08 05:06 PM | Write `docs/lessons/static-search-with-pagefind.md` — lesson from Phase 5 (Pagefind integration, no-backend constraint). |
 | 10.5 | Completed | 2026-05-08 05:06 PM | 2026-05-08 05:06 PM | Write `docs/lessons/github-pages-build-pipeline.md` — lesson from Phase 7 (Actions workflow design, artifact deployment). |
 | 10.6 | Completed | 2026-05-08 05:06 PM | 2026-05-08 05:06 PM | Verify: self-harvest deferred — repo not yet on GitHub. Lesson files created and ready. Enable `lessons-hub` in repos.yml after first push. |
-| 10.7 | Started | 2026-05-08 05:06 PM | | Stage and commit: "Phase 10: Internal project lessons — self-harvesting". |
+| 10.7 | Completed | 2026-05-08 05:06 PM | 2026-05-08 05:07 PM | Stage and commit: "Phase 10: Internal project lessons — self-harvesting". |
 
 ### Phase 10 Summary
 
