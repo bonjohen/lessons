@@ -10,8 +10,11 @@
     "astro": "astro",
     "harvest": "python scripts/harvest_lessons.py",
     "validate:lessons": "python scripts/validate_lessons.py",
+    "corpus": "python scripts/build_rag_corpus.py",
+    "validate:corpus": "python scripts/validate_rag_corpus.py",
+    "backend": "cd backend && uvicorn app.main:app --reload",
     "index": "npx pagefind --site dist",
-    "build:full": "npm run harvest && npm run validate:lessons && npm run build && npm run index"
+    "build:full": "npm run harvest && npm run validate:lessons && npm run corpus && npm run validate:corpus && npm run build && npm run index"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

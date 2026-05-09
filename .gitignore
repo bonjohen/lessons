@@ -12,8 +12,20 @@ tmp/
 __pycache__/
 *.pyc
 .pytest_cache/
+*.egg-info/
 
 # Generated content (rebuilt by harvester)
 src/content/generated/*.json
 public/exports/*.json
 public/exports/*.md
+
+# RAG corpus (rebuilt by corpus builder)
+data/rag-chunks.json
+data/rag-manifest.json
+data/chromadb/
+
+# V2 runtime data
+data/gaps/
+data/todos/
+data/external/
+.external/
