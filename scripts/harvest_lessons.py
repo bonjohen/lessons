@@ -157,13 +157,21 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
     source_url = build_source_url(repo, rel_path)
     project_url = repo.get("project_url", f"https://github.com/{repo['owner']}/{repo['repo']}")
 
-    # Frontmatter fields
+    # Frontmatter fields — coerce list values to strings (malformed YAML)
     summary = post.get("summary", "")
+    if isinstance(summary, list):
+        summary = summary[0] if summary else ""
     date = coerce_date(post.get("date"))
     updated = coerce_date(post.get("updated"))
     phase = post.get("phase")
+    if isinstance(phase, list):
+        phase = phase[0] if phase else None
     lesson_type = post.get("lesson_type")
+    if isinstance(lesson_type, list):
+        lesson_type = lesson_type[0] if lesson_type else None
     status = post.get("status", "active")
+    if isinstance(status, list):
+        status = status[0] if status else "active"
     tags = normalize_tags(post.get("tags", []))
 
     word_count = len(content.split())

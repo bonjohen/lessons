@@ -81,7 +81,10 @@ def extract_title(post: frontmatter.Post, filepath: Path) -> tuple[str, bool]:
     Returns (title, inferred) where inferred=True means it came from the filename.
     """
     if post.get("title"):
-        return post["title"], False
+        title = post["title"]
+        if isinstance(title, list):
+            title = title[0] if title else ""
+        return str(title), False
 
     for line in post.content.split("\n"):
         m = re.match(r"^#\s+(.+)$", line.strip())
