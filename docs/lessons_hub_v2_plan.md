@@ -98,20 +98,20 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 3.1 | Open | | | Implement `backend/app/rag/gap_detector.py` — apply 7 detection rules from PDR section 10, classify into 8 gap types (missing_topic, thin_coverage, missing_platform, etc.). |
-| 3.2 | Open | | | Implement `backend/app/rag/gap_store.py` — JSON-backed CRUD for `data/gaps/corpus-gaps.json`. Status transitions per PDR 8.3 (open -> searching -> candidates_found -> ... -> resolved). |
-| 3.3 | Open | | | Wire gap detection into `backend/app/api/chat.py` — evaluate retrieval quality after generation, create gap if triggered, include `gap_detected` and `gap_id` in ChatResponse. |
-| 3.4 | Open | | | Implement suggested GitHub search query generation from gap records — extract key terms, technology names, patterns. Store in gap record's `suggested_github_queries` field. |
-| 3.5 | Open | | | Implement `backend/app/api/gaps.py` — `POST /api/gaps` (create/update), `GET /api/gaps` with filters (status, tag, created_after, has_candidates, has_todos). Wire into main router. |
-| 3.6 | Open | | | Implement `src/pages/gaps.astro` — list gaps with status indicators, link to triggering queries. Implement `src/components/CorpusGapNotice.astro` for chat panel inline notice. |
-| 3.7 | Open | | | Write tests: `backend/tests/test_gap_detector.py` (missing topic -> gap, strong retrieval -> no gap, similar topic merges, valid status transitions, query generation). |
-| 3.8 | Open | | | Verify: run all tests green, Astro builds with gaps page. Stage and commit. |
+| 3.1 | Completed | 2026-05-09 02:43 PM (PST) | 2026-05-09 02:44 PM (PST) | Implement `backend/app/rag/gap_detector.py` — apply 7 detection rules from PDR section 10, classify into 8 gap types (missing_topic, thin_coverage, missing_platform, etc.). |
+| 3.2 | Completed | 2026-05-09 02:44 PM (PST) | 2026-05-09 02:45 PM (PST) | Implement `backend/app/rag/gap_store.py` — JSON-backed CRUD for `data/gaps/corpus-gaps.json`. Status transitions per PDR 8.3 (open -> searching -> candidates_found -> ... -> resolved). |
+| 3.3 | Completed | 2026-05-09 02:45 PM (PST) | 2026-05-09 02:45 PM (PST) | Wire gap detection into `backend/app/api/chat.py` — evaluate retrieval quality after generation, create gap if triggered, include `gap_detected` and `gap_id` in ChatResponse. |
+| 3.4 | Completed | 2026-05-09 02:43 PM (PST) | 2026-05-09 02:44 PM (PST) | Implement suggested GitHub search query generation from gap records — extract key terms, technology names, patterns. Store in gap record's `suggested_github_queries` field. (Built into gap_detector.py) |
+| 3.5 | Completed | 2026-05-09 02:45 PM (PST) | 2026-05-09 02:46 PM (PST) | Implement `backend/app/api/gaps.py` — `POST /api/gaps` (create/update), `GET /api/gaps` with filters, `GET /api/gaps/{id}`, `PATCH /api/gaps/{id}/status`. Wire into main router. |
+| 3.6 | Completed | 2026-05-09 02:46 PM (PST) | 2026-05-09 02:46 PM (PST) | Implement `src/pages/gaps.astro` — list gaps with status indicators, link to triggering queries. Implement `src/components/CorpusGapNotice.astro` for chat panel inline notice. |
+| 3.7 | Completed | 2026-05-09 02:46 PM (PST) | 2026-05-09 02:47 PM (PST) | Write tests: `backend/tests/test_gap_detector.py` — 17 tests covering all detection rules, gap store CRUD, status transitions, topic normalization, query generation. |
+| 3.8 | Completed | 2026-05-09 02:47 PM (PST) | 2026-05-09 02:47 PM (PST) | Verify: 33 backend tests + 76 project tests green, 151 Astro pages build. Stage and commit. |
 
 ### Phase 3 Summary
 
-- **Changes:** TBD
+- **Changes:** Gap detector with 7 detection rules and 8 gap classifications. JSON-backed gap store with CRUD and status transitions. Gap detection wired into chat endpoint. Gaps API (list, get, create, update status). Gaps page and CorpusGapNotice component. 17 new gap tests.
 - **Changes hosted at:** TBD
-- **Commit:** `Phase 3: Gap detection with corpus-gap records and gaps UI`
+- **Commit:** `feat: Phase 3 — gap detection with corpus-gap records and gaps UI`
 
 ## Phase 4: GitHub Discovery
 

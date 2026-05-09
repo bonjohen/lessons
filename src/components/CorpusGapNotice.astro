@@ -1,0 +1,39 @@
+---
+/**
+ * Inline notice for chat responses when a gap is detected.
+ * This is a static component — the ChatPanel JS handles rendering gap notices dynamically.
+ * This component is available for server-rendered gap notices on other pages.
+ */
+interface Props {
+  topic: string;
+  gapId: string;
+}
+
+const { topic, gapId } = Astro.props;
+---
+
+<div class="gap-notice">
+  <strong>Coverage Gap Detected</strong>
+  <p>The lessons corpus has limited coverage on: <em>{topic}</em></p>
+  <p class="gap-action">This gap has been recorded for review. <a href={`/gaps/`}>View all gaps</a></p>
+</div>
+
+<style>
+  .gap-notice {
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    font-size: 0.9rem;
+  }
+
+  .gap-notice strong {
+    color: #92400e;
+  }
+
+  .gap-action {
+    font-size: 0.85rem;
+    color: #666;
+  }
+</style>

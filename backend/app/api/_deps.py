@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from app.adapters.llm.ollama_adapter import OllamaAdapter
 from app.adapters.vector.chromadb_adapter import ChromaDBAdapter
+from app.rag.gap_store import GapStore
 from app.rag.generator import Generator
 from app.rag.retriever import Retriever
 
 _retriever: Retriever | None = None
 _generator: Generator | None = None
+_gap_store: GapStore | None = None
 
 
 def _init():
@@ -43,3 +45,11 @@ def get_generator() -> Generator | None:
     if _generator is None:
         _init()
     return _generator
+
+
+def get_gap_store() -> GapStore:
+    """Get the gap store singleton."""
+    global _gap_store
+    if _gap_store is None:
+        _gap_store = GapStore()
+    return _gap_store

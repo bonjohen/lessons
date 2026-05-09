@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Corpus Gaps - Lessons Hub">
+  <h1>Corpus Gaps</h1>
+  <p>Topics where the lessons corpus has weak or missing coverage. Gaps are detected automatically when the chatbot cannot answer a question well.</p>
+
+  <div id="gaps-status" class="status-msg">Loading gaps...</div>
+  <div id="gaps-list"></div>
+</BaseLayout>
+
+<script>
+const API_BASE = 'http://localhost:8000';
+const statusEl = document.getElementById('gaps-status');
+const listEl = document.getElementById('gaps-list');
+
+const STATUS_COLORS = {
+  open: '#fef3c7',
+  searching: '#dbeafe',
+  candidates_found: '#d1fae5',
+  lessons_staged: '#ede9fe',
+  owner_coordination_needed: '#fce7f3',
+  resolved: '#d1fae5',
+  closed_no_action: '#f3f4f6',
+};
+
+async function loadGaps() {
+  try {
+    const res = await fetch(`${API_BASE}/api/gaps`);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+
+    if (data.total === 0) {
+      statusEl.textContent = 'No gaps detected yet. Ask questions in the chat to discover coverage gaps.';
+      return;
+    }
+
+    statusEl.textContent = `${data.total} gap(s) found.`;
+
+    listEl.innerHTML = data.gaps.map(gap => `
+      <div class="gap-card" style="border-left: 4px solid ${STATUS_COLORS[gap.status] || '#e0e0e0'}">
+        <div class="gap-header">
+          <strong>${gap.normalized_topic}</strong>
+          <span class="gap-status" style="background: ${STATUS_COLORS[gap.status] || '#f3f4f6'}">${gap.status}</span>
+        </div>
+        <p class="gap-query">Query: "${gap.trigger_query}"</p>
+        <p class="gap-meta">Type: ${gap.gap_type} | Score: ${(gap.confidence_score * 100).toFixed(0)}% | ${gap.retrieval_summary}</p>
+        ${gap.suggested_github_queries && gap.suggested_github_queries.length > 0
+          ? `<div class="gap-queries"><strong>Suggested searches:</strong> ${gap.suggested_github_queries.join(', ')}</div>`
+          : ''}
+      </div>
+    `).join('');
+  } catch {
+    statusEl.textContent = 'Backend unavailable. Start with: npm run backend';
+    statusEl.className = 'status-msg error';
+  }
+}
+
+loadGaps();
+</script>
+
+<style>
+  .gap-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: #fff;
+  }
+
+  .gap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .gap-status {
+    padding: 0.2em 0.6em;
+    border-radius: 3px;
+    font-size: 0.8rem;
+  }
+
+  .gap-query {
+    color: #555;
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  .gap-meta {
+    color: #777;
+    font-size: 0.8rem;
+  }
+
+  .gap-queries {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #444;
+  }
+
+  .status-msg {
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .status-msg.error {
+    color: #dc2626;
+  }
+</style>

@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.health import router as health_router
 from app.api.chat import router as chat_router
 from app.api.retrieve import router as retrieve_router
+from app.api.gaps import router as gaps_router
 
 
 @asynccontextmanager
@@ -38,3 +39,4 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(chat_router)
 app.include_router(retrieve_router)
+app.include_router(gaps_router)

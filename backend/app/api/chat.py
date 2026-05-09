@@ -3,7 +3,8 @@
 from fastapi import APIRouter
 
 from app.models.schemas import ChatRequest, ChatResponse, RelevantLesson
-from app.api._deps import get_generator
+from app.api._deps import get_generator, get_gap_store
+from app.rag.gap_detector import detect_gap
 
 router = APIRouter()
 
@@ -37,7 +38,32 @@ async def chat(req: ChatRequest):
         for rl in result["relevant_lessons"]
     ]
 
+    # Gap detection
+    gap_detected = False
+    gap_id = None
+    suggested_actions = []
+
+    gap = detect_gap(
+        query=req.message,
+        chunks=result.get("chunks", []),
+        answer=result["answer"],
+        relevant_lessons=result["relevant_lessons"],
+    )
+
+    if gap:
+        gap_detected = True
+        gap_store = get_gap_store()
+        stored_gap = gap_store.create_or_update(gap)
+        gap_id = stored_gap["gap_id"]
+        suggested_actions = [
+            "Search GitHub for relevant projects",
+            "Create candidate lessons from relevant repos",
+        ]
+
     return ChatResponse(
         answer=result["answer"],
         relevant_lessons=relevant_lessons,
+        gap_detected=gap_detected,
+        gap_id=gap_id,
+        suggested_actions=suggested_actions,
     )
