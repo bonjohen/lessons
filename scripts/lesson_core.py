@@ -26,6 +26,9 @@ VALID_STATUSES = {"active", "superseded", "draft", "deprecated"}
 
 REPO_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
+MIN_CONTENT_WORDS = 50
+READING_WPM = 200
+
 
 # --- Tag normalization ---
 
@@ -170,7 +173,7 @@ def validate_lesson_record(lesson: dict) -> tuple[list[str], list[str]]:
 
     # Short content
     wc = lesson.get("word_count", 0)
-    if 0 < wc < 50:
+    if 0 < wc < MIN_CONTENT_WORDS:
         warnings.append(f"Short content ({wc} words): {lid}")
 
     return errors, warnings
@@ -197,4 +200,4 @@ def build_source_url(repo: dict, rel_path) -> str:
 
 def compute_reading_time(word_count: int) -> int:
     """Compute reading time in minutes from word count."""
-    return max(1, round(word_count / 200))
+    return max(1, round(word_count / READING_WPM))
