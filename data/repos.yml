@@ -24,4 +24,4 @@ repos:
     branch: main
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/lessons
-    enabled: false
+    enabled: false  # Enable after repo is pushed to GitHub

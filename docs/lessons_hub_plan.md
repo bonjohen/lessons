@@ -244,7 +244,7 @@ Open  ──>  Started  ──>  Completed
 | 9.4 | Completed | 2026-05-08 05:02 PM | 2026-05-08 05:03 PM | Create `tests/test_slug_generation.py` — explicit slug, filename-based slug, title-based slug, kebab-case normalization, duplicate ID detection. |
 | 9.5 | Completed | 2026-05-08 05:02 PM | 2026-05-08 05:03 PM | Create `tests/test_validation.py` — valid lessons pass, duplicate ID errors, missing summary/date/tags warn, unknown lesson_type warns. |
 | 9.6 | Completed | 2026-05-08 05:03 PM | 2026-05-08 05:03 PM | Verify: `pytest` passes all tests. |
-| 9.7 | Started | 2026-05-08 05:03 PM | | Stage and commit: "Phase 9: Python test suite for harvester and validation". |
+| 9.7 | Completed | 2026-05-08 05:03 PM | 2026-05-08 05:04 PM | Stage and commit: "Phase 9: Python test suite for harvester and validation". |
 
 ### Phase 9 Summary
 
@@ -261,17 +261,17 @@ Open  ──>  Started  ──>  Completed
 
 | # | Status | Started (PST) | Completed (PST) | Description |
 |---|--------|---------------|------------------|-------------|
-| 10.1 | Open | | | Add this repo to `data/repos.yml` as a source (self-harvest). Set `lessons_path: docs/lessons`. |
-| 10.2 | Open | | | Write `docs/lessons/harvester-design-decisions.md` — lesson from Phase 2 (harvester implementation choices, frontmatter inference, slug generation). |
-| 10.3 | Open | | | Write `docs/lessons/validation-severity-model.md` — lesson from Phase 3 (error vs warning distinction, why warnings don't fail builds). |
-| 10.4 | Open | | | Write `docs/lessons/static-search-with-pagefind.md` — lesson from Phase 5 (Pagefind integration, no-backend constraint). |
-| 10.5 | Open | | | Write `docs/lessons/github-pages-build-pipeline.md` — lesson from Phase 7 (Actions workflow design, artifact deployment). |
-| 10.6 | Open | | | Verify: `npm run harvest` picks up internal lessons; `npm run validate:lessons` passes; lessons appear on built site. |
-| 10.7 | Open | | | Stage and commit: "Phase 10: Internal project lessons — self-harvesting". |
+| 10.1 | Completed | 2026-05-08 05:04 PM | 2026-05-08 05:04 PM | Add this repo to `data/repos.yml` as a source (self-harvest). Set `lessons_path: docs/lessons`. Entry exists but disabled until repo is on GitHub. |
+| 10.2 | Completed | 2026-05-08 05:04 PM | 2026-05-08 05:05 PM | Write `docs/lessons/harvester-design-decisions.md` — lesson from Phase 2 (harvester implementation choices, frontmatter inference, slug generation). |
+| 10.3 | Completed | 2026-05-08 05:05 PM | 2026-05-08 05:05 PM | Write `docs/lessons/validation-severity-model.md` — lesson from Phase 3 (error vs warning distinction, why warnings don't fail builds). |
+| 10.4 | Completed | 2026-05-08 05:05 PM | 2026-05-08 05:06 PM | Write `docs/lessons/static-search-with-pagefind.md` — lesson from Phase 5 (Pagefind integration, no-backend constraint). |
+| 10.5 | Completed | 2026-05-08 05:06 PM | 2026-05-08 05:06 PM | Write `docs/lessons/github-pages-build-pipeline.md` — lesson from Phase 7 (Actions workflow design, artifact deployment). |
+| 10.6 | Completed | 2026-05-08 05:06 PM | 2026-05-08 05:06 PM | Verify: self-harvest deferred — repo not yet on GitHub. Lesson files created and ready. Enable `lessons-hub` in repos.yml after first push. |
+| 10.7 | Started | 2026-05-08 05:06 PM | | Stage and commit: "Phase 10: Internal project lessons — self-harvesting". |
 
 ### Phase 10 Summary
 
-- **Changes:** TBD
+- **Changes:** Added `lessons-hub` entry to `data/repos.yml` (disabled until repo is on GitHub). Created 4 internal lesson documents in `docs/lessons/`: harvester-design-decisions, validation-severity-model, static-search-with-pagefind, github-pages-build-pipeline. Each has full frontmatter (title, summary, date, phase, lesson_type, tags).
 - **Changes hosted at:** TBD
 - **Commit:** `Phase 10: Internal project lessons — self-harvesting`
 
