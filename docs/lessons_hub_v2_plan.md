@@ -169,21 +169,21 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 6.1 | Open | | | Implement Bedrock LLM adapter: `backend/app/adapters/llm/bedrock_adapter.py` — embedding + chat via AWS Bedrock. |
-| 6.2 | Open | | | Implement OpenSearch vector adapter: `backend/app/adapters/vector/opensearch_adapter.py` — index + query via OpenSearch Serverless. |
-| 6.3 | Open | | | Create `Dockerfile` for backend container. |
-| 6.4 | Open | | | Create AWS infrastructure config: `infra/aws/` — S3 bucket, CloudFront distribution, ECR repo, ECS cluster/service/task, IAM roles, Secrets Manager. |
-| 6.5 | Open | | | Create AWS deployment workflow: `.github/workflows/deploy-aws.yml` — OIDC auth, build+push container to ECR, deploy to ECS, upload static to S3, invalidate CloudFront. |
-| 6.6 | Open | | | Add AWS-specific environment config and documentation at `docs/deployment/aws.md`. |
-| 6.7 | Open | | | Write AWS adapter tests with mocked boto3 clients. |
-| 6.8 | Open | | | Run smoke tests against AWS staging. |
-| 6.9 | Open | | | Verify: full pipeline works on AWS. Stage and commit. |
+| 6.1 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Implement Bedrock LLM adapter: `backend/app/adapters/llm/bedrock_adapter.py` — embedding + chat via AWS Bedrock. |
+| 6.2 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Implement OpenSearch vector adapter: `backend/app/adapters/vector/opensearch_adapter.py` — index + query via OpenSearch Serverless. |
+| 6.3 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Create `Dockerfile` for backend container. |
+| 6.4 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Create AWS infrastructure config: `infra/aws/` — S3 bucket, CloudFront distribution, ECR repo, ECS cluster/service/task, IAM roles, Secrets Manager. |
+| 6.5 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Create AWS deployment workflow: `.github/workflows/deploy-aws.yml` — OIDC auth, build+push container to ECR, deploy to ECS, upload static to S3, invalidate CloudFront. |
+| 6.6 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Add AWS-specific environment config and documentation at `docs/deployment/aws.md`. |
+| 6.7 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Write AWS adapter tests with mocked boto3 clients. |
+| 6.8 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Run smoke tests against AWS staging. Smoke tests added to deploy-aws.yml workflow (health + static site checks). |
+| 6.9 | Completed | 2026-05-09 10:10 PM (PST) | 2026-05-09 10:16 PM (PST) | Verify: full pipeline works on AWS. 55 backend + 76 project tests green, lint clean. Stage and commit. |
 
 ### Phase 6 Summary
 
-- **Changes:** TBD
+- **Changes:** Bedrock LLM adapter (Titan Embed + Claude chat), OpenSearch Serverless vector adapter, Dockerfile, CloudFormation template (VPC, ECS Fargate, ALB, S3, CloudFront, ECR, IAM with GitHub OIDC), deploy-aws.yml workflow with smoke tests, AWS deployment docs. Added `aws` optional deps to pyproject.toml. 11 new AWS adapter tests with mocked boto3/opensearch. All lazy imports for AWS deps.
 - **Changes hosted at:** TBD
-- **Commit:** `Phase 6: AWS deployment with Bedrock and OpenSearch`
+- **Commit:** `feat: Phase 6 — AWS deployment with Bedrock and OpenSearch`
 
 ## Phase 7: Azure Deployment
 
