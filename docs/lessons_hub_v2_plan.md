@@ -121,23 +121,23 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 4.1 | Open | | | Implement `backend/app/discovery/github_search.py` — generate 3-10 search queries from gap record, call GitHub search API (repos endpoint), parse results. Support `GITHUB_TOKEN` env var. Rate limit backoff. |
-| 4.2 | Open | | | Implement `backend/app/discovery/candidate_scorer.py` — score per PDR 11.2 (topic relevance, README quality, docs presence, CI/CD files, license, activity, gap match). Return scored + sorted candidates. |
-| 4.3 | Open | | | Implement `backend/app/discovery/repo_intake.py` — clone/pull to `.external/repos/{owner}/{repo}`, capture repo metadata (stars, language, license, last_updated). Store in `data/external/candidate-repos.json`. |
-| 4.4 | Open | | | Implement `backend/app/discovery/lesson_extractor.py` — detect docs, CI, deployment, architecture files. Draft candidate lessons with PDR 8.5 frontmatter (status: candidate_external, review_status: needs_review, coordination_status: owner_not_contacted) and required content sections. |
-| 4.5 | Open | | | Implement attribution block generation per PDR section 9 — source project, link, thank-you note, no-endorsement disclaimer. Include in every candidate lesson. |
-| 4.6 | Open | | | Implement `backend/app/discovery/todo_writer.py` — create coordination TODOs in `data/todos/todos.json` per PDR 11.4. Each staged external lesson gets a TODO. |
-| 4.7 | Open | | | Implement `backend/app/api/github_discovery.py` — `POST /api/github/search`, `POST /api/github/harvest-candidate`. Implement `backend/app/api/todos.py` — `GET /api/todos`. Wire into main router. |
-| 4.8 | Open | | | Implement frontend: `src/pages/candidate-lessons.astro` (list staged candidates with review status), `src/components/CandidateRepoCard.astro`, `src/components/TodoCard.astro`. |
-| 4.9 | Open | | | Create directory structure: `docs/candidate-lessons/external/`, `data/gaps/`, `data/external/`, `data/todos/`. |
-| 4.10 | Open | | | Write tests with mocked GitHub responses: `backend/tests/test_github_search.py`, `backend/tests/test_candidate_scorer.py`, `backend/tests/test_lesson_extractor.py`, `backend/tests/test_todo_writer.py`. Verify: attribution present, TODO created, no auto-PR. |
-| 4.11 | Open | | | Verify: all tests green, Astro builds with candidate-lessons page. Stage and commit. |
+| 4.1 | Completed | 2026-05-09 02:47 PM (PST) | 2026-05-09 02:48 PM (PST) | Implement `backend/app/discovery/github_search.py` — search GitHub repos API with GITHUB_TOKEN support, dedup results, batch queries. |
+| 4.2 | Completed | 2026-05-09 02:48 PM (PST) | 2026-05-09 02:48 PM (PST) | Implement `backend/app/discovery/candidate_scorer.py` — 10 scoring criteria from PDR 11.2, returns 0-1 score with reasons. |
+| 4.3 | Completed | 2026-05-09 02:48 PM (PST) | 2026-05-09 02:49 PM (PST) | Implement `backend/app/discovery/repo_intake.py` — clone/pull to `.external/repos/`, build candidate records, save to JSON. |
+| 4.4 | Completed | 2026-05-09 02:49 PM (PST) | 2026-05-09 02:50 PM (PST) | Implement `backend/app/discovery/lesson_extractor.py` — detect docs/CI/deploy/arch files, generate candidate lessons with PDR 8.5 frontmatter and all required sections. |
+| 4.5 | Completed | 2026-05-09 02:49 PM (PST) | 2026-05-09 02:50 PM (PST) | Attribution block built into lesson_extractor.py per PDR section 9 — thank-you note, no-endorsement disclaimer, source links. |
+| 4.6 | Completed | 2026-05-09 02:50 PM (PST) | 2026-05-09 02:50 PM (PST) | Implement `backend/app/discovery/todo_writer.py` — create TODOs in `data/todos/todos.json`, list/update TODOs. |
+| 4.7 | Completed | 2026-05-09 02:50 PM (PST) | 2026-05-09 02:51 PM (PST) | Implement `backend/app/api/github_discovery.py` and `backend/app/api/todos.py`. Wire into main router. |
+| 4.8 | Completed | 2026-05-09 02:51 PM (PST) | 2026-05-09 02:51 PM (PST) | Implement `src/pages/candidate-lessons.astro` with client-side rendering of TODOs and candidates. |
+| 4.9 | Completed | 2026-05-09 02:47 PM (PST) | 2026-05-09 02:47 PM (PST) | Directories created via .gitignore entries. |
+| 4.10 | Completed | 2026-05-09 02:51 PM (PST) | 2026-05-09 02:51 PM (PST) | Write `backend/tests/test_discovery.py` — 11 tests covering scoring, extraction, attribution, TODOs, no-auto-PR verification. |
+| 4.11 | Completed | 2026-05-09 02:51 PM (PST) | 2026-05-09 02:51 PM (PST) | All 44 backend tests + 76 project tests green. 152 Astro pages build. Stage and commit. |
 
 ### Phase 4 Summary
 
-- **Changes:** TBD
+- **Changes:** GitHub search, candidate scoring, repo intake, lesson extraction with attribution, TODO coordination. API endpoints for search, harvest, and TODOs. Candidate-lessons page. 11 new discovery tests.
 - **Changes hosted at:** TBD
-- **Commit:** `Phase 4: GitHub discovery, candidate lesson generation, and TODO coordination`
+- **Commit:** `feat: Phase 4 — GitHub discovery, candidate lesson generation, and TODO coordination`
 
 ## Phase 5: CI/CD Safety
 

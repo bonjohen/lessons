@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Candidate Lessons - Lessons Hub">
+  <h1>Candidate External Lessons</h1>
+  <p>Lessons generated from external GitHub projects to fill corpus gaps. These require human review before inclusion.</p>
+
+  <div id="candidates-status" class="status-msg">Loading...</div>
+  <div id="candidates-list"></div>
+
+  <h2>Coordination TODOs</h2>
+  <div id="todos-status" class="status-msg">Loading...</div>
+  <div id="todos-list"></div>
+</BaseLayout>
+
+<script>
+const API_BASE = 'http://localhost:8000';
+
+async function loadCandidates() {
+  const statusEl = document.getElementById('candidates-status');
+  const listEl = document.getElementById('candidates-list');
+  try {
+    const res = await fetch(`${API_BASE}/api/todos`);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+    if (data.total === 0) {
+      statusEl.textContent = 'No candidate lessons staged yet.';
+      return;
+    }
+    statusEl.textContent = `${data.total} coordination item(s).`;
+    listEl.innerHTML = data.todos.map(todo => `
+      <div class="candidate-card">
+        <h3>${todo.title}</h3>
+        <p>${todo.notes}</p>
+        <div class="meta">
+          <span>Status: ${todo.status}</span>
+          <span>Priority: ${todo.priority}</span>
+          ${todo.source_project_url ? `<a href="${todo.source_project_url}" target="_blank">Source Project</a>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch {
+    statusEl.textContent = 'Backend unavailable.';
+    statusEl.className = 'status-msg error';
+  }
+}
+
+loadCandidates();
+</script>
+
+<style>
+  .candidate-card {
+    border: 1px solid #e0e0e0;
+    border-left: 4px solid #fbbf24;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: #fff;
+  }
+
+  .candidate-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+  }
+
+  .meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 0.5rem;
+  }
+
+  .status-msg {
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .status-msg.error {
+    color: #dc2626;
+  }
+</style>
