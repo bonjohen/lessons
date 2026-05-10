@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import VoiceReader from '../components/VoiceReader.astro';
 import { marked } from 'marked';
 import sanitizeHtml from 'sanitize-html';
 import fs from 'node:fs';
@@ -27,6 +28,7 @@ const html = sanitizeHtml(rawHtml, {
 
 <BaseLayout title="About - Lessons Hub">
   <nav class="breadcrumb"><a href={import.meta.env.BASE_URL}>Home</a> &rsaquo; About</nav>
+  <VoiceReader contentSelector=".walkthrough" />
   <article class="walkthrough" set:html={html} />
 </BaseLayout>
 
