@@ -17,6 +17,9 @@ from app.api.todos import router as todos_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown."""
+    from app.logging_config import configure_logging
+
+    configure_logging()
     yield
 
 

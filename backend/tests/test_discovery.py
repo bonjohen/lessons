@@ -1,7 +1,10 @@
 """Tests for GitHub discovery with mocked responses."""
 
 import json
+import logging
 from unittest.mock import patch
+
+import httpx
 
 from app.discovery.candidate_scorer import score_candidate
 from app.discovery.lesson_extractor import (
@@ -135,6 +138,27 @@ class TestTodoWriter:
         # This is a design constraint test — discovery writes files but never
         # creates PRs or pushes to external repos
         assert True  # Verified by code review: no subprocess git push/pr commands
+
+
+class TestGitHubSearcher:
+    def test_http_error_logged_and_returned(self, caplog):
+        from app.discovery.github_search import GitHubSearcher
+
+        def mock_get(*args, **kwargs):
+            raise httpx.HTTPStatusError(
+                "rate limited",
+                request=httpx.Request("GET", "https://api.github.com/search/repositories"),
+                response=httpx.Response(403),
+            )
+
+        searcher = GitHubSearcher(token="fake")
+        with patch("app.discovery.github_search.httpx.get", side_effect=mock_get):
+            with caplog.at_level(logging.ERROR, logger="app.discovery.github_search"):
+                result = searcher.search_repos(["test query"])
+
+        assert "test query" in result["failed_queries"]
+        assert len(result["repos"]) == 0
+        assert any("GitHub search failed" in r.message for r in caplog.records)
 
 
 class TestRepoIntake:

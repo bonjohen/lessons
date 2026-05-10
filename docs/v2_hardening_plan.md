@@ -68,7 +68,7 @@ Open  -->  Started  -->  Completed
 | 2.2 | Completed | 2026-05-10 12:02 AM (PST) | 2026-05-10 12:02 AM (PST) | Wrap `_init()` body and `get_gap_store()` initialization in `with _INIT_LOCK:` blocks. Use double-checked locking pattern (check None outside lock, re-check inside). |
 | 2.3 | Completed | 2026-05-10 12:02 AM (PST) | 2026-05-10 12:04 AM (PST) | Add `backend/tests/test_deps.py`: test each `DEPLOYMENT_PROFILE` value selects the correct adapter classes (mock cloud adapter constructors). Test thread-safety: spawn 10 threads calling `get_generator()` concurrently, assert `_init()` runs exactly once. |
 | 2.4 | Completed | 2026-05-10 12:04 AM (PST) | 2026-05-10 12:04 AM (PST) | Verify: `pytest backend/tests/` all green. Backend starts with no `DEPLOYMENT_PROFILE` set (local default). |
-| 2.5 | Started | 2026-05-10 12:04 AM (PST) |  | Stage and commit all Phase 2 changes. |
+| 2.5 | Completed | 2026-05-10 12:04 AM (PST) | 2026-05-10 12:05 AM (PST) | Stage and commit all Phase 2 changes. |
 
 ### Phase 2 Summary
 
@@ -86,17 +86,17 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 3.1 | Open |  |  | Add `backend/app/logging_config.py`: configure root logger with `logging.basicConfig()`, JSON formatter when `DEPLOYMENT_PROFILE` is a cloud value, human-readable otherwise. Import and call from `main.py` lifespan startup. |
-| 3.2 | Open |  |  | In `backend/app/api/_deps.py`: add `logger = logging.getLogger(__name__)`. Log WARNING on ChromaDB/Ollama/cloud adapter init failure (include exception message). Log INFO on successful initialization with adapter class names. |
-| 3.3 | Open |  |  | In `backend/app/discovery/github_search.py`: add logger. Replace bare `except httpx.HTTPError: continue` with `logger.error("GitHub search failed for query %r: %s", query, exc)` then `continue`. Add `failed_queries` list to return value so callers see which queries failed. |
-| 3.4 | Open |  |  | In `backend/app/rag/gap_detector.py`: add logger. Log each rule evaluation at DEBUG level with the rule name and whether it fired. Log the final gap decision (detected vs. not) at INFO. |
-| 3.5 | Open |  |  | Update existing tests if any assert on silent behavior. Add a test in `test_discovery.py` that mocks an HTTP error and asserts the error is logged (use `caplog` fixture). |
-| 3.6 | Open |  |  | Verify: `pytest backend/tests/` green. Start backend, send a chat query, confirm log output at INFO level shows adapter init and gap detection result. |
-| 3.7 | Open |  |  | Stage and commit all Phase 3 changes. |
+| 3.1 | Completed | 2026-05-10 12:05 AM (PST) | 2026-05-10 12:08 AM (PST) | Add `backend/app/logging_config.py`: configure root logger with `logging.basicConfig()`, JSON formatter when `DEPLOYMENT_PROFILE` is a cloud value, human-readable otherwise. Import and call from `main.py` lifespan startup. |
+| 3.2 | Completed | 2026-05-10 12:05 AM (PST) | 2026-05-10 12:08 AM (PST) | In `backend/app/api/_deps.py`: add `logger = logging.getLogger(__name__)`. Log WARNING on ChromaDB/Ollama/cloud adapter init failure (include exception message). Log INFO on successful initialization with adapter class names. |
+| 3.3 | Completed | 2026-05-10 12:05 AM (PST) | 2026-05-10 12:08 AM (PST) | In `backend/app/discovery/github_search.py`: add logger. Replace bare `except httpx.HTTPError: continue` with `logger.error("GitHub search failed for query %r: %s", query, exc)` then `continue`. Add `failed_queries` list to return value so callers see which queries failed. |
+| 3.4 | Completed | 2026-05-10 12:05 AM (PST) | 2026-05-10 12:08 AM (PST) | In `backend/app/rag/gap_detector.py`: add logger. Log each rule evaluation at DEBUG level with the rule name and whether it fired. Log the final gap decision (detected vs. not) at INFO. |
+| 3.5 | Completed | 2026-05-10 12:08 AM (PST) | 2026-05-10 12:08 AM (PST) | Update existing tests if any assert on silent behavior. Add a test in `test_discovery.py` that mocks an HTTP error and asserts the error is logged (use `caplog` fixture). |
+| 3.6 | Completed | 2026-05-10 12:08 AM (PST) | 2026-05-10 12:08 AM (PST) | Verify: `pytest backend/tests/` green. Start backend, send a chat query, confirm log output at INFO level shows adapter init and gap detection result. |
+| 3.7 | Started | 2026-05-10 12:08 AM (PST) |  | Stage and commit all Phase 3 changes. |
 
 ### Phase 3 Summary
 
-- **Changes:** TBD
+- **Changes:** Added `backend/app/logging_config.py` (JSON formatter for cloud, human-readable for local). Added loggers to `_deps.py` (init success/failure), `github_search.py` (HTTP errors + `failed_queries` return field), `gap_detector.py` (DEBUG per-rule, INFO final decision). Updated `github_discovery.py` for new `search_repos` return type. Added `TestGitHubSearcher` to `test_discovery.py`.
 - **Changes hosted at:** TBD
 - **Commit:** `feat: structured logging for init, discovery, and gap detection (R-05, R-12)`
 

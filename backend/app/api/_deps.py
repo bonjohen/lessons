@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import threading
 
 from app.rag.gap_store import GapStore
 from app.rag.generator import Generator
 from app.rag.retriever import Retriever
+
+logger = logging.getLogger(__name__)
 
 _retriever: Retriever | None = None
 _generator: Generator | None = None
@@ -58,18 +61,26 @@ def _init():
         try:
             llm, vector = _create_adapters(profile)
         except Exception:
-            return  # adapter not available
+            logger.warning("Adapter init failed for profile %r", profile, exc_info=True)
+            return
 
         # For local profile, skip if no embeddings indexed yet
         if profile == "local":
             try:
                 if vector.count() == 0:
+                    logger.info("No embeddings indexed yet — skipping RAG init")
                     return
             except Exception:
+                logger.warning("Vector store unavailable", exc_info=True)
                 return
 
         _retriever = Retriever(vector=vector, llm=llm)
         _generator = Generator(retriever=_retriever, llm=llm)
+        logger.info(
+            "RAG pipeline initialized: llm=%s, vector=%s",
+            type(llm).__name__,
+            type(vector).__name__,
+        )
 
 
 def get_retriever() -> Retriever | None:

@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 # Minimum relevance score threshold
 MIN_RELEVANCE_THRESHOLD = 0.3
@@ -69,26 +72,35 @@ def detect_gap(
 
     # Rule 1: No retrieval results exceed minimum relevance
     scores = [c.get("similarity_score", 0) for c in chunks]
-    if not scores or max(scores) < MIN_RELEVANCE_THRESHOLD:
+    rule1 = not scores or max(scores) < MIN_RELEVANCE_THRESHOLD
+    if rule1:
         reasons.append("no_relevant_chunks")
+    logger.debug("Rule 1 (no_relevant_chunks): %s", "fired" if rule1 else "passed")
 
     # Rule 2: Fewer than 2 distinct lessons are relevant
     above_threshold = [c for c in chunks if c.get("similarity_score", 0) >= MIN_RELEVANCE_THRESHOLD]
     distinct_lessons = set(c.get("lesson_id", "") for c in above_threshold)
-    if len(distinct_lessons) < MIN_DISTINCT_LESSONS:
+    rule2 = len(distinct_lessons) < MIN_DISTINCT_LESSONS
+    if rule2:
         reasons.append("few_distinct_lessons")
+    logger.debug("Rule 2 (few_distinct_lessons): %s", "fired" if rule2 else "passed")
 
     # Rule 3: Retrieved lessons related but don't answer the question
     # (Detected via low top score with some results present)
-    if scores and 0 < max(scores) < 0.5 and len(chunks) >= 3:
+    rule3 = scores and 0 < max(scores) < 0.5 and len(chunks) >= 3
+    if rule3:
         reasons.append("related_but_unanswered")
+    logger.debug("Rule 3 (related_but_unanswered): %s", "fired" if rule3 else "passed")
 
     # Rule 4: Model answer uses weak language
     answer_lower = answer.lower()
+    rule4 = False
     for phrase in WEAK_ANSWER_PHRASES:
         if phrase in answer_lower:
             reasons.append("weak_answer_language")
+            rule4 = True
             break
+    logger.debug("Rule 4 (weak_answer_language): %s", "fired" if rule4 else "passed")
 
     # Rule 5: User explicitly asks for material not present
     # (Detected by question patterns like "do I have any lessons about...")
@@ -97,30 +109,41 @@ def detect_gap(
         r"what lessons.*(about|on|for|regarding)",
         r"any.*(lesson|coverage|material).*(about|on|for)",
     ]
+    rule5 = False
     for pattern in ask_patterns:
         if re.search(pattern, query.lower()):
             # Only flag if answer suggests absence
             if any(p in answer_lower for p in WEAK_ANSWER_PHRASES):
                 reasons.append("explicit_absence_query")
+                rule5 = True
             break
+    logger.debug("Rule 5 (explicit_absence_query): %s", "fired" if rule5 else "passed")
 
     # Rule 6: Query contains named technology/platform with no matching lessons
     query_lower = query.lower()
+    rule6 = False
     for platform in PLATFORM_KEYWORDS:
         if platform in query_lower:
             # Check if any retrieved lesson mentions this platform
             chunk_texts = " ".join(c.get("chunk_text", "") for c in chunks).lower()
             if platform not in chunk_texts:
                 reasons.append("missing_platform")
+                rule6 = True
                 break
+    logger.debug("Rule 6 (missing_platform): %s", "fired" if rule6 else "passed")
 
     # Rule 7: Answer depends mostly on general knowledge
     # (Proxy: answer is long but few relevant chunks)
-    if len(answer) > 200 and len(above_threshold) < 2:
+    rule7 = len(answer) > 200 and len(above_threshold) < 2
+    if rule7:
         reasons.append("general_knowledge_answer")
+    logger.debug("Rule 7 (general_knowledge_answer): %s", "fired" if rule7 else "passed")
 
     if not reasons:
+        logger.info("Gap detection: no gap for query %r", query)
         return None
+
+    logger.info("Gap detected for query %r: reasons=%s", query, reasons)
 
     # Classify gap type
     gap_type = _classify_gap(reasons, query)

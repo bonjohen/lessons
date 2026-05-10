@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import os
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 GITHUB_API = "https://api.github.com"
 DEFAULT_MAX_RESULTS = 20
@@ -25,10 +28,14 @@ class GitHubSearcher:
         languages: list[str] | None = None,
         min_stars: int = 0,
         max_results: int = DEFAULT_MAX_RESULTS,
-    ) -> list[dict]:
-        """Search GitHub repos using multiple queries, deduplicate results."""
-        seen = set()
-        results = []
+    ) -> dict:
+        """Search GitHub repos using multiple queries, deduplicate results.
+
+        Returns dict with keys ``repos`` (list[dict]) and ``failed_queries`` (list[str]).
+        """
+        seen: set[str] = set()
+        results: list[dict] = []
+        failed_queries: list[str] = []
 
         for query in queries:
             q = query
@@ -72,9 +79,11 @@ class GitHubSearcher:
                     )
 
                     if len(results) >= max_results:
-                        return results
+                        return {"repos": results, "failed_queries": failed_queries}
 
-            except httpx.HTTPError:
+            except httpx.HTTPError as exc:
+                logger.error("GitHub search failed for query %r: %s", query, exc)
+                failed_queries.append(query)
                 continue
 
-        return results
+        return {"repos": results, "failed_queries": failed_queries}

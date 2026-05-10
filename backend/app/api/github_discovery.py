@@ -30,11 +30,11 @@ async def search_github(
         raise HTTPException(status_code=400, detail="Gap has no suggested search queries")
 
     searcher = GitHubSearcher()
-    results = searcher.search_repos(queries, languages=languages, min_stars=min_stars, max_results=max_results)
+    search_result = searcher.search_repos(queries, languages=languages, min_stars=min_stars, max_results=max_results)
 
     # Score candidates
     candidates = []
-    for repo in results:
+    for repo in search_result["repos"]:
         score, reasons = score_candidate(repo, gap)
         candidates.append(
             {
