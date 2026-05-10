@@ -63,7 +63,11 @@ class TestChatEndpoint:
             assert data["relevant_lessons"][0]["lesson_url"] == "/lessons/test-lesson-1"
 
     def test_chat_no_backend(self):
-        with patch("app.api._deps._generator", None), patch("app.api._deps._retriever", None), patch("app.api._deps._init"):
+        with (
+            patch("app.api._deps._generator", None),
+            patch("app.api._deps._retriever", None),
+            patch("app.api._deps._init"),
+        ):
             response = client.post("/api/chat", json={"message": "question"})
             assert response.status_code == 200
             data = response.json()
@@ -81,7 +85,11 @@ class TestRetrieveEndpoint:
             assert data["chunks"][0]["chunk_id"] == "test-lesson-1-0"
 
     def test_retrieve_no_backend(self):
-        with patch("app.api._deps._retriever", None), patch("app.api._deps._generator", None), patch("app.api._deps._init"):
+        with (
+            patch("app.api._deps._retriever", None),
+            patch("app.api._deps._generator", None),
+            patch("app.api._deps._init"),
+        ):
             response = client.post("/api/retrieve", json={"query": "testing"})
             assert response.status_code == 200
             data = response.json()
