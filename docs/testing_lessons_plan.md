@@ -80,12 +80,12 @@ Open  ──>  Started  ──>  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 4.1     | Open   |               |                  | Write `docs/lessons/preflight-gates-as-local-ci.md` — lint/format/test gates, script existence checks, optional dep detection, single-command pre-push validation |
-| 4.2     | Open   |               |                  | Verify frontmatter and cross-reference related lessons |
+| 4.1     | Completed | 2026-05-10 09:09 PM (PST) | 2026-05-10 09:10 PM (PST) | Write `docs/lessons/preflight-gates-as-local-ci.md` — lint/format/test gates, script existence checks, optional dep detection, single-command pre-push validation |
+| 4.2     | Completed | 2026-05-10 09:10 PM (PST) | 2026-05-10 09:10 PM (PST) | Verify frontmatter and cross-reference related lessons |
 
 ### Phase 4 Summary
 
-- **Changes:** TBD
+- **Changes:** Created `docs/lessons/preflight-gates-as-local-ci.md` covering the five-gate preflight script, common CI failures prevented, and integration with push workflow.
 - **Commit:** `docs: add preflight gates as local CI lesson`
 
 ---
