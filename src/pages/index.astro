@@ -9,10 +9,25 @@ const lessons = getLessons();
 const repos = getRepos();
 const tags = getTags();
 
+// Extract a plain-text blurb from markdown content
+function extractBlurb(lesson: any): string {
+  if (lesson.summary) return lesson.summary;
+  // Strip markdown headings, links, images, bold/italic, then take first 160 chars
+  const plain = (lesson.content || '')
+    .replace(/^#{1,6}\s+.*$/gm, '')   // headings
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // links/images
+    .replace(/[*_`~]/g, '')           // inline formatting
+    .replace(/\n{2,}/g, ' ')          // collapse paragraphs
+    .replace(/\n/g, ' ')
+    .trim();
+  return plain.slice(0, 160) + (plain.length > 160 ? '...' : '') || lesson.title;
+}
+
 // Featured lessons: 10 random picks (shuffled at build time)
 const featured = [...lessons]
   .sort(() => Math.random() - 0.5)
-  .slice(0, 10);
+  .slice(0, 10)
+  .map(l => ({ ...l, blurb: extractBlurb(l) }));
 
 // Recent lessons: sorted by date desc, limit 10
 const recent = [...lessons]

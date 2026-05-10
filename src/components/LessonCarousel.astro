@@ -4,7 +4,7 @@ import { url } from '../lib/url';
 interface Lesson {
   id: string;
   title: string;
-  summary: string;
+  blurb: string;
   repo_name: string;
   tags: string[];
   phase: string | null;
@@ -30,16 +30,12 @@ const { lessons } = Astro.props;
   </div>
   <div class="carousel-viewport" id="carousel-viewport">
     {lessons.map((lesson, i) => (
-      <div class={`carousel-slide${i === 0 ? ' active' : ''}`}>
+      <div class={`carousel-slide${i === 0 ? ' active' : ''}`} data-idx={i}>
         <div class="slide-label">
           {lesson.repo_name}{lesson.lesson_type ? ` / ${lesson.lesson_type}` : ''}
         </div>
         <h3><a href={url(`/lessons/${lesson.id}/`)}>{lesson.title}</a></h3>
-        {lesson.summary && (
-          <p class="slide-summary">
-            {lesson.summary.length > 140 ? lesson.summary.slice(0, 140) + '...' : lesson.summary}
-          </p>
-        )}
+        <p class="slide-summary">{lesson.blurb}</p>
         <div class="slide-meta">
           {lesson.date && <span class="slide-date">{lesson.date}</span>}
           {lesson.phase && <span class="slide-phase">{lesson.phase}</span>}
@@ -176,20 +172,23 @@ const { lessons } = Astro.props;
 
   .carousel-viewport {
     position: relative;
-    min-height: 180px;
     background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     overflow: hidden;
   }
 
+  /* First slide stays in flow to establish viewport height */
   .carousel-slide {
-    position: absolute;
-    inset: 0;
     padding: 1.5rem;
     opacity: 0;
     transition: opacity 1.2s cubic-bezier(.2, .7, .2, 1);
     pointer-events: none;
+  }
+
+  .carousel-slide:not([data-idx="0"]) {
+    position: absolute;
+    inset: 0;
   }
 
   .carousel-slide.active {
