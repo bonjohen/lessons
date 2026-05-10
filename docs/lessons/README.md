@@ -15,6 +15,7 @@ Standalone learning resources extracted from real project work on Lessons Hub. E
 - [Five-Stage Design-to-Execution Workflow](five-stage-design-to-execution.md) — Design, PDR, Plan, Execute, Commit with table-driven task tracking
 - [Code Review as Requirements Source](code-review-as-requirements-source.md) — Systematic triage turns review findings into a traceable requirements backlog
 - [Validation Severity Model](validation-severity-model.md) — Why warnings never fail the build
+- [Skill-Driven Workflow Automation](skill-driven-workflow-automation.md) — Composable slash-command skills enforce guardrails and eliminate workflow friction
 
 ## Deployment & Infrastructure
 
@@ -25,3 +26,8 @@ Standalone learning resources extracted from real project work on Lessons Hub. E
 ## Testing
 
 - [Live Infrastructure for Integration Testing](live-infrastructure-for-integration-testing.md) — When local services are already running, skip mocks and test the real pipeline end-to-end
+- [Acceptance Testing with Playwright](acceptance-testing-with-playwright.md) — BFS link crawling and smoke tests against live URLs catch broken navigation before users do
+- [Test Pyramid for Static Sites](test-pyramid-for-static-sites.md) — Layer unit, integration, and acceptance tests so each catches what the others cannot
+- [Mock vs Live Testing Trade-offs](mock-vs-live-testing-trade-offs.md) — Decision framework for when to mock and when to test against real infrastructure
+- [Preflight Gates as Local CI](preflight-gates-as-local-ci.md) — Run the same checks CI will run before pushing to prevent common build failures
+- [Testing Cross-Repo Content Pipelines](testing-cross-repo-content-pipelines.md) — Validation severity, slug collision detection, and schema enforcement for harvested content
