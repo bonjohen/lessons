@@ -42,15 +42,15 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 1.1 | Open |  |  | In `src/components/ChatPanel.astro`, replace hardcoded `API_BASE = 'http://localhost:8000'` with `import.meta.env.PUBLIC_API_BASE \|\| 'http://localhost:8000'`. Pass via `define:vars`. |
-| 1.2 | Open |  |  | In `backend/app/main.py`, read `CORS_ORIGINS` env var (comma-separated), fall back to current localhost list. Replace hardcoded `allow_origins` list. |
-| 1.3 | Open |  |  | Add `.env.example` at project root documenting `PUBLIC_API_BASE` and `CORS_ORIGINS` with example values and comments. |
-| 1.4 | Open |  |  | Verify: `npm run build` succeeds with no `.env`; backend starts with default CORS; set `CORS_ORIGINS=https://example.com` and confirm CORS header changes. Run `pytest backend/tests/` green. |
-| 1.5 | Open |  |  | Stage and commit all Phase 1 changes. |
+| 1.1 | Completed | 2026-05-09 11:58 PM (PST) | 2026-05-09 11:58 PM (PST) | In `src/components/ChatPanel.astro`, replace hardcoded `API_BASE = 'http://localhost:8000'` with `import.meta.env.PUBLIC_API_BASE \|\| 'http://localhost:8000'`. Pass via `define:vars`. |
+| 1.2 | Completed | 2026-05-09 11:58 PM (PST) | 2026-05-09 11:58 PM (PST) | In `backend/app/main.py`, read `CORS_ORIGINS` env var (comma-separated), fall back to current localhost list. Replace hardcoded `allow_origins` list. |
+| 1.3 | Completed | 2026-05-09 11:58 PM (PST) | 2026-05-09 11:59 PM (PST) | Add `.env.example` at project root documenting `PUBLIC_API_BASE` and `CORS_ORIGINS` with example values and comments. |
+| 1.4 | Completed | 2026-05-09 11:59 PM (PST) | 2026-05-10 12:00 AM (PST) | Verify: `npm run build` succeeds with no `.env`; backend starts with default CORS; set `CORS_ORIGINS=https://example.com` and confirm CORS header changes. Run `pytest backend/tests/` green. |
+| 1.5 | Started | 2026-05-10 12:00 AM (PST) |  | Stage and commit all Phase 1 changes. |
 
 ### Phase 1 Summary
 
-- **Changes:** TBD
+- **Changes:** `src/components/ChatPanel.astro` reads `PUBLIC_API_BASE` from env via `define:vars`; `backend/app/main.py` reads `CORS_ORIGINS` env var (comma-separated) with localhost fallback; added `.env.example` documenting both variables.
 - **Changes hosted at:** TBD
 - **Commit:** `fix: externalize API URL and CORS origins (R-01, R-03)`
 
