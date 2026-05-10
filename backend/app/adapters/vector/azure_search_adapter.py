@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import os
 
 from .base import VectorAdapter
+
+logger = logging.getLogger(__name__)
 
 INDEX_NAME = "lessons-chunks"
 EMBEDDING_DIM = 768
@@ -69,7 +72,9 @@ class AzureSearchAdapter(VectorAdapter):
         """Create the search index if it doesn't exist."""
         try:
             index_client.get_index(self._index_name)
+            return
         except Exception:
+            logger.info("Index %s not found, creating", self._index_name)
             fields = [
                 SearchField(name="chunk_id", type=SearchFieldDataType.String, key=True),
                 SearchField(name="chunk_text", type=SearchFieldDataType.String, searchable=True),
@@ -192,7 +197,7 @@ class AzureSearchAdapter(VectorAdapter):
         try:
             self._index_client.delete_index(self._index_name)
         except Exception:
-            pass
+            logger.warning("Failed to delete index %s", self._index_name, exc_info=True)
 
     def count(self) -> int:
         """Return number of indexed documents."""

@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
 from filelock import FileLock
+from pydantic import ValidationError
+
+from app.models.schemas import GapRecord
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_GAPS_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "gaps" / "corpus-gaps.json"
 
@@ -34,7 +40,15 @@ class GapStore:
         if not self._path.exists():
             return []
         with open(self._path, encoding="utf-8") as f:
-            return json.load(f)
+            raw = json.load(f)
+        valid = []
+        for item in raw:
+            try:
+                GapRecord.model_validate(item)
+                valid.append(item)
+            except ValidationError as e:
+                logger.warning("Skipping invalid gap record %s: %s", item.get("gap_id", "?"), e)
+        return valid
 
     def _save(self, gaps: list[dict]):
         with open(self._path, "w", encoding="utf-8") as f:

@@ -8,6 +8,10 @@ import os
 import subprocess
 from pathlib import Path
 
+from pydantic import ValidationError
+
+from app.models.schemas import CandidateRepo
+
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -54,7 +58,13 @@ def save_candidate_repo(candidate: dict):
     repos = []
     if CANDIDATE_REPOS_PATH.exists():
         with open(CANDIDATE_REPOS_PATH, encoding="utf-8") as f:
-            repos = json.load(f)
+            raw = json.load(f)
+        for item in raw:
+            try:
+                CandidateRepo.model_validate(item)
+                repos.append(item)
+            except ValidationError as e:
+                logger.warning("Skipping invalid candidate repo %s: %s", item.get("candidate_repo_id", "?"), e)
 
     # Update or append
     existing_idx = next(

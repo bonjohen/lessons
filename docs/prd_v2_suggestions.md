@@ -1,7 +1,7 @@
 # Lessons Hub V2 — Implementation Summary
 
 **Source plan:** `docs/lessons_hub_v2_plan.md` | **PDR:** `docs/PDR_V2.md`
-**Phases completed:** 8 of 8 | **Total tests:** 147 (71 backend + 76 project)
+**Phases completed:** 8 of 8 | **Total tests:** 178 (102 backend + 76 project)
 
 This document summarizes the V2 implementation across all eight phases and explains the architecture, key design decisions, and areas that warrant attention during code review.
 
@@ -226,7 +226,7 @@ All implement `VectorAdapter` (abstract base): `index_chunks`, `query`, `delete_
 
 - `ruff check backend/` and `ruff format --check backend/` (import sorting, line length, unused imports)
 - `pytest tests/` (76 project tests: harvesting, validation, slugs, frontmatter)
-- `pytest backend/tests/` (71 backend tests: health, chat, adapters, gaps, discovery, AWS/Azure/GCP)
+- `pytest backend/tests/` (102 backend tests: health, chat, adapters, gaps, discovery, AWS/Azure/GCP)
 - `npm run corpus && npm run validate:corpus` (RAG corpus build + validation)
 - PR trigger added (build-only, no deploy)
 - Deploy job gated with `if: github.event_name != 'pull_request'`

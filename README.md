@@ -106,7 +106,7 @@ npm run validate:corpus  # Validate RAG corpus
 
 ```bash
 python -m pytest tests/           # Project tests (76)
-python -m pytest backend/tests/   # Backend tests (71)
+python -m pytest backend/tests/   # Backend tests (102)
 ruff check backend/               # Lint
 ruff format --check backend/      # Format check
 ```

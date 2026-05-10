@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
 from filelock import FileLock
+from pydantic import ValidationError
+
+from app.models.schemas import TodoRecord
+
+logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 TODOS_PATH = PROJECT_ROOT / "data" / "todos" / "todos.json"
@@ -73,4 +79,12 @@ def list_todos() -> list[dict]:
     if not TODOS_PATH.exists():
         return []
     with open(TODOS_PATH, encoding="utf-8") as f:
-        return json.load(f)
+        raw = json.load(f)
+    valid = []
+    for item in raw:
+        try:
+            TodoRecord.model_validate(item)
+            valid.append(item)
+        except ValidationError as e:
+            logger.warning("Skipping invalid todo record %s: %s", item.get("todo_id", "?"), e)
+    return valid

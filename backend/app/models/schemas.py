@@ -102,8 +102,8 @@ class GapRecord(BaseModel):
     """A corpus gap — topic the lessons cannot answer well."""
 
     gap_id: str
-    created_date: str
-    updated_date: str
+    created_date: str = ""
+    updated_date: str = ""
     status: str = "open"
     trigger_query: str
     normalized_topic: str

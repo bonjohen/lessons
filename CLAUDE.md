@@ -12,7 +12,7 @@ V2 adds a RAG chatbot (FastAPI backend with LLM + vector adapters), gap detectio
 
 - `docs/PDR.md` — V1 authoritative build spec
 - `docs/PDR_V2.md` — V2 feature spec (RAG, gaps, discovery, cloud adapters)
-- `docs/v2_suggestions_pdr.md` — V2 hardening requirements (18 items, production readiness)
+- `docs/v2_suggestions_prd.md` — V2 hardening requirements (18 items, production readiness)
 - `docs/v2_hardening_plan.md` — Active implementation plan (9 phases, 53 tasks)
 - `docs/v2_summary.md` — V2 code review guide with architecture explanations
 
@@ -47,7 +47,7 @@ npm run validate:corpus      # Validate RAG corpus
 
 ```bash
 python -m pytest tests/           # Project tests (76): harvesting, validation, slugs, corpus
-python -m pytest backend/tests/   # Backend tests (71): health, chat, adapters, gaps, discovery, cloud
+python -m pytest backend/tests/   # Backend tests (102): health, chat, adapters, gaps, discovery, cloud
 ruff check backend/               # Lint
 ruff format --check backend/      # Format check
 ```
