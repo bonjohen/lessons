@@ -1,0 +1,14 @@
+---
+gap_id: gap_thread_8
+status: open
+created: 2026-01-01T00:00:00Z
+updated: 2026-01-01T00:00:00Z
+confidence: 0.0
+gap_type: missing_topic
+---
+
+# Gap: topic 8
+
+**Trigger query:** query 8
+
+**Retrieval summary:** 
