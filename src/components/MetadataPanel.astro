@@ -62,8 +62,8 @@ const { lesson } = Astro.props;
 
 <style>
   .metadata-panel {
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 1rem 1.25rem;
     margin-bottom: 1.5rem;
@@ -79,7 +79,7 @@ const { lesson } = Astro.props;
 
   dt {
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-secondary);
   }
 
   dd {

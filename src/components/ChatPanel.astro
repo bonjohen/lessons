@@ -216,10 +216,10 @@ fetch(`${API_BASE}/health`)
 
 <style>
   #chat-panel {
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 1rem;
-    background: #fff;
+    background: var(--color-bg-surface);
   }
 
   /* Suggestions */
@@ -229,7 +229,7 @@ fetch(`${API_BASE}/health`)
 
   .suggestions-label {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--color-text-faint);
     margin-bottom: 0.5rem;
   }
 
@@ -240,19 +240,19 @@ fetch(`${API_BASE}/health`)
   }
 
   .suggestion-chip {
-    background: #f0f7ff;
-    border: 1px solid #c5d9f7;
+    background: var(--color-chip-bg);
+    border: 1px solid var(--color-chip-border);
     border-radius: 16px;
     padding: 0.35rem 0.75rem;
     font-size: 0.8rem;
-    color: #2563eb;
+    color: var(--color-link);
     cursor: pointer;
     transition: all 0.15s ease;
   }
 
   .suggestion-chip:hover {
-    background: #dbeafe;
-    border-color: #2563eb;
+    background: var(--color-chip-hover-bg);
+    border-color: var(--color-accent);
   }
 
   /* Messages */
@@ -272,13 +272,13 @@ fetch(`${API_BASE}/health`)
   }
 
   .chat-user {
-    background: #e8f0fe;
+    background: var(--color-tag-bg);
     text-align: right;
   }
 
   .chat-assistant {
-    background: #fafafa;
-    border-left: 3px solid #2563eb;
+    background: var(--color-bg-subtle);
+    border-left: 3px solid var(--color-accent);
   }
 
   .msg-body {
@@ -294,7 +294,7 @@ fetch(`${API_BASE}/health`)
   }
 
   .msg-body :global(pre) {
-    background: #f0f0f0;
+    background: var(--color-bg-code);
     padding: 0.75rem;
     border-radius: 4px;
     overflow-x: auto;
@@ -303,7 +303,7 @@ fetch(`${API_BASE}/health`)
   }
 
   .msg-body :global(code) {
-    background: #f0f0f0;
+    background: var(--color-bg-code);
     padding: 0.1em 0.3em;
     border-radius: 3px;
     font-size: 0.9em;
@@ -320,11 +320,11 @@ fetch(`${API_BASE}/health`)
     top: 0.5rem;
     right: 0.5rem;
     background: transparent;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-btn-border);
     border-radius: 3px;
     padding: 0.15rem 0.4rem;
     font-size: 0.7rem;
-    color: #888;
+    color: var(--color-text-faint);
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -335,8 +335,8 @@ fetch(`${API_BASE}/health`)
   }
 
   .copy-btn:hover {
-    color: #1a1a1a;
-    border-color: #aaa;
+    color: var(--color-text);
+    border-color: var(--color-border-faint);
   }
 
   /* Typing indicator */
@@ -353,7 +353,7 @@ fetch(`${API_BASE}/health`)
   .dot-pulse span {
     width: 8px;
     height: 8px;
-    background: #93c5fd;
+    background: var(--color-accent);
     border-radius: 50%;
     animation: dot-bounce 1.4s ease-in-out infinite both;
   }
@@ -371,7 +371,7 @@ fetch(`${API_BASE}/health`)
   .msg-sources {
     margin-top: 0.75rem;
     padding-top: 0.5rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border);
     font-size: 0.9rem;
   }
 
@@ -386,7 +386,7 @@ fetch(`${API_BASE}/health`)
   }
 
   .score {
-    color: #777;
+    color: var(--color-text-muted);
     font-size: 0.8rem;
   }
 
@@ -399,20 +399,22 @@ fetch(`${API_BASE}/health`)
   #chat-input {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-faint);
     border-radius: 4px;
     font-size: 1rem;
+    background: var(--color-bg-surface);
+    color: var(--color-text);
   }
 
   #chat-input:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: var(--color-accent);
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
   }
 
   #chat-submit {
     padding: 0.5rem 1.25rem;
-    background: #2563eb;
+    background: var(--color-accent);
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -422,21 +424,21 @@ fetch(`${API_BASE}/health`)
   }
 
   #chat-submit:hover {
-    background: #1d4ed8;
+    background: var(--color-link-hover);
   }
 
   #chat-submit:disabled {
-    background: #93c5fd;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 
   .status-msg {
     margin-top: 0.5rem;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--color-footer-text);
   }
 
   .status-msg.error {
-    color: #dc2626;
+    color: var(--color-error);
   }
 </style>

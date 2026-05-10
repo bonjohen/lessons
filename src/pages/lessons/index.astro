@@ -88,8 +88,10 @@ const allStatuses = [...new Set(lessons.map((l) => l.status))].sort();
 
   .filters select {
     padding: 0.4rem 0.6rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-faint);
     border-radius: 4px;
     font-size: 0.85rem;
+    background: var(--color-bg-surface);
+    color: var(--color-text);
   }
 </style>

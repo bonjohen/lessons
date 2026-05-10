@@ -17,6 +17,13 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' ${apiBase} http://localhost:* https:; frame-src 'self' http://localhost:* https:; img-src 'self' data:;`} />
     <title>{title}</title>
+    <script is:inline>
+      (function() {
+        const saved = localStorage.getItem('theme');
+        const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
   <body>
     <header>
@@ -32,6 +39,10 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
           <li><a href={url('/gaps/')}>Gaps</a></li>
           <li><a href={url('/about/')}>About</a></li>
         </ul>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+          <span class="theme-icon-light">&#9788;</span>
+          <span class="theme-icon-dark">&#9790;</span>
+        </button>
       </nav>
     </header>
     <main>
@@ -48,7 +59,91 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   </body>
 </html>
 
+<script is:inline>
+  (function() {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+  })();
+</script>
+
 <style is:global>
+  :root {
+    --color-text: #1a1a1a;
+    --color-text-secondary: #555;
+    --color-text-muted: #777;
+    --color-text-faint: #888;
+    --color-bg: #fafafa;
+    --color-bg-surface: #fff;
+    --color-bg-subtle: #f8f9fa;
+    --color-bg-code: #f0f0f0;
+    --color-border: #e0e0e0;
+    --color-border-light: #ddd;
+    --color-border-faint: #ccc;
+    --color-link: #2563eb;
+    --color-link-hover: #1d4ed8;
+    --color-accent: #2563eb;
+    --color-tag-bg: #e8f0fe;
+    --color-tag-text: #1a56db;
+    --color-tag-hover: #c5d9f7;
+    --color-chip-bg: #f0f7ff;
+    --color-chip-border: #c5d9f7;
+    --color-chip-hover-bg: #dbeafe;
+    --color-table-header: #f5f5f5;
+    --color-success: #22c55e;
+    --color-error: #ef4444;
+    --color-warning: #fbbf24;
+    --color-status-na: #d1d5db;
+    --color-status-draft-bg: #fef3c7;
+    --color-status-draft-text: #92400e;
+    --color-status-superseded-bg: #fce7f3;
+    --color-status-superseded-text: #9d174d;
+    --color-status-deprecated-bg: #fee2e2;
+    --color-status-deprecated-text: #991b1b;
+    --color-footer-text: #666;
+    --color-btn-text: #666;
+    --color-btn-border: #ddd;
+  }
+
+  [data-theme="dark"] {
+    --color-text: #e0e0e0;
+    --color-text-secondary: #aaa;
+    --color-text-muted: #888;
+    --color-text-faint: #666;
+    --color-bg: #121212;
+    --color-bg-surface: #1e1e1e;
+    --color-bg-subtle: #252525;
+    --color-bg-code: #2a2a2a;
+    --color-border: #333;
+    --color-border-light: #3a3a3a;
+    --color-border-faint: #444;
+    --color-link: #60a5fa;
+    --color-link-hover: #93c5fd;
+    --color-accent: #3b82f6;
+    --color-tag-bg: #1e3a5f;
+    --color-tag-text: #93c5fd;
+    --color-tag-hover: #2a4a6f;
+    --color-chip-bg: #1a2e44;
+    --color-chip-border: #2a4a6f;
+    --color-chip-hover-bg: #223d5a;
+    --color-table-header: #2a2a2a;
+    --color-status-na: #4b5563;
+    --color-status-draft-bg: #422006;
+    --color-status-draft-text: #fbbf24;
+    --color-status-superseded-bg: #4a0e2b;
+    --color-status-superseded-text: #f472b6;
+    --color-status-deprecated-bg: #450a0a;
+    --color-status-deprecated-text: #fca5a5;
+    --color-footer-text: #888;
+    --color-btn-text: #999;
+    --color-btn-border: #444;
+  }
+
   *,
   *::before,
   *::after {
@@ -60,15 +155,15 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   body {
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
-    color: #1a1a1a;
-    background: #fafafa;
+    color: var(--color-text);
+    background: var(--color-bg);
     max-width: 960px;
     margin: 0 auto;
     padding: 0 1rem;
   }
 
   header {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border);
     padding: 1rem 0;
     margin-bottom: 2rem;
   }
@@ -84,7 +179,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
     font-size: 1.25rem;
     font-weight: 700;
     text-decoration: none;
-    color: #1a1a1a;
+    color: var(--color-text);
   }
 
   nav ul {
@@ -94,7 +189,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   }
 
   nav a {
-    color: #2563eb;
+    color: var(--color-link);
     text-decoration: none;
   }
 
@@ -102,16 +197,44 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
     text-decoration: underline;
   }
 
+  .theme-toggle {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--color-btn-border);
+    border-radius: 4px;
+    cursor: pointer;
+    width: 32px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: var(--color-btn-text);
+    transition: border-color 0.12s ease, color 0.12s ease;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  [data-theme="dark"] .theme-icon-light { display: inline; }
+  [data-theme="dark"] .theme-icon-dark { display: none; }
+  [data-theme="light"] .theme-icon-light,
+  :root:not([data-theme="dark"]) .theme-icon-light { display: none; }
+  [data-theme="light"] .theme-icon-dark,
+  :root:not([data-theme="dark"]) .theme-icon-dark { display: inline; }
+
   main {
     min-height: 60vh;
     padding-bottom: 2rem;
   }
 
   footer {
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border);
     padding: 1.5rem 0;
     margin-top: 2rem;
-    color: #666;
+    color: var(--color-footer-text);
     font-size: 0.875rem;
   }
 
@@ -120,13 +243,13 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   }
 
   .footer-links a {
-    color: #666;
+    color: var(--color-footer-text);
     text-decoration: none;
   }
 
   .footer-links a:hover {
     text-decoration: underline;
-    color: #2563eb;
+    color: var(--color-link);
   }
 
   h1 { font-size: 2rem; margin-bottom: 1rem; }
@@ -135,18 +258,18 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   p { margin-bottom: 0.75rem; }
 
   a {
-    color: #2563eb;
+    color: var(--color-link);
   }
 
   code {
-    background: #f0f0f0;
+    background: var(--color-bg-code);
     padding: 0.15em 0.35em;
     border-radius: 3px;
     font-size: 0.9em;
   }
 
   pre {
-    background: #f0f0f0;
+    background: var(--color-bg-code);
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;
@@ -160,13 +283,13 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 
   .breadcrumb {
     font-size: 0.85rem;
-    color: #777;
+    color: var(--color-text-muted);
     margin-bottom: 1rem;
   }
 
   .tag {
-    background: #e8f0fe;
-    color: #1a56db;
+    background: var(--color-tag-bg);
+    color: var(--color-tag-text);
     padding: 0.2em 0.6em;
     border-radius: 3px;
     font-size: 0.8rem;
@@ -174,6 +297,6 @@ const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
   }
 
   .tag:hover {
-    background: #c5d9f7;
+    background: var(--color-tag-hover);
   }
 </style>

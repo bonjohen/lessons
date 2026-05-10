@@ -38,14 +38,14 @@ const html = sanitizeHtml(rawHtml, {
   .walkthrough :global(h1) {
     font-size: 2rem;
     margin: 2rem 0 1rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border);
     padding-bottom: 0.5rem;
   }
 
   .walkthrough :global(h2) {
     font-size: 1.5rem;
     margin: 2rem 0 0.75rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border);
     padding-bottom: 0.3rem;
   }
 
@@ -63,18 +63,18 @@ const html = sanitizeHtml(rawHtml, {
 
   .walkthrough :global(th),
   .walkthrough :global(td) {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-light);
     padding: 0.5rem 0.75rem;
     text-align: left;
   }
 
   .walkthrough :global(th) {
-    background: #f5f5f5;
+    background: var(--color-table-header);
     font-weight: 600;
   }
 
   .walkthrough :global(pre) {
-    background: #f0f0f0;
+    background: var(--color-bg-code);
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;
@@ -84,7 +84,7 @@ const html = sanitizeHtml(rawHtml, {
 
   .walkthrough :global(hr) {
     border: none;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border);
     margin: 2rem 0;
   }
 

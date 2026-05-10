@@ -38,27 +38,27 @@ import ChatPanel from '../components/ChatPanel.astro';
   }
 
   .indicator.checking {
-    background: #fbbf24;
+    background: var(--color-warning);
   }
 
   .indicator.connected {
-    background: #22c55e;
+    background: var(--color-success);
   }
 
   .indicator.disconnected {
-    background: #ef4444;
+    background: var(--color-error);
   }
 
   .tips {
     margin-top: 1.5rem;
     font-size: 0.9rem;
-    color: #555;
+    color: var(--color-text-secondary);
   }
 
   .tips summary {
     cursor: pointer;
     font-weight: 600;
-    color: #444;
+    color: var(--color-text-secondary);
   }
 
   .tips ul {
@@ -70,6 +70,6 @@ import ChatPanel from '../components/ChatPanel.astro';
   }
 
   .tips em {
-    color: #2563eb;
+    color: var(--color-link);
   }
 </style>
