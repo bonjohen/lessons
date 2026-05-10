@@ -73,3 +73,4 @@ Consider a trained classifier instead when:
 ## Related Lessons
 
 - [RAG Corpus Chunking Strategy](rag-corpus-chunking-strategy.md) — the chunking decisions that determine what similarity scores the gap detector sees
+- [Live Infrastructure for Integration Testing](live-infrastructure-for-integration-testing.md) — gap detection was verified end-to-end against real Ollama + ChromaDB

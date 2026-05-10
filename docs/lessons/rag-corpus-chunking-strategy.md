@@ -77,3 +77,4 @@ Consider fixed-size windows instead when:
 
 - [Rule-Based Gap Detection](rule-based-gap-detection.md) — gap detection quality depends on chunk granularity and similarity score distributions
 - [Harvester Design Decisions](harvester-design-decisions.md) — the upstream lesson parsing that produces the content being chunked
+- [Live Infrastructure for Integration Testing](live-infrastructure-for-integration-testing.md) — the 793 chunks from this strategy were the test data for the live smoke test

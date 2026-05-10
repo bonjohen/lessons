@@ -21,3 +21,7 @@ Standalone learning resources extracted from real project work on Lessons Hub. E
 - [Phased Multi-Cloud Infrastructure](phased-multi-cloud-infrastructure.md) — Three cloud stacks with OIDC federation, built in isolated phases
 - [GitHub Pages Build Pipeline](github-pages-build-pipeline.md) — GitHub Actions workflow for harvest, validate, build, and deploy
 - [Static Search with Pagefind](static-search-with-pagefind.md) — Full-text search on a static site with no backend
+
+## Testing
+
+- [Live Infrastructure for Integration Testing](live-infrastructure-for-integration-testing.md) — When local services are already running, skip mocks and test the real pipeline end-to-end

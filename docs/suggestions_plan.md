@@ -158,7 +158,7 @@ Open  -->  Started  -->  Completed
 | 5.2 | Completed | 2026-05-10 02:57 AM (PST) | 2026-05-10 02:58 AM (PST) | Run `ruff check backend/` and `ruff format --check backend/`. Reformatted 2 files (lesson_extractor.py, test_corpus_metadata.py). |
 | 5.3 | Completed | 2026-05-10 02:58 AM (PST) | 2026-05-10 02:58 AM (PST) | Run `npm run build` — 152 pages built in 1.21s. |
 | 5.4 | Completed | 2026-05-10 02:58 AM (PST) | 2026-05-10 02:58 AM (PST) | Consistency verified: schema fields match (lesson_type/phase/status) across corpus builder, ChromaDB adapter, and schemas.py. Gap store writes to both JSON and markdown. Discovery endpoints gated by GITHUB_DISCOVERY_ENABLED. |
-| 5.5 | Started | 2026-05-10 02:58 AM (PST) | | Stage and commit any final fixes. |
+| 5.5 | Completed | 2026-05-10 02:58 AM (PST) | 2026-05-10 02:59 AM (PST) | Stage and commit any final fixes. |
 
 ### Phase 5 Summary
 

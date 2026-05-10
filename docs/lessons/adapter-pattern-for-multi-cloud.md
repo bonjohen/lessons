@@ -81,3 +81,4 @@ It does **not** work well when:
 
 - [Lazy Imports for Optional Cloud Dependencies](lazy-imports-for-optional-dependencies.md) — the import strategy that makes optional adapters possible
 - [Phased Multi-Cloud Infrastructure](phased-multi-cloud-infrastructure.md) — the infrastructure side of the same multi-cloud story
+- [Live Infrastructure for Integration Testing](live-infrastructure-for-integration-testing.md) — adapters made it trivial to swap between mock and live testing
