@@ -63,12 +63,12 @@ Open  ──>  Started  ──>  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 3.1     | Open   |               |                  | Write `docs/lessons/mock-vs-live-testing-trade-offs.md` — when mocks mask bugs (migration case), when live is impractical (cloud SDKs), hybrid patterns (sys.modules.setdefault) |
-| 3.2     | Open   |               |                  | Verify frontmatter and cross-reference related lessons |
+| 3.1     | Completed | 2026-05-10 09:07 PM (PST) | 2026-05-10 09:09 PM (PST) | Write `docs/lessons/mock-vs-live-testing-trade-offs.md` — when mocks mask bugs (migration case), when live is impractical (cloud SDKs), hybrid patterns (sys.modules.setdefault) |
+| 3.2     | Completed | 2026-05-10 09:09 PM (PST) | 2026-05-10 09:09 PM (PST) | Verify frontmatter and cross-reference related lessons |
 
 ### Phase 3 Summary
 
-- **Changes:** TBD
+- **Changes:** Created `docs/lessons/mock-vs-live-testing-trade-offs.md` covering the decision framework, sys.modules.setdefault pattern, skip markers, and hybrid testing approach.
 - **Commit:** `docs: add mock vs live testing trade-offs lesson`
 
 ---
