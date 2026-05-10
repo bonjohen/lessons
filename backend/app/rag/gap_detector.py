@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import re
 from datetime import datetime, timezone
+from pathlib import Path
+
+from nltk.stem import SnowballStemmer
 
 logger = logging.getLogger(__name__)
+
+_stemmer = SnowballStemmer("english")
 
 # Minimum relevance score threshold
 MIN_RELEVANCE_THRESHOLD = 0.3
@@ -48,20 +54,23 @@ GAP_TYPES = {
     "missing_reference_implementation",
 }
 
-# Keywords suggesting platform-specific queries
-PLATFORM_KEYWORDS = [
-    "aws",
-    "azure",
-    "gcp",
-    "docker",
-    "kubernetes",
-    "terraform",
-    "heroku",
-    "vercel",
-    "netlify",
-    "cloudflare",
-    "digitalocean",
+# Keywords suggesting platform-specific queries — loaded from JSON, with hardcoded fallback
+_PLATFORM_KEYWORDS_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "platform-keywords.json"
+_FALLBACK_PLATFORM_KEYWORDS = [
+    "aws", "azure", "gcp", "docker", "kubernetes", "terraform",
+    "heroku", "vercel", "netlify", "cloudflare", "digitalocean",
 ]
+
+
+def _load_platform_keywords() -> list[str]:
+    try:
+        with open(_PLATFORM_KEYWORDS_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return _FALLBACK_PLATFORM_KEYWORDS
+
+
+PLATFORM_KEYWORDS = _load_platform_keywords()
 
 
 def detect_gap(
@@ -205,12 +214,15 @@ def _classify_gap(reasons: list[str], query: str) -> str:
 
 
 def _normalize_topic(query: str) -> str:
-    """Normalize a query into a topic string."""
+    """Normalize a query into a stemmed topic string."""
     # Remove question words and punctuation
     topic = re.sub(r"^(what|how|why|when|where|do|does|is|are|can|should|have)\b", "", query.lower()).strip()
     topic = re.sub(r"[?!.,;:]", "", topic).strip()
     topic = re.sub(r"\s+", " ", topic)
-    return topic[:100]
+    # Stem each word and sort for order-independent gap merging
+    words = topic.split()
+    stemmed = sorted(set(_stemmer.stem(w) for w in words))
+    return " ".join(stemmed)[:100]
 
 
 def _extract_concepts(query: str) -> list[str]:
@@ -257,7 +269,17 @@ def _extract_concepts(query: str) -> list[str]:
         "it",
     }
     words = re.findall(r"\b[a-z][a-z0-9-]+\b", query.lower())
-    return [w for w in words if w not in stop_words and len(w) > 2][:10]
+    # Stem concepts for consistent gap merging
+    stemmed = []
+    seen = set()
+    for w in words:
+        if w in stop_words or len(w) <= 2:
+            continue
+        s = _stemmer.stem(w)
+        if s not in seen:
+            seen.add(s)
+            stemmed.append(s)
+    return stemmed[:10]
 
 
 def _suggest_github_queries(query: str, topic: str) -> list[str]:

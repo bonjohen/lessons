@@ -1,0 +1,13 @@
+[
+  "aws",
+  "azure",
+  "gcp",
+  "docker",
+  "kubernetes",
+  "terraform",
+  "heroku",
+  "vercel",
+  "netlify",
+  "cloudflare",
+  "digitalocean"
+]

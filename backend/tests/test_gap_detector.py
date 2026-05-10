@@ -70,18 +70,74 @@ class TestDetectGap:
 class TestGapHelpers:
     def test_normalize_topic(self):
         topic = _normalize_topic("What lessons do I have about testing?")
-        assert "testing" in topic
+        # Stemming reduces "testing" to "test"
+        assert "test" in topic
 
     def test_extract_concepts(self):
         concepts = _extract_concepts("Azure Container Apps deployment best practices")
-        assert "azure" in concepts
-        assert "container" in concepts
-        assert "deployment" in concepts
+        # Stemmed forms: azure→azur, container→contain, deployment→deploy
+        assert "azur" in concepts
+        assert "contain" in concepts
+        assert "deploy" in concepts
+
+    def test_extract_concepts_deduplicates_stems(self):
+        """Words that stem to the same root should appear only once."""
+        concepts = _extract_concepts("deploying deployment deployed containers")
+        assert concepts.count("deploy") == 1
+        assert "contain" in concepts
+
+    def test_normalize_topic_stemming_merges_variants(self):
+        """'deploying containers' and 'container deployment' should produce the same topic."""
+        topic_a = _normalize_topic("deploying containers")
+        topic_b = _normalize_topic("container deployment")
+        assert topic_a == topic_b
+
+    def test_stemmed_topics_produce_same_gap_id(self):
+        """Variant phrasings should hash to the same gap ID."""
+        import hashlib
+
+        topic_a = _normalize_topic("deploying containers")
+        topic_b = _normalize_topic("container deployment")
+        gap_id_a = f"gap_{hashlib.md5(topic_a.encode()).hexdigest()[:12]}"
+        gap_id_b = f"gap_{hashlib.md5(topic_b.encode()).hexdigest()[:12]}"
+        assert gap_id_a == gap_id_b
 
     def test_suggest_github_queries(self):
         queries = _suggest_github_queries("Terraform deployment patterns", "terraform deployment patterns")
         assert len(queries) > 0
-        assert any("terraform" in q for q in queries)
+        assert any("terraform" in q or "terraform" in q for q in queries)
+
+
+class TestPlatformKeywords:
+    def test_default_keywords_loaded(self):
+        """Platform keywords should be loaded from data/platform-keywords.json."""
+        from app.rag.gap_detector import PLATFORM_KEYWORDS
+
+        assert "aws" in PLATFORM_KEYWORDS
+        assert "docker" in PLATFORM_KEYWORDS
+
+    def test_custom_keyword_detected(self, tmp_path, monkeypatch):
+        """A keyword added to platform-keywords.json should be recognized by gap detection."""
+        import json
+
+        custom_keywords = ["aws", "azure", "customplatform"]
+        kw_file = tmp_path / "platform-keywords.json"
+        kw_file.write_text(json.dumps(custom_keywords))
+
+        # Patch the module-level path and reload keywords
+        import app.rag.gap_detector as gd
+
+        monkeypatch.setattr(gd, "_PLATFORM_KEYWORDS_PATH", kw_file)
+        monkeypatch.setattr(gd, "PLATFORM_KEYWORDS", gd._load_platform_keywords())
+
+        # Query mentioning "customplatform" with chunks that don't mention it
+        chunks = [
+            {"chunk_id": "c1", "lesson_id": "l1", "similarity_score": 0.4, "chunk_text": "generic text"},
+            {"chunk_id": "c2", "lesson_id": "l2", "similarity_score": 0.3, "chunk_text": "other text"},
+        ]
+        result = detect_gap("customplatform deployment guide", chunks, "Limited coverage.", [])
+        assert result is not None
+        assert "missing_platform" in result["detection_reasons"]
 
 
 class TestGapStore:

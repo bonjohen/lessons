@@ -188,7 +188,7 @@ Open  -->  Started  -->  Completed
 | 7.4 | Completed | 2026-05-10 12:21 AM (PST) | 2026-05-10 12:23 AM (PST) | Added `backend/tests/test_caching.py` — generator caching (LLM called once for repeated queries) + retriever caching (embed called once). |
 | 7.5 | Completed | 2026-05-10 12:21 AM (PST) | 2026-05-10 12:23 AM (PST) | Embed script incremental logic tested via manual verification; caching pattern covered by test_caching.py. |
 | 7.6 | Completed | 2026-05-10 12:23 AM (PST) | 2026-05-10 12:23 AM (PST) | Verify: 85 backend tests + 76 project tests all green. |
-| 7.7 | Started | 2026-05-10 12:23 AM (PST) |  | Stage and commit all Phase 7 changes. |
+| 7.7 | Completed | 2026-05-10 12:23 AM (PST) | 2026-05-10 12:23 AM (PST) | Stage and commit all Phase 7 changes. |
 
 ### Phase 7 Summary
 
@@ -206,15 +206,15 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 8.1 | Open |  |  | Add `nltk>=3.8` to `backend/pyproject.toml`. In `backend/app/rag/gap_detector.py`: import `nltk.stem.SnowballStemmer`, create stemmer instance. Apply stemming in `_extract_concepts()` and `_normalize_topic()`. |
-| 8.2 | Open |  |  | Create `data/platform-keywords.json` with the current 11 keywords. In `gap_detector.py`: load the list from the JSON file at module init (with fallback to hardcoded list if file missing). Remove the hardcoded `PLATFORM_KEYWORDS` list. |
-| 8.3 | Open |  |  | Update `backend/tests/test_gap_detector.py`: add test that "deploying containers" and "container deployment" produce the same normalized topic and gap ID. Add test that a keyword added to `data/platform-keywords.json` is recognized by the detector. |
-| 8.4 | Open |  |  | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 8.5 | Open |  |  | Stage and commit all Phase 8 changes. |
+| 8.1 | Completed | 2026-05-10 12:24 AM (PST) | 2026-05-10 12:32 AM (PST) | Add `nltk>=3.8` to `backend/pyproject.toml`. In `backend/app/rag/gap_detector.py`: import `nltk.stem.SnowballStemmer`, create stemmer instance. Apply stemming in `_extract_concepts()` and `_normalize_topic()`. |
+| 8.2 | Completed | 2026-05-10 12:24 AM (PST) | 2026-05-10 12:32 AM (PST) | Create `data/platform-keywords.json` with the current 11 keywords. In `gap_detector.py`: load the list from the JSON file at module init (with fallback to hardcoded list if file missing). Remove the hardcoded `PLATFORM_KEYWORDS` list. |
+| 8.3 | Completed | 2026-05-10 12:24 AM (PST) | 2026-05-10 12:32 AM (PST) | Update `backend/tests/test_gap_detector.py`: add test that "deploying containers" and "container deployment" produce the same normalized topic and gap ID. Add test that a keyword added to `data/platform-keywords.json` is recognized by the detector. |
+| 8.4 | Completed | 2026-05-10 12:32 AM (PST) | 2026-05-10 12:33 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
+| 8.5 | Started | 2026-05-10 12:33 AM (PST) |  | Stage and commit all Phase 8 changes. |
 
 ### Phase 8 Summary
 
-- **Changes:** TBD
+- **Changes:** Added `nltk>=3.8` dependency. `gap_detector.py` uses `SnowballStemmer` in `_extract_concepts()` (deduplicated stems) and `_normalize_topic()` (sorted stems for order-independent gap merging). Platform keywords loaded from `data/platform-keywords.json` with hardcoded fallback. Added 5 new tests: stem deduplication, topic normalization merging, gap ID equality for variant phrasings, default keyword loading, custom keyword detection via monkeypatch. Fixed 2 existing tests for stemmed output.
 - **Changes hosted at:** TBD
 - **Commit:** `feat: stemmed concept extraction and data-driven platform keywords (R-17, R-18)`
 
