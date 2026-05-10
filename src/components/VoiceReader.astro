@@ -60,6 +60,9 @@ const { contentSelector = '.lesson-content' } = Astro.props;
 
 <style>
   .voice-reader {
+    position: sticky;
+    top: 0;
+    z-index: 100;
     border: 1px solid var(--color-border);
     border-radius: 6px;
     padding: 0.6rem 0.8rem;
@@ -264,15 +267,50 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // --- Text extraction & chunking ---
+    function isInsideToc(el) {
+      // Walk up to see if this element is inside a ToC section
+      // ToC pattern: an <h2> with "Table of Contents" followed by <ol>/<ul>
+      var prev = el;
+      while (prev) {
+        if (prev.tagName === 'OL' || prev.tagName === 'UL') {
+          var sib = prev.previousElementSibling;
+          if (sib && /^H[1-6]$/.test(sib.tagName) && /table of contents/i.test(sib.textContent)) return true;
+        }
+        prev = prev.parentElement;
+      }
+      return false;
+    }
+
+    function isTocHeading(el) {
+      return /^H[1-6]$/.test(el.tagName) && /table of contents/i.test(el.textContent);
+    }
+
+    function getCodeText(preEl) {
+      var code = preEl.querySelector('code') || preEl;
+      var lines = code.textContent.split('\n');
+      if (lines.length <= 10) return code.textContent.trim();
+      return lines.slice(0, 10).join('\n').trim() + '\nReview the page to see the rest of the code.';
+    }
+
     function buildChunks() {
       chunks = [];
       blockEls = [];
       chunkToBlock = [];
 
-      // Collect readable block elements
-      var els = contentEl.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote, td, th, dt, dd');
+      // Collect readable block elements and code blocks
+      var els = contentEl.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote, td, th, dt, dd, pre');
       els.forEach(function (el) {
-        var text = el.textContent.trim();
+        // Skip ToC heading and ToC list items
+        if (isTocHeading(el) || isInsideToc(el)) return;
+        // Skip nested elements inside <pre> (e.g. <code> inside <pre>)
+        if (el.tagName !== 'PRE' && el.closest('pre')) return;
+
+        var text;
+        if (el.tagName === 'PRE') {
+          text = getCodeText(el);
+        } else {
+          text = el.textContent.trim();
+        }
         if (text) blockEls.push({ el: el, text: text });
       });
 
@@ -307,7 +345,6 @@ document.addEventListener('DOMContentLoaded', function () {
         blockEls[currentHighlight].el.classList.remove('vr-reading');
       if (bi !== null && blockEls[bi]) {
         blockEls[bi].el.classList.add('vr-reading');
-        blockEls[bi].el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
       currentHighlight = bi;
     }
@@ -478,6 +515,28 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (state === 'paused') resumeBtn.click();
       } else if (e.key === 'Escape' && state !== 'idle') {
         finish();
+      }
+    });
+
+    // ToC click: jump reader to clicked section
+    contentEl.addEventListener('click', function (e) {
+      var link = e.target.closest('a[href^="#"]');
+      if (!link) return;
+      var targetId = link.getAttribute('href').slice(1);
+      var targetEl = document.getElementById(targetId);
+      if (!targetEl || state === 'idle') return;
+
+      // Find the heading in blockEls
+      for (var bi = 0; bi < blockEls.length; bi++) {
+        if (blockEls[bi].el === targetEl || blockEls[bi].el.id === targetId) {
+          for (var j = 0; j < chunkToBlock.length; j++) {
+            if (chunkToBlock[j] >= bi) { chunkIndex = j; break; }
+          }
+          speechSynthesis.cancel();
+          if (state === 'playing') speakChunk();
+          else { highlightBlock(chunkToBlock[chunkIndex]); updateProgress(); }
+          break;
+        }
       }
     });
 
