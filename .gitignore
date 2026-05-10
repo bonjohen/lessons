@@ -29,3 +29,10 @@ data/gaps/
 data/todos/
 data/external/
 .external/
+
+# Editor/OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

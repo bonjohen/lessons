@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,17 +17,17 @@ logger = logging.getLogger(__name__)
 _stemmer = SnowballStemmer("english")
 
 # Minimum relevance score threshold
-MIN_RELEVANCE_THRESHOLD = 0.3
+MIN_RELEVANCE_THRESHOLD = float(os.environ.get("GAP_MIN_RELEVANCE_THRESHOLD", "0.3"))
 
 # Minimum distinct lessons for adequate coverage
-MIN_DISTINCT_LESSONS = 2
+MIN_DISTINCT_LESSONS = int(os.environ.get("GAP_MIN_DISTINCT_LESSONS", "2"))
 
 # Rule 3: related-but-unanswered thresholds
-RELATED_BUT_UNANSWERED_THRESHOLD = 0.5
-MIN_CHUNKS_FOR_RELATED = 3
+RELATED_BUT_UNANSWERED_THRESHOLD = float(os.environ.get("GAP_RELATED_BUT_UNANSWERED_THRESHOLD", "0.5"))
+MIN_CHUNKS_FOR_RELATED = int(os.environ.get("GAP_MIN_CHUNKS_FOR_RELATED", "3"))
 
 # Rule 7: general-knowledge answer threshold
-MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE = 200
+MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE = int(os.environ.get("GAP_MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE", "200"))
 
 # Weak-answer signal phrases
 WEAK_ANSWER_PHRASES = [
