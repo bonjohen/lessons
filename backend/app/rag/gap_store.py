@@ -15,6 +15,7 @@ from app.models.schemas import GapRecord
 logger = logging.getLogger(__name__)
 
 DEFAULT_GAPS_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "gaps" / "corpus-gaps.json"
+DEFAULT_REVIEW_DIR = Path(__file__).resolve().parent.parent.parent.parent / "docs" / "review" / "gaps"
 
 # Valid status transitions
 VALID_STATUSES = {
@@ -31,10 +32,49 @@ VALID_STATUSES = {
 class GapStore:
     """JSON-backed CRUD for corpus gap records."""
 
-    def __init__(self, path: Path | None = None):
+    def __init__(self, path: Path | None = None, review_dir: Path | None = None):
         self._path = path or DEFAULT_GAPS_PATH
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = FileLock(self._path.with_suffix(".lock"))
+        self._review_dir = review_dir or DEFAULT_REVIEW_DIR
+        self._review_dir.mkdir(parents=True, exist_ok=True)
+
+    def _write_review_md(self, gap: dict) -> None:
+        """Write a human-readable markdown summary for review."""
+        gap_id = gap.get("gap_id", "unknown")
+        review_file = self._review_dir / f"{gap_id}.md"
+        lines = [
+            "---",
+            f"gap_id: {gap_id}",
+            f"status: {gap.get('status', 'open')}",
+            f"created: {gap.get('created_date', '')}",
+            f"updated: {gap.get('updated_date', '')}",
+            f"confidence: {gap.get('confidence_score', 0)}",
+            f"gap_type: {gap.get('gap_type', 'missing_topic')}",
+            "---",
+            "",
+            f"# Gap: {gap.get('normalized_topic', gap_id)}",
+            "",
+            f"**Trigger query:** {gap.get('trigger_query', '')}",
+            "",
+            f"**Retrieval summary:** {gap.get('retrieval_summary', 'N/A')}",
+            "",
+        ]
+        concepts = gap.get("missing_concepts", [])
+        if concepts:
+            lines.append("**Missing concepts:** " + ", ".join(concepts))
+            lines.append("")
+        queries = gap.get("suggested_github_queries", [])
+        if queries:
+            lines.append("**Suggested GitHub queries:**")
+            for q in queries:
+                lines.append(f"- {q}")
+            lines.append("")
+        best = gap.get("best_matching_lessons", [])
+        if best:
+            lines.append("**Best matching lessons:** " + ", ".join(best))
+            lines.append("")
+        review_file.write_text("\n".join(lines), encoding="utf-8")
 
     def _load(self) -> list[dict]:
         if not self._path.exists():
@@ -95,11 +135,13 @@ class GapStore:
                     existing["confidence_score"] = gap.get("confidence_score", existing.get("confidence_score", 0))
                     gaps[i] = existing
                     self._save(gaps)
+                    self._write_review_md(existing)
                     return existing
 
             # Create new
             gaps.append(gap)
             self._save(gaps)
+            self._write_review_md(gap)
             return gap
 
     def update_status(self, gap_id: str, status: str) -> dict | None:
@@ -115,6 +157,7 @@ class GapStore:
                     gap["updated_date"] = datetime.now(timezone.utc).isoformat()
                     gaps[i] = gap
                     self._save(gaps)
+                    self._write_review_md(gap)
                     return gap
         return None
 

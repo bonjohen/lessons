@@ -61,7 +61,7 @@ Open  -->  Started  -->  Completed
 | 1.5 | Completed | 2026-05-10 02:43 AM (PST) | 2026-05-10 02:44 AM (PST) | Add test in `backend/tests/test_schemas.py`: instantiate `ChatRequest` with `ChatFilters`, `RetrieveResponse` with `ChunkResult` — confirm no forward-reference errors at model validation time. |
 | 1.6 | Completed | 2026-05-10 02:43 AM (PST) | 2026-05-10 02:44 AM (PST) | Add test in `backend/tests/test_corpus_metadata.py`: build a chunk from a lesson that has `lesson_type: "deployment"`, verify the chunk record includes the field. Mock ChromaDB upsert call, verify metadata dict contains `lesson_type`. |
 | 1.7 | Completed | 2026-05-10 02:44 AM (PST) | 2026-05-10 02:46 AM (PST) | Verify: `python -m pytest backend/tests/` green. `python -m pytest tests/` green. `ruff check backend/` clean. |
-| 1.8 | Started | 2026-05-10 02:46 AM (PST) | | Stage and commit all Phase 1 changes. |
+| 1.8 | Completed | 2026-05-10 02:46 AM (PST) | 2026-05-10 02:47 AM (PST) | Stage and commit all Phase 1 changes. |
 
 ### Phase 1 Summary
 
@@ -79,17 +79,17 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 2.1 | Open | | | Create directory structure: `docs/review/gaps/`, `docs/review/todos/`, `docs/review/candidate-repos/`. Add `.gitkeep` files. |
-| 2.2 | Open | | | In `backend/app/rag/gap_store.py`: add a `_review_path` alongside `_path`. On `create_or_update()` and `update_status()`, write a human-readable markdown summary to `docs/review/gaps/{gap_id}.md` in addition to the JSON runtime file. |
-| 2.3 | Open | | | In `backend/app/discovery/todo_writer.py`: add parallel write to `docs/review/todos/{todo_id}.md` with frontmatter (title, status, priority, source_project_url, candidate_lesson_path) and body text. |
-| 2.4 | Open | | | Update `.gitignore`: confirm `data/gaps/`, `data/todos/`, `data/external/` remain ignored. Add comment clarifying that `docs/review/` is the committed counterpart. |
-| 2.5 | Open | | | Add test: create a gap via `GapStore`, assert both `data/gaps/corpus-gaps.json` and `docs/review/gaps/{gap_id}.md` exist with correct content. |
-| 2.6 | Open | | | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
-| 2.7 | Open | | | Stage and commit all Phase 2 changes. |
+| 2.1 | Completed | 2026-05-10 02:46 AM (PST) | 2026-05-10 02:47 AM (PST) | Create directory structure: `docs/review/gaps/`, `docs/review/todos/`, `docs/review/candidate-repos/`. Add `.gitkeep` files. |
+| 2.2 | Completed | 2026-05-10 02:47 AM (PST) | 2026-05-10 02:49 AM (PST) | In `backend/app/rag/gap_store.py`: add a `_review_path` alongside `_path`. On `create_or_update()` and `update_status()`, write a human-readable markdown summary to `docs/review/gaps/{gap_id}.md` in addition to the JSON runtime file. |
+| 2.3 | Completed | 2026-05-10 02:49 AM (PST) | 2026-05-10 02:50 AM (PST) | In `backend/app/discovery/todo_writer.py`: add parallel write to `docs/review/todos/{todo_id}.md` with frontmatter (title, status, priority, source_project_url, candidate_lesson_path) and body text. |
+| 2.4 | Completed | 2026-05-10 02:50 AM (PST) | 2026-05-10 02:50 AM (PST) | Update `.gitignore`: confirm `data/gaps/`, `data/todos/`, `data/external/` remain ignored. Add comment clarifying that `docs/review/` is the committed counterpart. |
+| 2.5 | Completed | 2026-05-10 02:50 AM (PST) | 2026-05-10 02:51 AM (PST) | Add test: create a gap via `GapStore`, assert both `data/gaps/corpus-gaps.json` and `docs/review/gaps/{gap_id}.md` exist with correct content. |
+| 2.6 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:51 AM (PST) | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
+| 2.7 | Started | 2026-05-10 02:51 AM (PST) | | Stage and commit all Phase 2 changes. |
 
 ### Phase 2 Summary
 
-- **Changes:** TBD
+- **Changes:** Created `docs/review/gaps/`, `docs/review/todos/`, `docs/review/candidate-repos/` with `.gitkeep`. Updated `gap_store.py` with `_write_review_md()` that writes human-readable markdown to `docs/review/gaps/{gap_id}.md` on create/update. Updated `todo_writer.py` with `_write_review_md()` that writes to `docs/review/todos/{todo_id}.md`. Updated `.gitignore` comment. Added `test_review_artifacts.py` (2 tests).
 - **Changes hosted at:** TBD
 - **Commit:** `feat: split runtime state from committed review artifacts (S-04)`
 

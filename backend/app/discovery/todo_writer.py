@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 TODOS_PATH = PROJECT_ROOT / "data" / "todos" / "todos.json"
+REVIEW_TODOS_DIR = PROJECT_ROOT / "docs" / "review" / "todos"
 
 
 def create_todo(
@@ -50,7 +51,32 @@ def create_todo(
     }
 
     _save_todo(todo)
+    _write_review_md(todo)
     return todo
+
+
+def _write_review_md(todo: dict) -> None:
+    """Write a human-readable markdown summary for review."""
+    REVIEW_TODOS_DIR.mkdir(parents=True, exist_ok=True)
+    todo_id = todo.get("todo_id", "unknown")
+    review_file = REVIEW_TODOS_DIR / f"{todo_id}.md"
+    lines = [
+        "---",
+        f"todo_id: {todo_id}",
+        f"status: {todo.get('status', 'open')}",
+        f"priority: {todo.get('priority', 3)}",
+        f"severity: {todo.get('severity', 3)}",
+        f"created: {todo.get('created_date', '')}",
+        f"source_project_url: {todo.get('source_project_url', '')}",
+        f"candidate_lesson_path: {todo.get('candidate_lesson_path', '')}",
+        "---",
+        "",
+        f"# {todo.get('title', todo_id)}",
+        "",
+        todo.get("notes", ""),
+        "",
+    ]
+    review_file.write_text("\n".join(lines), encoding="utf-8")
 
 
 def _save_todo(todo: dict):

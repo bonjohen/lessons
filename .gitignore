@@ -24,7 +24,7 @@ data/rag-chunks.json
 data/rag-manifest.json
 data/chromadb/
 
-# V2 runtime data
+# V2 runtime data (committed review counterparts live in docs/review/)
 data/gaps/
 data/todos/
 data/external/
