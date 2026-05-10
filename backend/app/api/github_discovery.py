@@ -1,5 +1,8 @@
 """GitHub discovery API — search repos, harvest candidates."""
 
+import os
+import re
+
 from fastapi import APIRouter, HTTPException
 
 from app.api._deps import get_gap_store
@@ -11,6 +14,26 @@ from app.discovery.todo_writer import create_todo
 
 router = APIRouter()
 
+_OWNER_REPO_RE = re.compile(r"^[a-zA-Z0-9._-]+$")
+
+
+def _check_discovery_enabled():
+    """Raise 403 if GitHub discovery is disabled (default)."""
+    enabled = os.environ.get("GITHUB_DISCOVERY_ENABLED", "false").lower()
+    if enabled not in ("true", "1", "yes"):
+        raise HTTPException(
+            status_code=403,
+            detail="GitHub discovery is disabled. Set GITHUB_DISCOVERY_ENABLED=true to enable.",
+        )
+
+
+def _validate_owner_repo(owner: str, repo_name: str):
+    """Validate owner and repo_name against safe pattern."""
+    if not _OWNER_REPO_RE.match(owner):
+        raise HTTPException(status_code=422, detail=f"Invalid owner: {owner!r}")
+    if not _OWNER_REPO_RE.match(repo_name):
+        raise HTTPException(status_code=422, detail=f"Invalid repo_name: {repo_name!r}")
+
 
 @router.post("/github/search")
 async def search_github(
@@ -20,6 +43,8 @@ async def search_github(
     min_stars: int = 0,
 ):
     """Search GitHub for repos relevant to a corpus gap."""
+    _check_discovery_enabled()
+
     store = get_gap_store()
     gap = store.get_gap(gap_id)
     if gap is None:
@@ -56,16 +81,24 @@ async def search_github(
 @router.post("/github/harvest-candidate")
 async def harvest_candidate(
     gap_id: str,
-    github_url: str,
     owner: str,
     repo_name: str,
-    clone_url: str,
 ):
-    """Clone a candidate repo, extract lessons, create TODOs."""
+    """Clone a candidate repo, extract lessons, create TODOs.
+
+    clone_url and github_url are derived from owner/repo_name for safety.
+    """
+    _check_discovery_enabled()
+    _validate_owner_repo(owner, repo_name)
+
     store = get_gap_store()
     gap = store.get_gap(gap_id)
     if gap is None:
         raise HTTPException(status_code=404, detail=f"Gap {gap_id} not found")
+
+    # Derive URLs from validated owner/repo_name
+    github_url = f"https://github.com/{owner}/{repo_name}"
+    clone_url = f"https://github.com/{owner}/{repo_name}.git"
 
     # Build candidate record
     repo_info = {

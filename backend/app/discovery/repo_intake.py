@@ -21,11 +21,19 @@ CANDIDATE_REPOS_PATH = PROJECT_ROOT / "data" / "external" / "candidate-repos.jso
 CLONE_TIMEOUT_SECONDS = int(os.environ.get("CLONE_TIMEOUT_SECONDS", "60"))
 
 
+ALLOWED_CLONE_PREFIX = "https://github.com/"
+
+
 def clone_or_pull(owner: str, repo_name: str, clone_url: str) -> Path | None:
     """Clone or pull a repo into the external workspace.
 
     Returns the repo directory path, or None if the operation times out.
+    Rejects clone URLs that don't start with https://github.com/.
     """
+    if not clone_url.startswith(ALLOWED_CLONE_PREFIX):
+        logger.error("Rejected clone URL %r — only %s is allowed", clone_url, ALLOWED_CLONE_PREFIX)
+        return None
+
     repo_dir = EXTERNAL_WORKSPACE / owner / repo_name
     repo_dir.parent.mkdir(parents=True, exist_ok=True)
 

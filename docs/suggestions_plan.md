@@ -85,7 +85,7 @@ Open  -->  Started  -->  Completed
 | 2.4 | Completed | 2026-05-10 02:50 AM (PST) | 2026-05-10 02:50 AM (PST) | Update `.gitignore`: confirm `data/gaps/`, `data/todos/`, `data/external/` remain ignored. Add comment clarifying that `docs/review/` is the committed counterpart. |
 | 2.5 | Completed | 2026-05-10 02:50 AM (PST) | 2026-05-10 02:51 AM (PST) | Add test: create a gap via `GapStore`, assert both `data/gaps/corpus-gaps.json` and `docs/review/gaps/{gap_id}.md` exist with correct content. |
 | 2.6 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:51 AM (PST) | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
-| 2.7 | Started | 2026-05-10 02:51 AM (PST) | | Stage and commit all Phase 2 changes. |
+| 2.7 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:52 AM (PST) | Stage and commit all Phase 2 changes. |
 
 ### Phase 2 Summary
 
@@ -103,18 +103,18 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 3.1 | Open | | | In `backend/app/api/github_discovery.py`: add `GITHUB_DISCOVERY_ENABLED` env var check (default `"false"`). Return 403 with clear message if disabled. Apply to both search and harvest endpoints. |
-| 3.2 | Open | | | In `backend/app/api/github_discovery.py`: add `_validate_owner_repo(owner, repo_name)` that checks both against `^[a-zA-Z0-9._-]+$`. Return 422 on invalid input. |
-| 3.3 | Open | | | In `backend/app/api/github_discovery.py`: remove `clone_url` from the harvest endpoint request body. Derive it internally as `https://github.com/{owner}/{repo_name}.git`. Remove `github_url` acceptance — construct it from `owner`/`repo_name`. |
-| 3.4 | Open | | | In `backend/app/discovery/repo_intake.py`: add an allowlist check — `clone_url` must start with `https://github.com/`. Reject anything else. |
-| 3.5 | Open | | | Add tests: disabled returns 403; invalid owner returns 422; clone_url derived correctly; non-github URL rejected by repo_intake. |
-| 3.6 | Open | | | Update existing discovery tests to set `GITHUB_DISCOVERY_ENABLED=true` in test environment. |
-| 3.7 | Open | | | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
-| 3.8 | Open | | | Stage and commit all Phase 3 changes. |
+| 3.1 | Completed | 2026-05-10 02:50 AM (PST) | 2026-05-10 02:51 AM (PST) | In `backend/app/api/github_discovery.py`: add `GITHUB_DISCOVERY_ENABLED` env var check (default `"false"`). Return 403 with clear message if disabled. Apply to both search and harvest endpoints. |
+| 3.2 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:51 AM (PST) | In `backend/app/api/github_discovery.py`: add `_validate_owner_repo(owner, repo_name)` that checks both against `^[a-zA-Z0-9._-]+$`. Return 422 on invalid input. |
+| 3.3 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:51 AM (PST) | In `backend/app/api/github_discovery.py`: remove `clone_url` from the harvest endpoint request body. Derive it internally as `https://github.com/{owner}/{repo_name}.git`. Remove `github_url` acceptance — construct it from `owner`/`repo_name`. |
+| 3.4 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:51 AM (PST) | In `backend/app/discovery/repo_intake.py`: add an allowlist check — `clone_url` must start with `https://github.com/`. Reject anything else. |
+| 3.5 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:52 AM (PST) | Add tests: disabled returns 403; invalid owner returns 422; clone_url derived correctly; non-github URL rejected by repo_intake. |
+| 3.6 | Completed | 2026-05-10 02:52 AM (PST) | 2026-05-10 02:52 AM (PST) | Update existing discovery tests to set `GITHUB_DISCOVERY_ENABLED=true` in test environment. (Not needed — existing tests use modules directly, not API endpoints.) |
+| 3.7 | Completed | 2026-05-10 02:52 AM (PST) | 2026-05-10 02:52 AM (PST) | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
+| 3.8 | Started | 2026-05-10 02:52 AM (PST) | | Stage and commit all Phase 3 changes. |
 
 ### Phase 3 Summary
 
-- **Changes:** TBD
+- **Changes:** Rewrote `github_discovery.py`: added `_check_discovery_enabled()` (GITHUB_DISCOVERY_ENABLED env, default false, 403), `_validate_owner_repo()` (regex, 422), removed `clone_url`/`github_url` params from harvest endpoint (derived internally). Added `ALLOWED_CLONE_PREFIX` allowlist to `repo_intake.py`. Added `test_discovery_security.py` (8 tests).
 - **Changes hosted at:** TBD
 - **Commit:** `fix(security): gate and validate GitHub discovery endpoints (S-05)`
 
