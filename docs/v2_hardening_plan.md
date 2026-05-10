@@ -234,7 +234,7 @@ Open  -->  Started  -->  Completed
 | 9.4 | Completed | 2026-05-10 12:37 AM (PST) | 2026-05-10 12:38 AM (PST) | In `backend/app/main.py`: mount all existing routers under both `/api/` (current) and `/api/v1/` (versioned). Use `app.include_router(router, prefix="/api/v1")` for the versioned mount. |
 | 9.5 | Completed | 2026-05-10 12:38 AM (PST) | 2026-05-10 12:39 AM (PST) | Add tests: `GET /metrics` returns 200 with `requests_total` in body (or 404 if prometheus not installed). `POST /api/v1/chat` returns same schema as `POST /api/chat`. |
 | 9.6 | Completed | 2026-05-10 12:39 AM (PST) | 2026-05-10 12:39 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 9.7 | Started | 2026-05-10 12:39 AM (PST) |  | Stage and commit all Phase 9 changes. |
+| 9.7 | Completed | 2026-05-10 12:39 AM (PST) | 2026-05-10 12:40 AM (PST) | Stage and commit all Phase 9 changes. |
 
 ### Phase 9 Summary
 
