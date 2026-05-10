@@ -13,7 +13,7 @@ from app.discovery.lesson_extractor import (
     detect_extractable_content,
     generate_candidate_lesson,
 )
-from app.discovery.repo_intake import build_candidate_record
+from app.discovery.repo_intake import build_candidate_record, save_candidate_repo
 from app.discovery.todo_writer import create_todo, list_todos
 
 MOCK_REPO = {
@@ -69,6 +69,58 @@ class TestCandidateScorer:
         }
         score, _ = score_candidate(super_repo, MOCK_GAP)
         assert score <= 1.0
+
+    def test_empty_repo_scores_zero(self):
+        score, reasons = score_candidate({}, {"missing_concepts": []})
+        assert score == 0.0
+        assert reasons == []
+
+    def test_stars_boundary_100(self):
+        repo_100 = {
+            **MOCK_REPO,
+            "stars": 100,
+            "topics": [],
+            "description": "",
+            "license": "",
+            "has_wiki": False,
+            "last_updated": "",
+        }
+        repo_99 = {
+            **MOCK_REPO,
+            "stars": 99,
+            "topics": [],
+            "description": "",
+            "license": "",
+            "has_wiki": False,
+            "last_updated": "",
+        }
+        s100, r100 = score_candidate(repo_100, {"missing_concepts": []})
+        s99, r99 = score_candidate(repo_99, {"missing_concepts": []})
+        assert s100 > s99
+        assert any("100 stars" in r for r in r100)
+
+    def test_recent_activity_bonus(self):
+        recent = {
+            **MOCK_REPO,
+            "last_updated": "2026-01-01",
+            "topics": [],
+            "description": "",
+            "license": "",
+            "has_wiki": False,
+            "stars": 0,
+        }
+        old = {
+            **MOCK_REPO,
+            "last_updated": "2020-01-01",
+            "topics": [],
+            "description": "",
+            "license": "",
+            "has_wiki": False,
+            "stars": 0,
+        }
+        s1, _ = score_candidate(recent, {"missing_concepts": []})
+        s2, _ = score_candidate(old, {"missing_concepts": []})
+        assert s1 > s2
 
 
 class TestLessonExtractor:
@@ -128,6 +180,18 @@ class TestTodoWriter:
         assert "example/project" in todo["title"]
         assert todo["source_gap_id"] == "gap_123"
 
+    def test_create_todo_deduplicates(self, tmp_path):
+        todos_file = tmp_path / "todos.json"
+        with patch("app.discovery.todo_writer.TODOS_PATH", todos_file):
+            todo1 = create_todo(MOCK_REPO, "/path/to/lesson1.md", gap_id="gap_1")
+            todo2 = create_todo(MOCK_REPO, "/path/to/lesson2.md", gap_id="gap_2")
+
+        assert todo1["todo_id"] == todo2["todo_id"]
+        with open(todos_file, encoding="utf-8") as f:
+            todos = json.load(f)
+        assert len(todos) == 1
+        assert todos[0]["source_gap_id"] == "gap_2"  # updated, not duplicated
+
     def test_list_todos(self, tmp_path):
         todos_file = tmp_path / "todos.json"
         todos_file.write_text(json.dumps([{"todo_id": "t1", "title": "Test"}]), encoding="utf-8")
@@ -135,11 +199,21 @@ class TestTodoWriter:
             todos = list_todos()
         assert len(todos) == 1
 
-    def test_no_auto_pr_created(self):
-        """Verify that no git commands or PR creation happens during discovery."""
-        # This is a design constraint test — discovery writes files but never
-        # creates PRs or pushes to external repos
-        assert True  # Verified by code review: no subprocess git push/pr commands
+    def test_list_todos_no_file(self, tmp_path):
+        with patch("app.discovery.todo_writer.TODOS_PATH", tmp_path / "nonexistent.json"):
+            todos = list_todos()
+        assert todos == []
+
+    def test_no_git_push_in_discovery_source(self):
+        """Verify discovery modules don't shell out to git push or create PRs."""
+        import inspect
+
+        from app.discovery import candidate_scorer, lesson_extractor, repo_intake, todo_writer
+
+        for mod in [candidate_scorer, lesson_extractor, repo_intake, todo_writer]:
+            source = inspect.getsource(mod)
+            assert "git push" not in source, f"{mod.__name__} contains 'git push'"
+            assert "git pr" not in source, f"{mod.__name__} contains 'git pr'"
 
 
 class TestGitHubSearcher:
@@ -203,3 +277,25 @@ class TestRepoIntake:
         assert record["gap_id"] == "gap_test123"
         assert record["score"] == 0.75
         assert record["harvest_status"] == "pending"
+
+    def test_save_candidate_repo_creates_file(self, tmp_path):
+        repos_file = tmp_path / "candidate-repos.json"
+        record = build_candidate_record(MOCK_REPO, MOCK_GAP, score=0.5, reasons=["test"])
+        with patch("app.discovery.repo_intake.CANDIDATE_REPOS_PATH", repos_file):
+            save_candidate_repo(record)
+        with open(repos_file, encoding="utf-8") as f:
+            data = json.load(f)
+        assert len(data) == 1
+        assert data[0]["candidate_repo_id"] == record["candidate_repo_id"]
+
+    def test_save_candidate_repo_deduplicates(self, tmp_path):
+        repos_file = tmp_path / "candidate-repos.json"
+        record = build_candidate_record(MOCK_REPO, MOCK_GAP, score=0.5, reasons=["first"])
+        with patch("app.discovery.repo_intake.CANDIDATE_REPOS_PATH", repos_file):
+            save_candidate_repo(record)
+            record["score"] = 0.9
+            save_candidate_repo(record)
+        with open(repos_file, encoding="utf-8") as f:
+            data = json.load(f)
+        assert len(data) == 1
+        assert data[0]["score"] == 0.9

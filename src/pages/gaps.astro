@@ -37,20 +37,47 @@ async function loadGaps() {
     }
 
     statusEl.textContent = `${data.total} gap(s) found.`;
+    listEl.innerHTML = '';
 
-    listEl.innerHTML = data.gaps.map(gap => `
-      <div class="gap-card" style="border-left: 4px solid ${STATUS_COLORS[gap.status] || '#e0e0e0'}">
-        <div class="gap-header">
-          <strong>${gap.normalized_topic}</strong>
-          <span class="gap-status" style="background: ${STATUS_COLORS[gap.status] || '#f3f4f6'}">${gap.status}</span>
-        </div>
-        <p class="gap-query">Query: "${gap.trigger_query}"</p>
-        <p class="gap-meta">Type: ${gap.gap_type} | Score: ${(gap.confidence_score * 100).toFixed(0)}% | ${gap.retrieval_summary}</p>
-        ${gap.suggested_github_queries && gap.suggested_github_queries.length > 0
-          ? `<div class="gap-queries"><strong>Suggested searches:</strong> ${gap.suggested_github_queries.join(', ')}</div>`
-          : ''}
-      </div>
-    `).join('');
+    for (const gap of data.gaps) {
+      const card = document.createElement('div');
+      card.className = 'gap-card';
+      card.style.borderLeft = `4px solid ${STATUS_COLORS[gap.status] || '#e0e0e0'}`;
+
+      const header = document.createElement('div');
+      header.className = 'gap-header';
+      const topic = document.createElement('strong');
+      topic.textContent = gap.normalized_topic;
+      header.appendChild(topic);
+      const statusBadge = document.createElement('span');
+      statusBadge.className = 'gap-status';
+      statusBadge.style.background = STATUS_COLORS[gap.status] || '#f3f4f6';
+      statusBadge.textContent = gap.status;
+      header.appendChild(statusBadge);
+      card.appendChild(header);
+
+      const query = document.createElement('p');
+      query.className = 'gap-query';
+      query.textContent = `Query: "${gap.trigger_query}"`;
+      card.appendChild(query);
+
+      const meta = document.createElement('p');
+      meta.className = 'gap-meta';
+      meta.textContent = `Type: ${gap.gap_type} | Score: ${(gap.confidence_score * 100).toFixed(0)}% | ${gap.retrieval_summary}`;
+      card.appendChild(meta);
+
+      if (gap.suggested_github_queries && gap.suggested_github_queries.length > 0) {
+        const queries = document.createElement('div');
+        queries.className = 'gap-queries';
+        const label = document.createElement('strong');
+        label.textContent = 'Suggested searches: ';
+        queries.appendChild(label);
+        queries.appendChild(document.createTextNode(gap.suggested_github_queries.join(', ')));
+        card.appendChild(queries);
+      }
+
+      listEl.appendChild(card);
+    }
   } catch {
     statusEl.textContent = 'Backend unavailable. Start with: npm run backend';
     statusEl.className = 'status-msg error';

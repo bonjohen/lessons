@@ -29,17 +29,42 @@ async function loadCandidates() {
       return;
     }
     statusEl.textContent = `${data.total} coordination item(s).`;
-    listEl.innerHTML = data.todos.map(todo => `
-      <div class="candidate-card">
-        <h3>${todo.title}</h3>
-        <p>${todo.notes}</p>
-        <div class="meta">
-          <span>Status: ${todo.status}</span>
-          <span>Priority: ${todo.priority}</span>
-          ${todo.source_project_url ? `<a href="${todo.source_project_url}" target="_blank">Source Project</a>` : ''}
-        </div>
-      </div>
-    `).join('');
+    listEl.innerHTML = '';
+    for (const todo of data.todos) {
+      const card = document.createElement('div');
+      card.className = 'candidate-card';
+
+      const h3 = document.createElement('h3');
+      h3.textContent = todo.title;
+      card.appendChild(h3);
+
+      const p = document.createElement('p');
+      p.textContent = todo.notes;
+      card.appendChild(p);
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+
+      const statusSpan = document.createElement('span');
+      statusSpan.textContent = `Status: ${todo.status}`;
+      meta.appendChild(statusSpan);
+
+      const prioritySpan = document.createElement('span');
+      prioritySpan.textContent = `Priority: ${todo.priority}`;
+      meta.appendChild(prioritySpan);
+
+      if (todo.source_project_url) {
+        const link = document.createElement('a');
+        link.href = todo.source_project_url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Source Project';
+        meta.appendChild(link);
+      }
+
+      card.appendChild(meta);
+      listEl.appendChild(card);
+    }
   } catch {
     statusEl.textContent = 'Backend unavailable.';
     statusEl.className = 'status-msg error';
