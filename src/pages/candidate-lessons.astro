@@ -16,7 +16,7 @@ const publicApiBase = import.meta.env.PUBLIC_API_BASE || '';
 </BaseLayout>
 
 <script define:vars={{ publicApiBase }}>
-const API_BASE = publicApiBase || 'http://localhost:8000';
+const API_BASE = publicApiBase || 'http://localhost:8010';
 
 async function loadCandidates() {
   const statusEl = document.getElementById('candidates-status');

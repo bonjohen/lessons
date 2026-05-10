@@ -1,0 +1,488 @@
+---
+/**
+ * VoiceReader — text-to-speech component for lesson content.
+ * Reads the rendered lesson text aloud using the Web Speech API.
+ *
+ * Features beyond the mdreader reference:
+ *   - Paragraph-level highlighting as it reads
+ *   - Estimated time remaining
+ *   - Section skip (forward/back by heading)
+ *   - Keyboard shortcuts (Space: play/pause, Escape: stop)
+ *   - Chrome 15-second keep-alive workaround
+ *   - Android pause/resume workaround
+ *   - Screen wake lock during playback
+ *   - Voice quality categorization & persistence
+ *   - Rate control with persistence
+ */
+interface Props {
+  /** CSS selector for the content element to read */
+  contentSelector?: string;
+}
+
+const { contentSelector = '.lesson-content' } = Astro.props;
+---
+
+<div class="voice-reader" data-content-selector={contentSelector}>
+  <div class="vr-controls">
+    <button class="vr-btn vr-play" title="Read aloud (Space)" aria-label="Read aloud">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 13,8 3,15"/></svg>
+    </button>
+    <button class="vr-btn vr-pause" title="Pause (Space)" aria-label="Pause" hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="1" width="4" height="14"/><rect x="10" y="1" width="4" height="14"/></svg>
+    </button>
+    <button class="vr-btn vr-resume" title="Resume (Space)" aria-label="Resume" hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 13,8 3,15"/></svg>
+    </button>
+    <button class="vr-btn vr-stop" title="Stop (Escape)" aria-label="Stop" hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="12" height="12" rx="1"/></svg>
+    </button>
+    <button class="vr-btn vr-skip-back" title="Previous section" aria-label="Previous section" hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="2" height="12"/><polygon points="14,2 5,8 14,14"/></svg>
+    </button>
+    <button class="vr-btn vr-skip-fwd" title="Next section" aria-label="Next section" hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="13" y="2" width="2" height="12"/><polygon points="2,2 11,8 2,14"/></svg>
+    </button>
+
+    <div class="vr-progress-wrap" hidden>
+      <div class="vr-progress-bar"><div class="vr-progress-fill"></div></div>
+      <span class="vr-status" role="status" aria-live="polite"></span>
+    </div>
+
+    <div class="vr-settings">
+      <select class="vr-voice" aria-label="Voice" title="Select voice"></select>
+      <label class="vr-rate-label" title="Speech rate">
+        <input type="range" class="vr-rate" min="0.5" max="2.0" step="0.1" value="1.0" />
+        <span class="vr-rate-value">1.0x</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<style>
+  .voice-reader {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 1.25rem;
+    background: var(--color-bg-subtle);
+  }
+
+  .vr-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .vr-btn {
+    background: transparent;
+    border: 1px solid var(--color-btn-border);
+    border-radius: 4px;
+    cursor: pointer;
+    width: 30px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-btn-text);
+    transition: border-color 0.12s, color 0.12s;
+    flex-shrink: 0;
+  }
+  .vr-btn:hover { border-color: var(--color-text); color: var(--color-text); }
+  .vr-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+
+  .vr-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .vr-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--color-border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .vr-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--color-accent);
+    transition: width 0.3s ease;
+  }
+
+  .vr-status {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    min-width: 3.5rem;
+  }
+
+  .vr-settings {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  .vr-voice {
+    font-size: 0.75rem;
+    max-width: 310px;
+    padding: 0.2em 0.4em;
+    border: 1px solid var(--color-btn-border);
+    border-radius: 4px;
+    background: var(--color-bg-surface);
+    color: var(--color-text);
+  }
+
+  .vr-rate-label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+  .vr-rate {
+    width: 60px;
+    accent-color: var(--color-accent);
+  }
+  .vr-rate-value {
+    min-width: 2rem;
+  }
+
+  /* Highlight for the paragraph currently being read */
+  :global(.vr-reading) {
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+</style>
+
+<script is:inline>
+document.addEventListener('DOMContentLoaded', function () {
+  var IS_ANDROID = /Android/i.test(navigator.userAgent);
+  var CHUNK_MAX = IS_ANDROID ? 500 : 200;
+  var NEXT_DELAY = IS_ANDROID ? 80 : 0;
+  var KEEP_ALIVE_MS = 10000;
+  var WPM = 160; // words-per-minute estimate for time remaining
+
+  document.querySelectorAll('.voice-reader').forEach(function (root) {
+    var sel = root.dataset.contentSelector;
+    var contentEl = document.querySelector(sel);
+    if (!contentEl || !window.speechSynthesis) {
+      root.style.display = 'none';
+      return;
+    }
+
+    // --- DOM refs ---
+    var playBtn    = root.querySelector('.vr-play');
+    var pauseBtn   = root.querySelector('.vr-pause');
+    var resumeBtn  = root.querySelector('.vr-resume');
+    var stopBtn    = root.querySelector('.vr-stop');
+    var skipBack   = root.querySelector('.vr-skip-back');
+    var skipFwd    = root.querySelector('.vr-skip-fwd');
+    var progWrap   = root.querySelector('.vr-progress-wrap');
+    var progFill   = root.querySelector('.vr-progress-fill');
+    var statusEl   = root.querySelector('.vr-status');
+    var voiceSel   = root.querySelector('.vr-voice');
+    var rateInput  = root.querySelector('.vr-rate');
+    var rateValue  = root.querySelector('.vr-rate-value');
+
+    // --- State ---
+    var chunks = [];
+    var chunkIndex = 0;
+    var blockEls = [];     // content block elements in reading order
+    var chunkToBlock = []; // maps chunk index → blockEls index
+    var state = 'idle';    // idle | playing | paused
+    var keepAlive = null;
+    var wakeLock = null;
+    var androidPaused = false;
+
+    // --- Voices ---
+    function loadVoices() {
+      var voices = speechSynthesis.getVoices();
+      if (!voices.length) return;
+      voiceSel.innerHTML = '';
+      var premium = [], standard = [];
+      voices.forEach(function (v) {
+        if (/Natural|Neural|Online|Premium|Enhanced/i.test(v.name)) premium.push(v);
+        else standard.push(v);
+      });
+      function sortVoices(arr) {
+        return arr.sort(function (a, b) {
+          var aEn = a.lang.startsWith('en') ? 0 : 1;
+          var bEn = b.lang.startsWith('en') ? 0 : 1;
+          if (aEn !== bEn) return aEn - bEn;
+          return a.name.localeCompare(b.name);
+        });
+      }
+      function addGroup(label, arr) {
+        if (!arr.length) return;
+        var g = document.createElement('optgroup');
+        g.label = label;
+        sortVoices(arr).forEach(function (v) {
+          var o = document.createElement('option');
+          o.value = v.name;
+          o.textContent = v.name + ' (' + v.lang + ')';
+          g.appendChild(o);
+        });
+        voiceSel.appendChild(g);
+      }
+      addGroup('High Quality', premium);
+      addGroup('Standard', standard);
+
+      // Restore saved preference
+      var saved = localStorage.getItem('vr-voice');
+      if (saved) {
+        for (var i = 0; i < voiceSel.options.length; i++) {
+          if (voiceSel.options[i].value === saved) { voiceSel.selectedIndex = i; return; }
+        }
+      }
+      // Auto-select best English premium voice
+      var pick = premium.find(function (v) { return v.lang.startsWith('en'); })
+              || premium[0]
+              || standard.find(function (v) { return v.lang.startsWith('en'); })
+              || standard[0];
+      if (pick) voiceSel.value = pick.name;
+    }
+    speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    voiceSel.addEventListener('change', function () {
+      localStorage.setItem('vr-voice', voiceSel.value);
+      if (state === 'playing') { speechSynthesis.cancel(); speakChunk(); }
+    });
+
+    // --- Rate ---
+    var savedRate = localStorage.getItem('vr-rate');
+    if (savedRate) { rateInput.value = savedRate; rateValue.textContent = parseFloat(savedRate).toFixed(1) + 'x'; }
+    rateInput.addEventListener('input', function () {
+      rateValue.textContent = parseFloat(rateInput.value).toFixed(1) + 'x';
+      localStorage.setItem('vr-rate', rateInput.value);
+    });
+
+    // --- Text extraction & chunking ---
+    function buildChunks() {
+      chunks = [];
+      blockEls = [];
+      chunkToBlock = [];
+
+      // Collect readable block elements
+      var els = contentEl.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6, blockquote, td, th, dt, dd');
+      els.forEach(function (el) {
+        var text = el.textContent.trim();
+        if (text) blockEls.push({ el: el, text: text });
+      });
+
+      blockEls.forEach(function (b, bi) {
+        var sentences = b.text.split(/(?<=[.!?])\s+/);
+        var buf = '';
+        sentences.forEach(function (s) {
+          if (buf.length + s.length + 1 > CHUNK_MAX && buf) {
+            chunks.push(buf.trim());
+            chunkToBlock.push(bi);
+            buf = '';
+          }
+          buf += (buf ? ' ' : '') + s;
+        });
+        if (buf) { chunks.push(buf.trim()); chunkToBlock.push(bi); }
+      });
+    }
+
+    // --- Section boundaries (heading indices in blockEls) ---
+    function sectionIndices() {
+      var indices = [0];
+      blockEls.forEach(function (b, i) {
+        if (/^H[1-6]$/.test(b.el.tagName)) indices.push(i);
+      });
+      return indices;
+    }
+
+    // --- Highlighting ---
+    var currentHighlight = null;
+    function highlightBlock(bi) {
+      if (currentHighlight !== null && blockEls[currentHighlight])
+        blockEls[currentHighlight].el.classList.remove('vr-reading');
+      if (bi !== null && blockEls[bi]) {
+        blockEls[bi].el.classList.add('vr-reading');
+        blockEls[bi].el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      currentHighlight = bi;
+    }
+
+    // --- Wake lock ---
+    function acquireWake() {
+      if (navigator.wakeLock) {
+        navigator.wakeLock.request('screen').then(function (l) { wakeLock = l; }).catch(function () {});
+      }
+    }
+    function releaseWake() {
+      if (wakeLock) { wakeLock.release().catch(function () {}); wakeLock = null; }
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && state === 'playing') acquireWake();
+    });
+
+    // --- Keep-alive (Chrome 15s workaround) ---
+    function startKeepAlive() {
+      if (IS_ANDROID) return;
+      stopKeepAlive();
+      keepAlive = setInterval(function () {
+        if (speechSynthesis.speaking && !speechSynthesis.paused) {
+          speechSynthesis.pause();
+          speechSynthesis.resume();
+        }
+      }, KEEP_ALIVE_MS);
+    }
+    function stopKeepAlive() { if (keepAlive) { clearInterval(keepAlive); keepAlive = null; } }
+
+    // --- UI state ---
+    function setState(s) {
+      state = s;
+      playBtn.hidden   = s !== 'idle';
+      pauseBtn.hidden  = s !== 'playing';
+      resumeBtn.hidden = s !== 'paused';
+      stopBtn.hidden   = s === 'idle';
+      skipBack.hidden  = s === 'idle';
+      skipFwd.hidden   = s === 'idle';
+      progWrap.hidden  = s === 'idle';
+      if (s === 'idle') { progFill.style.width = '0%'; statusEl.textContent = ''; highlightBlock(null); }
+    }
+
+    function updateProgress() {
+      if (!chunks.length) return;
+      var pct = ((chunkIndex + 1) / chunks.length * 100).toFixed(0);
+      progFill.style.width = pct + '%';
+      // Time remaining estimate
+      var wordsLeft = 0;
+      for (var i = chunkIndex; i < chunks.length; i++) wordsLeft += chunks[i].split(/\s+/).length;
+      var rate = parseFloat(rateInput.value) || 1;
+      var mins = wordsLeft / (WPM * rate);
+      var timeStr = mins < 1 ? '<1 min' : Math.round(mins) + ' min';
+      statusEl.textContent = timeStr + ' left';
+    }
+
+    // --- Speech ---
+    function getVoice() {
+      var name = voiceSel.value;
+      return speechSynthesis.getVoices().find(function (v) { return v.name === name; });
+    }
+
+    function speakChunk() {
+      if (chunkIndex >= chunks.length) { finish(); return; }
+      highlightBlock(chunkToBlock[chunkIndex]);
+      updateProgress();
+      var utt = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+      var v = getVoice();
+      if (v) utt.voice = v;
+      utt.rate = parseFloat(rateInput.value) || 1;
+      utt.onend = function () {
+        if (androidPaused) return; // Android cancel-as-pause
+        chunkIndex++;
+        if (chunkIndex < chunks.length) {
+          if (NEXT_DELAY) setTimeout(speakChunk, NEXT_DELAY);
+          else speakChunk();
+        } else finish();
+      };
+      utt.onerror = function (e) {
+        if (e.error === 'canceled' || e.error === 'interrupted') return;
+        finish();
+      };
+      speechSynthesis.speak(utt);
+    }
+
+    function finish() {
+      speechSynthesis.cancel();
+      stopKeepAlive();
+      releaseWake();
+      setState('idle');
+    }
+
+    // --- Controls ---
+    playBtn.addEventListener('click', function () {
+      buildChunks();
+      if (!chunks.length) return;
+      chunkIndex = 0;
+      androidPaused = false;
+      setState('playing');
+      acquireWake();
+      startKeepAlive();
+      speakChunk();
+    });
+
+    pauseBtn.addEventListener('click', function () {
+      if (IS_ANDROID) {
+        androidPaused = true;
+        speechSynthesis.cancel();
+      } else {
+        speechSynthesis.pause();
+      }
+      setState('paused');
+    });
+
+    resumeBtn.addEventListener('click', function () {
+      setState('playing');
+      if (IS_ANDROID) {
+        androidPaused = false;
+        speakChunk();
+      } else {
+        speechSynthesis.resume();
+      }
+      startKeepAlive();
+    });
+
+    stopBtn.addEventListener('click', function () { finish(); });
+
+    // Section skip
+    skipBack.addEventListener('click', function () {
+      var sections = sectionIndices();
+      var curBlock = chunkToBlock[chunkIndex] || 0;
+      var target = 0;
+      for (var i = sections.length - 1; i >= 0; i--) {
+        if (sections[i] < curBlock) { target = sections[i]; break; }
+      }
+      // Find chunk for this block
+      for (var j = 0; j < chunkToBlock.length; j++) {
+        if (chunkToBlock[j] >= target) { chunkIndex = j; break; }
+      }
+      speechSynthesis.cancel();
+      if (state === 'playing') speakChunk();
+      else updateProgress();
+    });
+
+    skipFwd.addEventListener('click', function () {
+      var sections = sectionIndices();
+      var curBlock = chunkToBlock[chunkIndex] || 0;
+      var target = blockEls.length - 1;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i] > curBlock) { target = sections[i]; break; }
+      }
+      for (var j = 0; j < chunkToBlock.length; j++) {
+        if (chunkToBlock[j] >= target) { chunkIndex = j; break; }
+      }
+      speechSynthesis.cancel();
+      if (state === 'playing') speakChunk();
+      else updateProgress();
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function (e) {
+      // Don't intercept when typing in inputs
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.isContentEditable) return;
+      if (e.key === ' ' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        if (state === 'idle') playBtn.click();
+        else if (state === 'playing') pauseBtn.click();
+        else if (state === 'paused') resumeBtn.click();
+      } else if (e.key === 'Escape' && state !== 'idle') {
+        finish();
+      }
+    });
+
+    // Clean up on page navigation
+    window.addEventListener('beforeunload', function () { finish(); });
+  });
+});
+</script>
