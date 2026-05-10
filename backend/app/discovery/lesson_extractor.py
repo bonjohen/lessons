@@ -27,6 +27,14 @@ This lesson should not be proposed back to the source project until it has been
 reviewed and the owner/maintainer coordination TODO has been completed.
 """)
 
+# Categories and what they indicate about the project
+_CATEGORY_DESCRIPTIONS = {
+    "docs": "documentation",
+    "ci": "CI/CD workflows",
+    "deploy": "deployment configuration",
+    "architecture": "architecture decisions",
+}
+
 
 def detect_extractable_content(repo_dir: Path) -> dict:
     """Detect documentation, CI, deployment, and architecture files."""
@@ -45,6 +53,128 @@ def detect_extractable_content(repo_dir: Path) -> dict:
     return found
 
 
+def _summarize_sources(
+    repo_dir: Path, content_files: dict
+) -> list[tuple[Path, str]]:
+    """Extract a 1–3 sentence summary from each evidence file.
+
+    Returns a list of (file_path, summary) tuples.
+    """
+    summaries: list[tuple[Path, str]] = []
+
+    for category, files in content_files.items():
+        desc = _CATEGORY_DESCRIPTIONS.get(category, category)
+        for f in files[:5]:  # Cap per category
+            try:
+                text = f.read_text(encoding="utf-8", errors="replace")[:3000]
+            except OSError:
+                continue
+
+            # Extract a meaningful summary based on file type
+            name = f.name.lower()
+            if name == "readme.md":
+                # First non-empty paragraph after the title
+                lines = text.split("\n")
+                para = []
+                past_title = False
+                for line in lines:
+                    if line.startswith("# ") and not past_title:
+                        past_title = True
+                        continue
+                    if past_title and line.strip():
+                        para.append(line.strip())
+                        if len(para) >= 3:
+                            break
+                    elif past_title and para:
+                        break
+                summary = " ".join(para) if para else f"Project README ({desc})."
+            elif name in ("dockerfile", "docker-compose.yml", "docker-compose.yaml"):
+                summary = f"Provides {desc} for containerized deployment."
+            elif name.endswith((".yml", ".yaml")) and category == "ci":
+                summary = f"GitHub Actions workflow for {desc}."
+            elif name.endswith(".tf"):
+                summary = "Terraform configuration for infrastructure provisioning."
+            else:
+                # Generic: first non-blank line
+                first = next(
+                    (line.strip() for line in text.split("\n") if line.strip() and not line.startswith("#")),
+                    f"Contains {desc}.",
+                )
+                summary = first[:200]
+
+            summaries.append((f, summary))
+
+    return summaries
+
+
+def _draft_lesson(
+    topic: str, missing_concepts: list[str], summaries: list[tuple[Path, str]]
+) -> str:
+    """Combine source summaries into a cohesive lesson body paragraph."""
+    if not summaries:
+        return (
+            f"The project demonstrates practices related to {topic} that may be valuable "
+            f"for the lessons corpus. Further human analysis is needed to extract specific lessons."
+        )
+
+    concept_str = ", ".join(missing_concepts[:5]) if missing_concepts else topic
+    intro = (
+        f"This project offers insights into **{topic}**, specifically addressing "
+        f"gaps in the corpus around: {concept_str}.\n\n"
+    )
+
+    points = []
+    for _, summary in summaries[:6]:
+        points.append(f"- {summary}")
+
+    body = (
+        f"Based on analysis of {len(summaries)} source file(s), the project demonstrates:\n\n"
+        + "\n".join(points)
+        + "\n\n"
+        + "These practices should be reviewed and expanded into a full lesson narrative "
+        + "by someone familiar with the domain."
+    )
+
+    return intro + body
+
+
+def _build_evidence_links(
+    repo_dir: Path,
+    owner: str,
+    repo_name: str,
+    summaries: list[tuple[Path, str]],
+    branch: str = "main",
+) -> str:
+    """Generate markdown evidence links pointing to GitHub blob URLs."""
+    if not summaries:
+        return "No specific evidence files detected."
+
+    lines = []
+    for f, summary in summaries:
+        try:
+            rel = f.relative_to(repo_dir)
+        except ValueError:
+            continue
+        # Use forward slashes for URL
+        rel_str = str(rel).replace("\\", "/")
+        blob_url = f"https://github.com/{owner}/{repo_name}/blob/{branch}/{rel_str}"
+        lines.append(f"- [`{rel_str}`]({blob_url}) — {summary}")
+
+    return "\n".join(lines) if lines else "No specific evidence files detected."
+
+
+def _build_review_checklist() -> str:
+    """Build a standardized review checklist."""
+    return dedent("""\
+    ## Review Checklist
+
+    - [ ] Lesson accurately reflects source project
+    - [ ] Attribution is correct
+    - [ ] No proprietary content copied
+    - [ ] Ready to propose to source project owner
+    """)
+
+
 def generate_candidate_lesson(
     repo_dir: Path,
     candidate: dict,
@@ -58,28 +188,15 @@ def generate_candidate_lesson(
     owner = candidate["owner"]
     repo_name = candidate["repo_name"]
     github_url = candidate["github_url"]
-
-    # Build lesson content from detected files
-    summary_parts = []
-    evidence_parts = []
-
-    readme = repo_dir / "README.md"
-    if readme.exists():
-        readme_text = readme.read_text(encoding="utf-8", errors="replace")[:2000]
-        summary_parts.append(f"Project README excerpt:\n{readme_text[:500]}")
-
-    for category, files in content_files.items():
-        if files:
-            evidence_parts.append(f"**{category.title()}:** {len(files)} file(s) found")
-            for f in files[:3]:
-                try:
-                    rel = f.relative_to(repo_dir)
-                    evidence_parts.append(f"  - `{rel}`")
-                except ValueError:
-                    pass
-
     topic = gap.get("normalized_topic", "unknown topic")
+    missing_concepts = gap.get("missing_concepts", [])
     slug = topic.replace(" ", "-")[:50]
+
+    # Multi-stage pipeline
+    summaries = _summarize_sources(repo_dir, content_files)
+    lesson_body = _draft_lesson(topic, missing_concepts, summaries)
+    evidence_section = _build_evidence_links(repo_dir, owner, repo_name, summaries)
+    review_checklist = _build_review_checklist()
 
     # Build frontmatter
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -91,7 +208,7 @@ def generate_candidate_lesson(
     phase: discovery
     lesson_type: other
     status: candidate_external
-    tags: [{", ".join(gap.get("missing_concepts", [])[:5])}]
+    tags: [{", ".join(missing_concepts[:5])}]
     source_project: "{owner}/{repo_name}"
     source_project_url: "{github_url}"
     source_owner: "{owner}"
@@ -100,6 +217,7 @@ def generate_candidate_lesson(
     harvested_date: {today}
     review_status: needs_review
     coordination_status: owner_not_contacted
+    generated_by: lesson_extractor_v2
     thank_you_note: "Thank you to the maintainers of {owner}/{repo_name}"
     ---
     """)
@@ -123,15 +241,11 @@ def generate_candidate_lesson(
 
     ## Lesson
 
-    *This section needs human review and expansion based on the source project's
-    actual practices and documentation.*
-
-    The project demonstrates practices related to {topic} that may be valuable
-    for the lessons corpus.
+    {lesson_body}
 
     ## Evidence From Project
 
-    {chr(10).join(evidence_parts) if evidence_parts else "No specific evidence files detected."}
+    {evidence_section}
 
     ## Why This May Belong in Lessons Hub
 
@@ -147,14 +261,7 @@ def generate_candidate_lesson(
         github_url=github_url,
     )
 
-    review_notes = dedent("""\
-    ## Review Notes
-
-    - [ ] Review generated content for accuracy
-    - [ ] Expand the Lesson section with specific practices from the project
-    - [ ] Verify attribution is correct
-    - [ ] Check license compatibility
-
+    coordination = dedent("""\
     ## Coordination TODO
 
     Before proposing this lesson to the source project:
@@ -163,7 +270,7 @@ def generate_candidate_lesson(
     3. Contact the project maintainer if contributing upstream
     """)
 
-    full_content = frontmatter + content + attribution + review_notes
+    full_content = frontmatter + content + attribution + review_checklist + coordination
 
     # Write to candidate-lessons directory
     lesson_dir = CANDIDATE_LESSONS_DIR / owner / repo_name

@@ -110,7 +110,7 @@ Open  -->  Started  -->  Completed
 | 3.5 | Completed | 2026-05-10 02:51 AM (PST) | 2026-05-10 02:52 AM (PST) | Add tests: disabled returns 403; invalid owner returns 422; clone_url derived correctly; non-github URL rejected by repo_intake. |
 | 3.6 | Completed | 2026-05-10 02:52 AM (PST) | 2026-05-10 02:52 AM (PST) | Update existing discovery tests to set `GITHUB_DISCOVERY_ENABLED=true` in test environment. (Not needed — existing tests use modules directly, not API endpoints.) |
 | 3.7 | Completed | 2026-05-10 02:52 AM (PST) | 2026-05-10 02:52 AM (PST) | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
-| 3.8 | Started | 2026-05-10 02:52 AM (PST) | | Stage and commit all Phase 3 changes. |
+| 3.8 | Completed | 2026-05-10 02:52 AM (PST) | 2026-05-10 02:53 AM (PST) | Stage and commit all Phase 3 changes. |
 
 ### Phase 3 Summary
 
@@ -128,19 +128,19 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 4.1 | Open | | | In `backend/app/discovery/lesson_extractor.py`: refactor `_generate_lesson_content()` into a multi-stage pipeline: `_summarize_sources()` → `_draft_lesson()` → `_build_evidence_links()` → `_build_review_checklist()`. |
-| 4.2 | Open | | | `_summarize_sources()`: for each detected evidence file (README, CI configs, deploy scripts, docs), extract a 1–3 sentence summary of what the file demonstrates. Return a list of `(file_path, summary)` tuples. |
-| 4.3 | Open | | | `_draft_lesson()`: combine source summaries into a cohesive lesson body paragraph. Use the gap's `normalized_topic` and `missing_concepts` to frame the lesson around what was missing from the corpus. |
-| 4.4 | Open | | | `_build_evidence_links()`: generate a markdown list of source files with relative paths and one-line descriptions. Link to the GitHub blob URL (`https://github.com/{owner}/{repo}/blob/{branch}/{path}`). |
-| 4.5 | Open | | | `_build_review_checklist()`: append a markdown checklist: `[ ] Lesson accurately reflects source project`, `[ ] Attribution is correct`, `[ ] No proprietary content copied`, `[ ] Ready to propose to source project owner`. |
-| 4.6 | Open | | | Update candidate lesson frontmatter: set `review_status: needs_review` and add `generated_by: lesson_extractor_v2`. |
-| 4.7 | Open | | | Add test: generate a candidate lesson from a mock repo with README + Dockerfile + .github/workflows/deploy.yml. Assert all four sections present. Assert evidence links point to valid GitHub blob URLs. Assert review checklist has 4 items. |
-| 4.8 | Open | | | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
-| 4.9 | Open | | | Stage and commit all Phase 4 changes. |
+| 4.1 | Completed | 2026-05-10 02:53 AM (PST) | 2026-05-10 02:55 AM (PST) | In `backend/app/discovery/lesson_extractor.py`: refactor `_generate_lesson_content()` into a multi-stage pipeline: `_summarize_sources()` → `_draft_lesson()` → `_build_evidence_links()` → `_build_review_checklist()`. |
+| 4.2 | Completed | 2026-05-10 02:53 AM (PST) | 2026-05-10 02:55 AM (PST) | `_summarize_sources()`: for each detected evidence file (README, CI configs, deploy scripts, docs), extract a 1–3 sentence summary of what the file demonstrates. Return a list of `(file_path, summary)` tuples. |
+| 4.3 | Completed | 2026-05-10 02:53 AM (PST) | 2026-05-10 02:55 AM (PST) | `_draft_lesson()`: combine source summaries into a cohesive lesson body paragraph. Use the gap's `normalized_topic` and `missing_concepts` to frame the lesson around what was missing from the corpus. |
+| 4.4 | Completed | 2026-05-10 02:53 AM (PST) | 2026-05-10 02:55 AM (PST) | `_build_evidence_links()`: generate a markdown list of source files with relative paths and one-line descriptions. Link to the GitHub blob URL (`https://github.com/{owner}/{repo}/blob/{branch}/{path}`). |
+| 4.5 | Completed | 2026-05-10 02:53 AM (PST) | 2026-05-10 02:55 AM (PST) | `_build_review_checklist()`: append a markdown checklist: `[ ] Lesson accurately reflects source project`, `[ ] Attribution is correct`, `[ ] No proprietary content copied`, `[ ] Ready to propose to source project owner`. |
+| 4.6 | Completed | 2026-05-10 02:53 AM (PST) | 2026-05-10 02:55 AM (PST) | Update candidate lesson frontmatter: set `review_status: needs_review` and add `generated_by: lesson_extractor_v2`. |
+| 4.7 | Completed | 2026-05-10 02:55 AM (PST) | 2026-05-10 02:56 AM (PST) | Add test: generate a candidate lesson from a mock repo with README + Dockerfile + .github/workflows/deploy.yml. Assert all four sections present. Assert evidence links point to valid GitHub blob URLs. Assert review checklist has 4 items. |
+| 4.8 | Completed | 2026-05-10 02:56 AM (PST) | 2026-05-10 02:56 AM (PST) | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
+| 4.9 | Started | 2026-05-10 02:56 AM (PST) | | Stage and commit all Phase 4 changes. |
 
 ### Phase 4 Summary
 
-- **Changes:** TBD
+- **Changes:** Refactored `lesson_extractor.py` into multi-stage pipeline: `_summarize_sources()` (per-file summaries by category), `_draft_lesson()` (cohesive body from summaries + gap context), `_build_evidence_links()` (GitHub blob URLs), `_build_review_checklist()` (4-item checklist). Added `generated_by: lesson_extractor_v2` to frontmatter. Added `test_lesson_pipeline.py` (13 tests covering each stage + full pipeline).
 - **Changes hosted at:** TBD
 - **Commit:** `feat: structured candidate lesson generation with evidence and review checklist (S-06)`
 
