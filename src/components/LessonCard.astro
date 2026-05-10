@@ -1,5 +1,6 @@
 ---
 import type { Lesson } from '../lib/data';
+import { getBlockSubLessons } from '../lib/data';
 import { url } from '../lib/url';
 
 interface Props {
@@ -7,17 +8,60 @@ interface Props {
 }
 
 const { lesson } = Astro.props;
+const isIndex = lesson.id.endsWith('-index');
+const subLessons = isIndex ? getBlockSubLessons(lesson.id) : [];
+
+// Derive a better title for bare "Index" titles
+let displayTitle = lesson.title;
+if (isIndex && lesson.title === 'Index') {
+  const blockPart = lesson.id.replace(/^.*?-/, '').replace(/-index$/, '');
+  displayTitle = blockPart.replace(/(\d+)/g, ' $1').replace(/-/g, ' ').trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// Content excerpt when no summary
+function extractBlurb(content: string): string {
+  const plain = content
+    .replace(/^#{1,6}\s+.*$/gm, '')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*_`~]/g, '')
+    .replace(/\|[^\n]+\|/g, '')
+    .replace(/\n{2,}/g, ' ')
+    .replace(/\n/g, ' ')
+    .trim();
+  return plain.slice(0, 120) + (plain.length > 120 ? '...' : '');
+}
+
+const blurb = !lesson.summary && !isIndex ? extractBlurb(lesson.content) : '';
+
+// Extract lesson number from ID for sub-lesson display
+function lessonNum(id: string): string {
+  const m = id.match(/-(\d{3})-/);
+  return m ? m[1] : '';
+}
 ---
 
 <article class="lesson-card" data-repo={lesson.repo_id} data-type={lesson.lesson_type ?? ''} data-phase={lesson.phase ?? ''} data-status={lesson.status}>
-  <h3><a href={url(`/lessons/${lesson.id}`)}>{lesson.title}</a></h3>
+  <h3><a href={url(`/lessons/${lesson.id}`)}>{displayTitle}</a></h3>
   {lesson.summary && <p class="summary">{lesson.summary}</p>}
+  {blurb && <p class="summary">{blurb}</p>}
   <div class="meta">
     <span class="repo"><a href={url(`/repos/${lesson.repo_id}`)}>{lesson.repo_name}</a></span>
+    {isIndex && <span class="sub-count">{subLessons.length} lessons</span>}
     {lesson.date && <span class="date">{lesson.date}</span>}
     {lesson.lesson_type && <span class="type">{lesson.lesson_type}</span>}
     {lesson.status !== 'active' && <span class={`status status-${lesson.status}`}>{lesson.status}</span>}
   </div>
+  {isIndex && subLessons.length > 0 && (
+    <ul class="sub-lessons">
+      {subLessons.map((sub) => (
+        <li>
+          <span class="sub-num">{lessonNum(sub.id)}</span>
+          <a href={url(`/lessons/${sub.id}`)}>{sub.title}</a>
+        </li>
+      ))}
+    </ul>
+  )}
   {lesson.tags.length > 0 && (
     <div class="tags">
       {lesson.tags.map((tag) => (
@@ -63,6 +107,44 @@ const { lesson } = Astro.props;
     color: #777;
     margin-bottom: 0.5rem;
     flex-wrap: wrap;
+  }
+
+  .sub-count {
+    font-weight: 600;
+    color: #2563eb;
+  }
+
+  .sub-lessons {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.2rem 1rem;
+  }
+
+  .sub-lessons li {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sub-num {
+    color: #999;
+    font-size: 0.75rem;
+    font-family: monospace;
+    margin-right: 0.3rem;
+  }
+
+  .sub-lessons a {
+    color: #1a1a1a;
+    text-decoration: none;
+  }
+
+  .sub-lessons a:hover {
+    color: #2563eb;
+    text-decoration: underline;
   }
 
   .status {

@@ -3,6 +3,7 @@
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -32,6 +33,93 @@ REPOS_YML = ROOT / "data" / "repos.yml"
 TMP_DIR = ROOT / "tmp" / "repos"
 GENERATED_DIR = ROOT / "src" / "content" / "generated"
 EXPORTS_DIR = ROOT / "public" / "exports"
+
+
+# Rules checked against title only (high confidence)
+_TITLE_RULES: list[tuple[str, list[str]]] = [
+    ("deployment", [
+        r"\bdeploy", r"\bci[/-]cd\b", r"\bgithub actions\b", r"\bdocker\b",
+        r"\bcontainer\b", r"\boidc\b", r"\brelease artifact", r"\bci\b.*\bportab",
+    ]),
+    ("security", [
+        r"\bcsp\b", r"\bxss\b", r"\bpii\b", r"\bsanitiz", r"\binjection\b",
+        r"\bentity encod",
+    ]),
+    ("data-engineering", [
+        r"\bduckdb\b", r"\betl\b", r"\bmigration\b", r"\bdata quality\b",
+        r"\bpyarrow\b", r"\bsurrogate key\b", r"\bidempotent\b", r"\bvintage\b",
+        r"\bbatch\b.*\b(?:db|insert|operat)", r"\bpipeline\b",
+    ]),
+    ("algorithms", [
+        r"\balgorithm\b", r"\bbayesian\b", r"\belo\b", r"\bchi-squared\b",
+        r"\bmmr\b", r"\bhungarian\b", r"\bcluster(?:ing)?\b", r"\bembedding\b",
+        r"\bsimilarity\b", r"\bk-means\b", r"\bborda\b", r"\bbradley-terry\b",
+        r"\bkrippendorff", r"\bsigmoid\b", r"\bcalibrat", r"\bscoring\b",
+        r"\bdiversity.(?:aware|select)", r"\bdedup(?:licat)?",
+    ]),
+    ("testing", [
+        r"\btest", r"\bvalidat", r"\bmock\b", r"\bfixture\b", r"\btdd\b",
+        r"\bcoverage\b",
+    ]),
+    ("architecture", [
+        r"\badapter\b", r"\bdesign system\b", r"\bschema\b", r"\btaxonomy\b",
+        r"\bprovider.agnostic\b", r"\blazy import", r"\bdimensional\b",
+        r"\babstraction\b",
+    ]),
+    ("process", [
+        r"\bphased\b", r"\bplanning\b", r"\baudit\b", r"\blessons learned\b",
+        r"\bdesign.first\b", r"\bremediat", r"\bcode review\b",
+        r"\bautonomous execution\b",
+    ]),
+    ("frontend", [
+        r"\bspa\b", r"\bcss\b", r"\bjavascript\b", r"\bdrag.and.drop\b",
+        r"\bdesign tokens?\b", r"\bstatic site\b", r"\bvanilla js\b",
+        r"\blocalstorage\b", r"\bfetch shim\b",
+    ]),
+]
+
+# Fallback rules checked against full content (lower confidence, stricter patterns)
+_CONTENT_RULES: list[tuple[str, list[str]]] = [
+    ("deployment", [
+        r"\bgithub actions\b", r"\bdocker(?:file)?\b", r"\bci[/-]cd\b",
+    ]),
+    ("data-engineering", [
+        r"\bduckdb\b", r"\bpyarrow\b", r"\b(?:bulk|batch) insert\b",
+    ]),
+    ("algorithms", [
+        r"## (?:the )?algorithm\b", r"\btime complexity\b", r"\bbig-?o\b",
+    ]),
+    ("security", [
+        r"\bcontent.security.policy\b", r"\bcross.site scripting\b",
+    ]),
+    ("architecture", [
+        r"\babstract base class\b", r"\badapter pattern\b",
+    ]),
+    ("frontend", [
+        r"\bdom\b.*\bmanipu", r"\bevent listener\b",
+    ]),
+]
+
+
+def infer_lesson_type(title: str, content: str) -> str | None:
+    """Infer lesson_type from title and content keywords. Returns None only for
+    index/meta files with no substantive teaching content."""
+    title_lower = title.lower()
+    # Title-based rules first (high confidence)
+    for lesson_type, patterns in _TITLE_RULES:
+        for pat in patterns:
+            if re.search(pat, title_lower):
+                return lesson_type
+    # Content-based rules (stricter patterns)
+    content_lower = content.lower()
+    for lesson_type, patterns in _CONTENT_RULES:
+        for pat in patterns:
+            if re.search(pat, content_lower):
+                return lesson_type
+    # Default fallback for substantive lessons
+    if len(content.split()) > 50:
+        return "implementation"
+    return None
 
 
 def load_repos() -> list[dict]:
@@ -160,6 +248,8 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
     lesson_type = post.get("lesson_type")
     if isinstance(lesson_type, list):
         lesson_type = lesson_type[0] if lesson_type else None
+    if not lesson_type:
+        lesson_type = infer_lesson_type(title, content)
     status = post.get("status", "active")
     if isinstance(status, list):
         status = status[0] if status else "active"
@@ -207,8 +297,8 @@ def scan_lessons(repo: dict, clone_path: Path) -> list[dict]:
         return []
 
     md_files = sorted(lessons_dir.rglob("*.md"))
-    # Exclude README.md files
-    md_files = [f for f in md_files if f.name.lower() != "readme.md"]
+    # Exclude README.md and TEMPLATE.md files
+    md_files = [f for f in md_files if f.name.lower() not in ("readme.md", "template.md")]
 
     if not md_files:
         log_warning(f"No lesson files found in {lessons_dir} (repo: {rid})")

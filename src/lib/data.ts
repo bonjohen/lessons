@@ -85,3 +85,10 @@ export function getPhases(): PhaseEntry[] {
 export function getLessonTypes(): LessonTypeEntry[] {
   return lessonTypesData as unknown as LessonTypeEntry[];
 }
+
+export function getBlockSubLessons(indexId: string): Lesson[] {
+  const blockPrefix = indexId.replace(/-index$/, '');
+  return getLessons()
+    .filter((l) => l.id.startsWith(blockPrefix + '-') && l.id !== indexId)
+    .sort((a, b) => a.id.localeCompare(b.id));
+}

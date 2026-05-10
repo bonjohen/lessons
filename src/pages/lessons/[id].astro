@@ -16,7 +16,21 @@ export function getStaticPaths() {
 }
 
 const { lesson } = Astro.props;
-const htmlContent = sanitizeHtml(await marked(lesson.content), {
+
+// Rewrite relative .md links in block index lessons to site URLs
+let contentToRender = lesson.content;
+if (lesson.id.endsWith('-index')) {
+  const blockPrefix = lesson.id.replace(/-index$/, '');
+  contentToRender = contentToRender.replace(
+    /\]\((\d{3}_[^)]+)\.md\)/g,
+    (_match: string, filename: string) => {
+      const slug = filename.replace(/_/g, '-').toLowerCase();
+      return `](${url(`/lessons/${blockPrefix}-${slug}/`)})`;
+    }
+  );
+}
+
+const htmlContent = sanitizeHtml(await marked(contentToRender), {
   allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'details', 'summary']),
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
