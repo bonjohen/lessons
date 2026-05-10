@@ -46,12 +46,12 @@ Open  ──>  Started  ──>  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 2.1     | Open   |               |                  | Write `docs/lessons/test-pyramid-for-static-sites.md` — pytest unit layer (76 project + 138 backend tests), live integration (Ollama/ChromaDB), Playwright acceptance layer |
-| 2.2     | Open   |               |                  | Verify frontmatter and cross-reference related lessons |
+| 2.1     | Completed | 2026-05-10 09:06 PM (PST) | 2026-05-10 09:07 PM (PST) | Write `docs/lessons/test-pyramid-for-static-sites.md` — pytest unit layer (76 project + 138 backend tests), live integration (Ollama/ChromaDB), Playwright acceptance layer |
+| 2.2     | Completed | 2026-05-10 09:07 PM (PST) | 2026-05-10 09:07 PM (PST) | Verify frontmatter and cross-reference related lessons |
 
 ### Phase 2 Summary
 
-- **Changes:** TBD
+- **Changes:** Created `docs/lessons/test-pyramid-for-static-sites.md` covering the three testing layers, what each catches, and the pyramid ratios for static sites with backends.
 - **Commit:** `docs: add test pyramid for static sites lesson`
 
 ---
