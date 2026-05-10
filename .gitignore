@@ -31,6 +31,10 @@ data/todos/
 data/external/
 .external/
 
+# Playwright
+playwright-report/
+test-results/
+
 # Editor/OS
 .vscode/
 .idea/

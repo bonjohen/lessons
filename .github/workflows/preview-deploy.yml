@@ -1,0 +1,130 @@
+name: Preview Deploy + Acceptance Tests
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e "backend[dev]"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Lint backend
+        run: |
+          ruff check backend/
+          ruff format --check backend/
+
+      - name: Run project tests
+        run: python -m pytest tests/ -q
+
+      - name: Run backend tests
+        run: cd backend && python -m pytest tests/ -q
+
+      - name: Full build pipeline
+        run: npm run build:full
+        env:
+          LESSONS_REPO_TOKEN: ${{ secrets.LESSONS_REPO_TOKEN }}
+          ASTRO_SITE: https://preview.lessons.johnboen.com
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-dist
+          path: dist
+
+  deploy-preview:
+    needs: build-preview
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-dist
+          path: dist
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=lessons-preview --branch=${{ github.head_ref }}
+
+  acceptance-tests:
+    needs: deploy-preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Run acceptance tests
+        run: npx playwright test --config tests/e2e/playwright.config.ts
+        env:
+          TARGET_URL: ${{ needs.deploy-preview.outputs.url || 'https://preview.lessons.johnboen.com' }}
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+
+      - name: Post test results to PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+            const outcome = '${{ steps.*.outcome }}' === 'failure' ? 'FAILED' : 'PASSED';
+            const body = `## Acceptance Tests: ${outcome}\n\nPreview: ${{ needs.deploy-preview.outputs.url }}\n\nSee the [test report](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });

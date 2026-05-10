@@ -15,7 +15,10 @@
     "embed": "python scripts/embed_rag_corpus.py",
     "backend": "cd backend && uvicorn app.main:app --reload",
     "index": "npx pagefind --site dist",
-    "build:full": "npm run harvest && npm run validate:lessons && npm run corpus && npm run validate:corpus && npm run build && npm run index"
+    "build:full": "npm run harvest && npm run validate:lessons && npm run corpus && npm run validate:corpus && npm run build && npm run index",
+    "test:e2e": "npx playwright test --config tests/e2e/playwright.config.ts",
+    "test:e2e:smoke": "npx playwright test --config tests/e2e/playwright.config.ts smoke.spec.ts",
+    "test:e2e:links": "npx playwright test --config tests/e2e/playwright.config.ts link-crawl.spec.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -25,6 +28,7 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/sanitize-html": "^2.16.1",
     "pagefind": "^1.5.2"
   }

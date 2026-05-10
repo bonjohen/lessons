@@ -17,8 +17,10 @@ export function getStaticPaths() {
 
 const { lesson } = Astro.props;
 
-// Rewrite relative .md links in block index lessons to site URLs
+// Rewrite relative .md links to site URLs
 let contentToRender = lesson.content;
+
+// Block index lessons: 003_some_file.md → /lessons/{blockPrefix}-003-some-file/
 if (lesson.id.endsWith('-index')) {
   const blockPrefix = lesson.id.replace(/-index$/, '');
   contentToRender = contentToRender.replace(
@@ -29,6 +31,24 @@ if (lesson.id.endsWith('-index')) {
     }
   );
 }
+
+// General case: any relative .md link (no path separators) → look up by filename slug in same repo
+const allLessonsForRewrite = getLessons().filter((l) => l.repo_id === lesson.repo_id);
+contentToRender = contentToRender.replace(
+  /\]\(([^/)][^)]*?)\.md\)/g,
+  (_match: string, filename: string) => {
+    // Strip any leading ./ and path components like block1/
+    const basename = filename.replace(/^.*\//, '');
+    const slug = basename.replace(/_/g, '-').toLowerCase();
+    // Try to find a matching lesson in the same repo
+    const target = allLessonsForRewrite.find((l) => l.id.endsWith('-' + slug));
+    if (target) {
+      return `](${url(`/lessons/${target.id}/`)})`;
+    }
+    // Fallback: keep original link (will 404 but at least it's visible)
+    return _match;
+  }
+);
 
 const htmlContent = sanitizeHtml(await marked(contentToRender), {
   allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'details', 'summary']),
