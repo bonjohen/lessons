@@ -22,6 +22,7 @@ public/exports/*.md
 # RAG corpus (rebuilt by corpus builder)
 data/rag-chunks.json
 data/rag-manifest.json
+data/embed-hashes.json
 data/chromadb/
 
 # V2 runtime data (committed review counterparts live in docs/review/)

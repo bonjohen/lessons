@@ -21,7 +21,7 @@ jobs:
     environment: flyio-${{ inputs.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
