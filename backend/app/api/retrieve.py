@@ -8,7 +8,7 @@ from app.models.schemas import ChunkResult, RetrieveRequest, RetrieveResponse
 router = APIRouter()
 
 
-@router.post("/api/retrieve", response_model=RetrieveResponse)
+@router.post("/retrieve", response_model=RetrieveResponse)
 async def retrieve(req: RetrieveRequest):
     """Retrieve relevant lesson chunks for a query."""
     retriever = get_retriever()

@@ -7,7 +7,7 @@ from app.discovery.todo_writer import list_todos
 router = APIRouter()
 
 
-@router.get("/api/todos")
+@router.get("/todos")
 async def get_todos():
     """List all coordination TODOs."""
     todos = list_todos()

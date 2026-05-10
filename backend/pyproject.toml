@@ -34,6 +34,9 @@ gcp = [
     "google-cloud-aiplatform>=1.60",
     "vertexai>=1.60",
 ]
+metrics = [
+    "prometheus_client>=0.20",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

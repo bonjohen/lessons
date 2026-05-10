@@ -1,9 +1,10 @@
 """Lessons Hub RAG backend — FastAPI application."""
 
 import os
+import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.chat import router as chat_router
@@ -12,6 +13,7 @@ from app.api.github_discovery import router as discovery_router
 from app.api.health import router as health_router
 from app.api.retrieve import router as retrieve_router
 from app.api.todos import router as todos_router
+from app.metrics import METRICS_AVAILABLE, request_duration_seconds, requests_total
 
 
 @asynccontextmanager
@@ -46,9 +48,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# --- Metrics middleware ---
+
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    if not METRICS_AVAILABLE:
+        return await call_next(request)
+    start = time.perf_counter()
+    response = await call_next(request)
+    duration = time.perf_counter() - start
+    path = request.url.path
+    requests_total.labels(method=request.method, path=path, status=response.status_code).inc()
+    request_duration_seconds.labels(method=request.method, path=path).observe(duration)
+    return response
+
+
+# --- Metrics endpoint ---
+
+
+@app.get("/metrics")
+async def metrics_endpoint():
+    if not METRICS_AVAILABLE:
+        return Response(content="prometheus_client not installed", status_code=404)
+    from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+# --- Routers ---
+
 app.include_router(health_router)
-app.include_router(chat_router)
-app.include_router(retrieve_router)
-app.include_router(gaps_router)
-app.include_router(discovery_router)
-app.include_router(todos_router)
+
+_api_routers = [chat_router, retrieve_router, gaps_router, discovery_router, todos_router]
+for _router in _api_routers:
+    app.include_router(_router, prefix="/api")
+    app.include_router(_router, prefix="/api/v1")

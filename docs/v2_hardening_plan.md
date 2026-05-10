@@ -210,7 +210,7 @@ Open  -->  Started  -->  Completed
 | 8.2 | Completed | 2026-05-10 12:24 AM (PST) | 2026-05-10 12:32 AM (PST) | Create `data/platform-keywords.json` with the current 11 keywords. In `gap_detector.py`: load the list from the JSON file at module init (with fallback to hardcoded list if file missing). Remove the hardcoded `PLATFORM_KEYWORDS` list. |
 | 8.3 | Completed | 2026-05-10 12:24 AM (PST) | 2026-05-10 12:32 AM (PST) | Update `backend/tests/test_gap_detector.py`: add test that "deploying containers" and "container deployment" produce the same normalized topic and gap ID. Add test that a keyword added to `data/platform-keywords.json` is recognized by the detector. |
 | 8.4 | Completed | 2026-05-10 12:32 AM (PST) | 2026-05-10 12:33 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 8.5 | Started | 2026-05-10 12:33 AM (PST) |  | Stage and commit all Phase 8 changes. |
+| 8.5 | Completed | 2026-05-10 12:33 AM (PST) | 2026-05-10 12:33 AM (PST) | Stage and commit all Phase 8 changes. |
 
 ### Phase 8 Summary
 
@@ -228,17 +228,17 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 9.1 | Open |  |  | Add `prometheus_client>=0.20` to `backend/pyproject.toml` optional deps group `[metrics]`. |
-| 9.2 | Open |  |  | Create `backend/app/metrics.py`: define Counter (`requests_total` with labels method+path+status), Histogram (`request_duration_seconds`), Counter (`gap_detections_total`), Counter (`cache_hits_total`). |
-| 9.3 | Open |  |  | In `backend/app/main.py`: add Starlette middleware that increments counters and records duration for every request. Add `GET /metrics` endpoint using `prometheus_client.generate_latest()`. Guard with try/except ImportError so the backend runs without prometheus_client installed. |
-| 9.4 | Open |  |  | In `backend/app/main.py`: mount all existing routers under both `/api/` (current) and `/api/v1/` (versioned). Use `app.include_router(router, prefix="/api/v1")` for the versioned mount. |
-| 9.5 | Open |  |  | Add tests: `GET /metrics` returns 200 with `requests_total` in body (or 404 if prometheus not installed). `POST /api/v1/chat` returns same schema as `POST /api/chat`. |
-| 9.6 | Open |  |  | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 9.7 | Open |  |  | Stage and commit all Phase 9 changes. |
+| 9.1 | Completed | 2026-05-10 12:35 AM (PST) | 2026-05-10 12:36 AM (PST) | Add `prometheus_client>=0.20` to `backend/pyproject.toml` optional deps group `[metrics]`. |
+| 9.2 | Completed | 2026-05-10 12:36 AM (PST) | 2026-05-10 12:36 AM (PST) | Create `backend/app/metrics.py`: define Counter (`requests_total` with labels method+path+status), Histogram (`request_duration_seconds`), Counter (`gap_detections_total`), Counter (`cache_hits_total`). |
+| 9.3 | Completed | 2026-05-10 12:36 AM (PST) | 2026-05-10 12:37 AM (PST) | In `backend/app/main.py`: add Starlette middleware that increments counters and records duration for every request. Add `GET /metrics` endpoint using `prometheus_client.generate_latest()`. Guard with try/except ImportError so the backend runs without prometheus_client installed. |
+| 9.4 | Completed | 2026-05-10 12:37 AM (PST) | 2026-05-10 12:38 AM (PST) | In `backend/app/main.py`: mount all existing routers under both `/api/` (current) and `/api/v1/` (versioned). Use `app.include_router(router, prefix="/api/v1")` for the versioned mount. |
+| 9.5 | Completed | 2026-05-10 12:38 AM (PST) | 2026-05-10 12:39 AM (PST) | Add tests: `GET /metrics` returns 200 with `requests_total` in body (or 404 if prometheus not installed). `POST /api/v1/chat` returns same schema as `POST /api/chat`. |
+| 9.6 | Completed | 2026-05-10 12:39 AM (PST) | 2026-05-10 12:39 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
+| 9.7 | Started | 2026-05-10 12:39 AM (PST) |  | Stage and commit all Phase 9 changes. |
 
 ### Phase 9 Summary
 
-- **Changes:** TBD
+- **Changes:** Added `prometheus_client>=0.20` optional dep group `[metrics]`. Created `backend/app/metrics.py` with Counter (`requests_total`), Histogram (`request_duration_seconds`), Counter (`gap_detections_total`), Counter (`cache_hits_total`), guarded by `try/except ImportError`. Added HTTP metrics middleware and `GET /metrics` endpoint to `main.py`. Refactored route decorators to remove `/api/` prefix; routers mounted with both `/api` and `/api/v1` prefixes for API versioning. Added `test_metrics_and_versioning.py` (6 tests). Total: 96 backend tests green, ruff clean.
 - **Changes hosted at:** TBD
 - **Commit:** `feat: Prometheus metrics endpoint and API v1 versioned routes (R-15, R-16)`
 

@@ -9,7 +9,7 @@ from app.rag.gap_detector import detect_gap
 router = APIRouter()
 
 
-@router.post("/api/chat", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
     """Answer a question using the lessons corpus."""
     generator = get_generator()

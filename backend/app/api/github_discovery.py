@@ -12,7 +12,7 @@ from app.discovery.todo_writer import create_todo
 router = APIRouter()
 
 
-@router.post("/api/github/search")
+@router.post("/github/search")
 async def search_github(
     gap_id: str,
     max_results: int = 20,
@@ -53,7 +53,7 @@ async def search_github(
     return {"gap_id": gap_id, "candidates": candidates}
 
 
-@router.post("/api/github/harvest-candidate")
+@router.post("/github/harvest-candidate")
 async def harvest_candidate(
     gap_id: str,
     github_url: str,

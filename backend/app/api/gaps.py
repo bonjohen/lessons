@@ -8,7 +8,7 @@ from app.models.schemas import GapRecord
 router = APIRouter()
 
 
-@router.get("/api/gaps")
+@router.get("/gaps")
 async def list_gaps(
     status: str | None = Query(None, description="Filter by status"),
     has_candidates: bool | None = Query(None, description="Filter by whether gap has candidates"),
@@ -19,7 +19,7 @@ async def list_gaps(
     return {"gaps": gaps, "total": len(gaps)}
 
 
-@router.get("/api/gaps/{gap_id}")
+@router.get("/gaps/{gap_id}")
 async def get_gap(gap_id: str):
     """Get a single gap by ID."""
     store = get_gap_store()
@@ -29,7 +29,7 @@ async def get_gap(gap_id: str):
     return gap
 
 
-@router.post("/api/gaps")
+@router.post("/gaps")
 async def create_gap(gap: GapRecord):
     """Create or update a corpus gap."""
     store = get_gap_store()
@@ -37,7 +37,7 @@ async def create_gap(gap: GapRecord):
     return stored
 
 
-@router.patch("/api/gaps/{gap_id}/status")
+@router.patch("/gaps/{gap_id}/status")
 async def update_gap_status(gap_id: str, status: str = Query(...)):
     """Update a gap's status."""
     store = get_gap_store()
