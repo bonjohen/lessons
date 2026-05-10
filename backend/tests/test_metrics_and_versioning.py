@@ -10,15 +10,17 @@ client = TestClient(app)
 
 
 class TestMetricsEndpoint:
-    def test_metrics_returns_200(self):
-        response = client.get("/metrics")
-        assert response.status_code == 200
-        assert b"requests_total" in response.content
+    def test_metrics_endpoint_responds(self):
+        """Returns 200 with metrics when prometheus_client is installed, 404 otherwise."""
+        from app.metrics import METRICS_AVAILABLE
 
-    def test_metrics_includes_duration_histogram(self):
         response = client.get("/metrics")
-        assert response.status_code == 200
-        assert b"request_duration_seconds" in response.content
+        if METRICS_AVAILABLE:
+            assert response.status_code == 200
+            assert b"requests_total" in response.content
+            assert b"request_duration_seconds" in response.content
+        else:
+            assert response.status_code == 404
 
 
 class TestAPIVersioning:
