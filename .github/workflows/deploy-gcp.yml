@@ -64,7 +64,7 @@ jobs:
       - name: Build and push backend container
         run: |
           IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/lessons-hub-backend"
-          docker build -t "$IMAGE:${{ github.sha }}" backend/
+          docker build --build-arg PROFILE=gcp -t "$IMAGE:${{ github.sha }}" backend/
           docker tag "$IMAGE:${{ github.sha }}" "$IMAGE:latest"
           docker push "$IMAGE:${{ github.sha }}"
           docker push "$IMAGE:latest"

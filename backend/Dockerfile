@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml .
 COPY app/ app/
 
-RUN pip install --no-cache-dir -e ".[aws]"
+ARG PROFILE=local
+RUN pip install --no-cache-dir -e ".[${PROFILE}]"
 
 # Non-root user
 RUN useradd --create-home appuser

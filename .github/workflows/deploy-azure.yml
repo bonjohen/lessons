@@ -59,7 +59,7 @@ jobs:
       - name: Build and push backend container
         run: |
           IMAGE="${{ secrets.ACR_LOGIN_SERVER }}/lessons-hub-backend:${{ github.sha }}"
-          docker build -t "$IMAGE" backend/
+          docker build --build-arg PROFILE=azure -t "$IMAGE" backend/
           docker tag "$IMAGE" "${{ secrets.ACR_LOGIN_SERVER }}/lessons-hub-backend:latest"
           docker push "$IMAGE"
           docker push "${{ secrets.ACR_LOGIN_SERVER }}/lessons-hub-backend:latest"
