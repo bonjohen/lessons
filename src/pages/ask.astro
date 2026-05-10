@@ -4,7 +4,72 @@ import ChatPanel from '../components/ChatPanel.astro';
 ---
 
 <BaseLayout title="Ask the Lessons - Lessons Hub">
-  <h1>Ask the Lessons</h1>
-  <p>Ask questions about your lessons corpus. Answers are grounded in the harvested lessons and include source citations.</p>
+  <div class="ask-header">
+    <h1>Ask the Lessons <span id="connection-indicator" class="indicator checking" title="Checking..."></span></h1>
+    <p>Ask questions about your lessons corpus. Answers are grounded in the harvested lessons and include source citations.</p>
+  </div>
+
   <ChatPanel />
+
+  <details class="tips">
+    <summary>Tips for better answers</summary>
+    <ul>
+      <li>Ask about specific topics: <em>"What lessons cover schema validation?"</em></li>
+      <li>Ask for patterns: <em>"What deployment patterns are documented?"</em></li>
+      <li>Ask for comparisons: <em>"How do different repos handle testing?"</em></li>
+      <li>Ask about mistakes: <em>"What common mistakes appear in the lessons?"</em></li>
+      <li>If the corpus lacks coverage, a gap will be detected automatically.</li>
+    </ul>
+  </details>
 </BaseLayout>
+
+<style>
+  .ask-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+  }
+
+  .indicator.checking {
+    background: #fbbf24;
+  }
+
+  .indicator.connected {
+    background: #22c55e;
+  }
+
+  .indicator.disconnected {
+    background: #ef4444;
+  }
+
+  .tips {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .tips summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #444;
+  }
+
+  .tips ul {
+    margin: 0.5rem 0 0 1.5rem;
+  }
+
+  .tips li {
+    margin-bottom: 0.3rem;
+  }
+
+  .tips em {
+    color: #2563eb;
+  }
+</style>

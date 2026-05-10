@@ -1,8 +1,32 @@
 ---
 import { url } from '../lib/url';
+import { getTags, getRepos } from '../lib/data';
+
+const tags = getTags();
+const repos = getRepos();
+
+// Build suggested prompts from actual data
+const topTags = tags.sort((a, b) => b.count - a.count).slice(0, 5).map(t => t.tag);
+const repoNames = repos.map(r => r.name);
+
+const suggestedPrompts = [
+  `What lessons cover ${topTags[0] || 'testing'}?`,
+  `What common mistakes appear across projects?`,
+  `What ${topTags[1] || 'deployment'} patterns are documented?`,
+  `Which repos have lessons about ${topTags[2] || 'architecture'}?`,
+  `Summarize the key lessons from ${repoNames[0] || 'the corpus'}`,
+];
 ---
 
 <div id="chat-panel">
+  <div id="chat-suggestions">
+    <p class="suggestions-label">Try asking:</p>
+    <div class="suggestion-chips">
+      {suggestedPrompts.map((prompt) => (
+        <button class="suggestion-chip" data-prompt={prompt}>{prompt}</button>
+      ))}
+    </div>
+  </div>
   <div id="chat-messages"></div>
   <form id="chat-form">
     <input type="text" id="chat-input" placeholder="Ask a question about your lessons..." autocomplete="off" />
@@ -18,10 +42,51 @@ const form = document.getElementById('chat-form');
 const input = document.getElementById('chat-input');
 const submitBtn = document.getElementById('chat-submit');
 const statusEl = document.getElementById('chat-status');
+const suggestionsEl = document.getElementById('chat-suggestions');
 
 function setStatus(msg, isError = false) {
   statusEl.textContent = msg;
   statusEl.className = isError ? 'status-msg error' : 'status-msg';
+}
+
+/* Lightweight markdown: bold, italic, inline code, code blocks, lists */
+function renderMarkdown(text) {
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Code blocks (``` ... ```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Unordered lists
+  html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  // Line breaks (preserve paragraphs)
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/<p><\/p>/g, '');
+
+  return html;
+}
+
+function showTypingIndicator() {
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-assistant typing-indicator';
+  div.id = 'typing-indicator';
+  div.innerHTML = '<span class="dot-pulse"><span></span><span></span><span></span></span>';
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
 }
 
 function appendMessage(role, content, lessons) {
@@ -30,8 +95,27 @@ function appendMessage(role, content, lessons) {
 
   const body = document.createElement('div');
   body.className = 'msg-body';
-  body.textContent = content;
+
+  if (role === 'assistant') {
+    body.innerHTML = renderMarkdown(content);
+  } else {
+    body.textContent = content;
+  }
   div.appendChild(body);
+
+  /* Copy button for assistant messages */
+  if (role === 'assistant') {
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = 'Copy';
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(content).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+      });
+    });
+    div.appendChild(copyBtn);
+  }
 
   if (lessons && lessons.length > 0) {
     const sources = document.createElement('div');
@@ -59,15 +143,15 @@ function appendMessage(role, content, lessons) {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const message = input.value.trim();
-  if (!message) return;
-
+async function sendMessage(message) {
   appendMessage('user', message);
   input.value = '';
   submitBtn.disabled = true;
-  setStatus('Thinking...');
+
+  /* Hide suggestions after first message */
+  if (suggestionsEl) suggestionsEl.style.display = 'none';
+
+  showTypingIndicator();
 
   try {
     const res = await fetch(`${API_BASE}/api/chat`, {
@@ -78,6 +162,7 @@ form.addEventListener('submit', async (e) => {
 
     if (!res.ok) throw new Error(`Backend returned ${res.status}`);
 
+    removeTypingIndicator();
     const data = await res.json();
     appendMessage('assistant', data.answer, data.relevant_lessons);
 
@@ -87,18 +172,36 @@ form.addEventListener('submit', async (e) => {
       setStatus('');
     }
   } catch (err) {
+    removeTypingIndicator();
     setStatus('Backend unavailable. Start the backend with: npm run backend', true);
-    appendMessage('assistant', 'Unable to reach the RAG backend. Make sure it is running on localhost:8000.');
+    appendMessage('assistant', 'Unable to reach the RAG backend. Make sure it is running.');
   } finally {
     submitBtn.disabled = false;
     input.focus();
   }
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+  sendMessage(message);
 });
 
-// Check backend on load
+/* Suggestion chip clicks */
+document.querySelectorAll('.suggestion-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const prompt = chip.getAttribute('data-prompt');
+    if (prompt) sendMessage(prompt);
+  });
+});
+
+/* Check backend on load — update connection indicator */
+const indicator = document.getElementById('connection-indicator');
 fetch(`${API_BASE}/health`)
   .then(r => r.json())
   .then(data => {
+    if (indicator) { indicator.className = 'indicator connected'; indicator.title = 'Connected'; }
     if (data.corpus_status && data.corpus_status.chunk_count > 0) {
       setStatus(`Connected. ${data.corpus_status.chunk_count} chunks indexed.`);
     } else {
@@ -106,6 +209,7 @@ fetch(`${API_BASE}/health`)
     }
   })
   .catch(() => {
+    if (indicator) { indicator.className = 'indicator disconnected'; indicator.title = 'Disconnected'; }
     setStatus('Backend unavailable. Start with: npm run backend', true);
   });
 </script>
@@ -118,6 +222,40 @@ fetch(`${API_BASE}/health`)
     background: #fff;
   }
 
+  /* Suggestions */
+  #chat-suggestions {
+    margin-bottom: 1rem;
+  }
+
+  .suggestions-label {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+
+  .suggestion-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .suggestion-chip {
+    background: #f0f7ff;
+    border: 1px solid #c5d9f7;
+    border-radius: 16px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    color: #2563eb;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .suggestion-chip:hover {
+    background: #dbeafe;
+    border-color: #2563eb;
+  }
+
+  /* Messages */
   #chat-messages {
     min-height: 200px;
     max-height: 500px;
@@ -130,6 +268,7 @@ fetch(`${API_BASE}/health`)
     margin-bottom: 1rem;
     padding: 0.75rem;
     border-radius: 6px;
+    position: relative;
   }
 
   .chat-user {
@@ -138,18 +277,101 @@ fetch(`${API_BASE}/health`)
   }
 
   .chat-assistant {
-    background: #f5f5f5;
+    background: #fafafa;
+    border-left: 3px solid #2563eb;
   }
 
   .msg-body {
-    white-space: pre-wrap;
     line-height: 1.6;
   }
 
+  .msg-body :global(p) {
+    margin-bottom: 0.5rem;
+  }
+
+  .msg-body :global(ul) {
+    margin: 0.5rem 0 0.5rem 1.5rem;
+  }
+
+  .msg-body :global(pre) {
+    background: #f0f0f0;
+    padding: 0.75rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+  }
+
+  .msg-body :global(code) {
+    background: #f0f0f0;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .msg-body :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.7rem;
+    color: #888;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .chat-msg:hover .copy-btn {
+    opacity: 1;
+  }
+
+  .copy-btn:hover {
+    color: #1a1a1a;
+    border-color: #aaa;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    padding: 1rem 0.75rem;
+  }
+
+  .dot-pulse {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .dot-pulse span {
+    width: 8px;
+    height: 8px;
+    background: #93c5fd;
+    border-radius: 50%;
+    animation: dot-bounce 1.4s ease-in-out infinite both;
+  }
+
+  .dot-pulse span:nth-child(1) { animation-delay: 0s; }
+  .dot-pulse span:nth-child(2) { animation-delay: 0.16s; }
+  .dot-pulse span:nth-child(3) { animation-delay: 0.32s; }
+
+  @keyframes dot-bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Sources */
   .msg-sources {
     margin-top: 0.75rem;
     padding-top: 0.5rem;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #e0e0e0;
     font-size: 0.9rem;
   }
 
@@ -168,6 +390,7 @@ fetch(`${API_BASE}/health`)
     font-size: 0.8rem;
   }
 
+  /* Form */
   #chat-form {
     display: flex;
     gap: 0.5rem;
@@ -181,6 +404,12 @@ fetch(`${API_BASE}/health`)
     font-size: 1rem;
   }
 
+  #chat-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  }
+
   #chat-submit {
     padding: 0.5rem 1.25rem;
     background: #2563eb;
@@ -189,6 +418,7 @@ fetch(`${API_BASE}/health`)
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    transition: background 0.15s ease;
   }
 
   #chat-submit:hover {

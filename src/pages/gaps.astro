@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const publicApiBase = import.meta.env.PUBLIC_API_BASE || '';
 ---
 
 <BaseLayout title="Corpus Gaps - Lessons Hub">
@@ -10,8 +11,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div id="gaps-list"></div>
 </BaseLayout>
 
-<script>
-const API_BASE = 'http://localhost:8000';
+<script define:vars={{ publicApiBase }}>
+const API_BASE = publicApiBase || 'http://localhost:8000';
 const statusEl = document.getElementById('gaps-status');
 const listEl = document.getElementById('gaps-list');
 

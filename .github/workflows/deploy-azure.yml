@@ -51,6 +51,7 @@ jobs:
         run: npm run build:full
         env:
           LESSONS_REPO_TOKEN: ${{ secrets.LESSONS_REPO_TOKEN }}
+          PUBLIC_API_BASE: ${{ secrets.BACKEND_URL }}
 
       - name: Login to ACR
         run: |

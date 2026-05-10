@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { marked } from 'marked';
+import sanitizeHtml from 'sanitize-html';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const walkthrough = fs.readFileSync(
+  path.resolve(process.cwd(), 'docs/project_walkthrough.md'),
+  'utf-8'
+);
+
+const rawHtml = await marked.parse(walkthrough);
+const html = sanitizeHtml(rawHtml, {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+    'img', 'details', 'summary', 'pre', 'code', 'hr',
+  ]),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'title', 'width', 'height'],
+    code: ['class'],
+    a: ['href', 'name', 'target', 'rel', 'id'],
+    '*': ['id'],
+  },
+});
+---
+
+<BaseLayout title="About - Lessons Hub">
+  <nav class="breadcrumb"><a href={import.meta.env.BASE_URL}>Home</a> &rsaquo; About</nav>
+  <article class="walkthrough" set:html={html} />
+</BaseLayout>
+
+<style>
+  .walkthrough {
+    line-height: 1.7;
+  }
+
+  .walkthrough :global(h1) {
+    font-size: 2rem;
+    margin: 2rem 0 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+  }
+
+  .walkthrough :global(h2) {
+    font-size: 1.5rem;
+    margin: 2rem 0 0.75rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.3rem;
+  }
+
+  .walkthrough :global(h3) {
+    font-size: 1.25rem;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .walkthrough :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .walkthrough :global(th),
+  .walkthrough :global(td) {
+    border: 1px solid #ddd;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+
+  .walkthrough :global(th) {
+    background: #f5f5f5;
+    font-weight: 600;
+  }
+
+  .walkthrough :global(pre) {
+    background: #f0f0f0;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+
+  .walkthrough :global(hr) {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 2rem 0;
+  }
+
+  .walkthrough :global(ul),
+  .walkthrough :global(ol) {
+    margin: 0.5rem 0 1rem 1.5rem;
+  }
+
+  .walkthrough :global(li) {
+    margin-bottom: 0.3rem;
+  }
+</style>

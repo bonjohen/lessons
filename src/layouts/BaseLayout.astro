@@ -7,6 +7,7 @@ interface Props {
 }
 
 const { title = 'Lessons Hub' } = Astro.props;
+const apiBase = import.meta.env.PUBLIC_API_BASE || 'http://localhost:8000';
 ---
 
 <!doctype html>
@@ -14,7 +15,7 @@ const { title = 'Lessons Hub' } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:8000; img-src 'self' data:;" />
+    <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' ${apiBase} http://localhost:* https:; frame-src 'self' http://localhost:* https:; img-src 'self' data:;`} />
     <title>{title}</title>
   </head>
   <body>
@@ -28,6 +29,8 @@ const { title = 'Lessons Hub' } = Astro.props;
           <li><a href={url('/phases/')}>Phases</a></li>
           <li><a href={url('/types/')}>Types</a></li>
           <li><a href={url('/ask/')}>Ask</a></li>
+          <li><a href={url('/gaps/')}>Gaps</a></li>
+          <li><a href={url('/about/')}>About</a></li>
         </ul>
       </nav>
     </header>
@@ -36,6 +39,11 @@ const { title = 'Lessons Hub' } = Astro.props;
     </main>
     <footer>
       <p>Lessons Hub &mdash; a lessons-learned library across projects.</p>
+      <p class="footer-links">
+        <a href={url('/about/')}>About</a> &middot;
+        <a href="https://github.com/bonjohen/lessons">GitHub</a> &middot;
+        <a href={url('/admin/')}>Admin</a>
+      </p>
     </footer>
   </body>
 </html>
@@ -105,6 +113,20 @@ const { title = 'Lessons Hub' } = Astro.props;
     margin-top: 2rem;
     color: #666;
     font-size: 0.875rem;
+  }
+
+  .footer-links {
+    margin-top: 0.25rem;
+  }
+
+  .footer-links a {
+    color: #666;
+    text-decoration: none;
+  }
+
+  .footer-links a:hover {
+    text-decoration: underline;
+    color: #2563eb;
   }
 
   h1 { font-size: 2rem; margin-bottom: 1rem; }

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const publicApiBase = import.meta.env.PUBLIC_API_BASE || '';
 ---
 
 <BaseLayout title="Candidate Lessons - Lessons Hub">
@@ -14,8 +15,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div id="todos-list"></div>
 </BaseLayout>
 
-<script>
-const API_BASE = 'http://localhost:8000';
+<script define:vars={{ publicApiBase }}>
+const API_BASE = publicApiBase || 'http://localhost:8000';
 
 async function loadCandidates() {
   const statusEl = document.getElementById('candidates-status');

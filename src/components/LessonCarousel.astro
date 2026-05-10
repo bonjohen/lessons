@@ -1,0 +1,277 @@
+---
+import { url } from '../lib/url';
+
+interface Lesson {
+  id: string;
+  title: string;
+  summary: string;
+  repo_name: string;
+  tags: string[];
+  phase: string | null;
+  lesson_type: string | null;
+  date: string | null;
+}
+
+interface Props {
+  lessons: Lesson[];
+}
+
+const { lessons } = Astro.props;
+---
+
+<section class="carousel" id="lesson-carousel">
+  <div class="carousel-header">
+    <h2>Featured Lessons</h2>
+    <div class="carousel-controls">
+      <button class="carousel-btn" id="carousel-prev" aria-label="Previous">&#8592;</button>
+      <button class="carousel-btn" id="carousel-pause" aria-label="Pause">&#10074;&#10074;</button>
+      <button class="carousel-btn" id="carousel-next" aria-label="Next">&#8594;</button>
+    </div>
+  </div>
+  <div class="carousel-viewport" id="carousel-viewport">
+    {lessons.map((lesson, i) => (
+      <div class={`carousel-slide${i === 0 ? ' active' : ''}`}>
+        <div class="slide-label">
+          {lesson.repo_name}{lesson.lesson_type ? ` / ${lesson.lesson_type}` : ''}
+        </div>
+        <h3><a href={url(`/lessons/${lesson.id}/`)}>{lesson.title}</a></h3>
+        {lesson.summary && (
+          <p class="slide-summary">
+            {lesson.summary.length > 140 ? lesson.summary.slice(0, 140) + '...' : lesson.summary}
+          </p>
+        )}
+        <div class="slide-meta">
+          {lesson.date && <span class="slide-date">{lesson.date}</span>}
+          {lesson.phase && <span class="slide-phase">{lesson.phase}</span>}
+          {lesson.tags.slice(0, 3).map((tag) => (
+            <a href={url(`/tags/${tag}/`)} class="tag">{tag}</a>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+  <div class="carousel-dots" id="carousel-dots">
+    {lessons.map((_, i) => (
+      <button
+        class={`dot${i === 0 ? ' active' : ''}`}
+        data-idx={i}
+        aria-label={`Slide ${i + 1}`}
+      />
+    ))}
+  </div>
+</section>
+
+<script>
+  const viewport = document.getElementById('carousel-viewport');
+  const dotsContainer = document.getElementById('carousel-dots');
+  const prevBtn = document.getElementById('carousel-prev');
+  const nextBtn = document.getElementById('carousel-next');
+  const pauseBtn = document.getElementById('carousel-pause');
+  let current = 0;
+  let timer: ReturnType<typeof setInterval> | null = null;
+  let paused = false;
+  const INTERVAL = 5000;
+
+  if (viewport) {
+    const slides = viewport.querySelectorAll('.carousel-slide');
+    const total = slides.length;
+
+    function goTo(idx: number) {
+      idx = ((idx % total) + total) % total;
+      if (idx === current) return;
+      slides[current].classList.remove('active');
+      slides[idx].classList.add('active');
+      current = idx;
+      updateDots();
+    }
+
+    function updateDots() {
+      if (!dotsContainer) return;
+      const dots = dotsContainer.querySelectorAll('.dot');
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+    }
+
+    function startTimer() {
+      timer = setInterval(() => goTo(current + 1), INTERVAL);
+    }
+
+    function resetTimer() {
+      if (timer) clearInterval(timer);
+      if (!paused) startTimer();
+    }
+
+    function togglePause() {
+      paused = !paused;
+      if (paused) {
+        if (timer) clearInterval(timer);
+        if (pauseBtn) {
+          pauseBtn.innerHTML = '&#9654;';
+          pauseBtn.setAttribute('aria-label', 'Play');
+        }
+      } else {
+        startTimer();
+        if (pauseBtn) {
+          pauseBtn.innerHTML = '&#10074;&#10074;';
+          pauseBtn.setAttribute('aria-label', 'Pause');
+        }
+      }
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => { goTo(current - 1); resetTimer(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { goTo(current + 1); resetTimer(); });
+    if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
+    if (dotsContainer) {
+      dotsContainer.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('.dot') as HTMLElement | null;
+        if (!btn) return;
+        goTo(parseInt(btn.getAttribute('data-idx') || '0', 10));
+        resetTimer();
+      });
+    }
+
+    startTimer();
+  }
+</script>
+
+<style>
+  .carousel {
+    margin: 1.5rem 0 2rem;
+  }
+
+  .carousel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .carousel-header h2 {
+    margin: 0;
+  }
+
+  .carousel-controls {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .carousel-btn {
+    width: 32px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.12s ease;
+  }
+
+  .carousel-btn:hover {
+    border-color: #1a1a1a;
+    color: #1a1a1a;
+  }
+
+  .carousel-viewport {
+    position: relative;
+    min-height: 180px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .carousel-slide {
+    position: absolute;
+    inset: 0;
+    padding: 1.5rem;
+    opacity: 0;
+    transition: opacity 1.2s cubic-bezier(.2, .7, .2, 1);
+    pointer-events: none;
+  }
+
+  .carousel-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+  }
+
+  .slide-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #2563eb;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .carousel-slide h3 {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .carousel-slide h3 a {
+    color: #1a1a1a;
+    text-decoration: none;
+  }
+
+  .carousel-slide h3 a:hover {
+    color: #2563eb;
+  }
+
+  .slide-summary {
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+
+  .slide-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+  }
+
+  .slide-date {
+    color: #888;
+  }
+
+  .slide-phase {
+    background: #f0f0f0;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    color: #555;
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .dot.active {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+
+  .dot:hover {
+    border-color: #2563eb;
+  }
+</style>
