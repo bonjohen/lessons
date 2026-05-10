@@ -30,9 +30,7 @@ def configure_logging() -> None:
     if profile in cloud_profiles:
         handler.setFormatter(JSONFormatter())
     else:
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)-8s [%(name)s] %(message)s")
-        )
+        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s [%(name)s] %(message)s"))
 
     root = logging.getLogger()
     root.handlers.clear()

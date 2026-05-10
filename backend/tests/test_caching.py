@@ -13,9 +13,16 @@ class TestGeneratorCaching:
 
         mock_llm.embed.return_value = [[0.1, 0.2]]
         mock_vector.query.return_value = [
-            {"chunk_id": "c1", "chunk_text": "text", "similarity_score": 0.9,
-             "lesson_id": "l1", "title": "T", "heading_path": "H",
-             "lesson_url": "/l/l1", "repo_id": "r1"},
+            {
+                "chunk_id": "c1",
+                "chunk_text": "text",
+                "similarity_score": 0.9,
+                "lesson_id": "l1",
+                "title": "T",
+                "heading_path": "H",
+                "lesson_url": "/l/l1",
+                "repo_id": "r1",
+            },
         ]
         mock_llm.chat.return_value = "Answer text"
 
@@ -34,9 +41,16 @@ class TestGeneratorCaching:
 
         mock_llm.embed.return_value = [[0.1, 0.2]]
         mock_vector.query.return_value = [
-            {"chunk_id": "c1", "chunk_text": "text", "similarity_score": 0.9,
-             "lesson_id": "l1", "title": "T", "heading_path": "H",
-             "lesson_url": "/l/l1", "repo_id": "r1"},
+            {
+                "chunk_id": "c1",
+                "chunk_text": "text",
+                "similarity_score": 0.9,
+                "lesson_id": "l1",
+                "title": "T",
+                "heading_path": "H",
+                "lesson_url": "/l/l1",
+                "repo_id": "r1",
+            },
         ]
         mock_llm.chat.return_value = "Answer"
 

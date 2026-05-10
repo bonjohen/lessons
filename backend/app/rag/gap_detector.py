@@ -57,8 +57,17 @@ GAP_TYPES = {
 # Keywords suggesting platform-specific queries — loaded from JSON, with hardcoded fallback
 _PLATFORM_KEYWORDS_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "platform-keywords.json"
 _FALLBACK_PLATFORM_KEYWORDS = [
-    "aws", "azure", "gcp", "docker", "kubernetes", "terraform",
-    "heroku", "vercel", "netlify", "cloudflare", "digitalocean",
+    "aws",
+    "azure",
+    "gcp",
+    "docker",
+    "kubernetes",
+    "terraform",
+    "heroku",
+    "vercel",
+    "netlify",
+    "cloudflare",
+    "digitalocean",
 ]
 
 
