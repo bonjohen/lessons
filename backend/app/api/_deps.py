@@ -38,6 +38,12 @@ def _create_adapters(profile: str):
 
         return VertexAIAdapter(), VertexVectorSearchAdapter()
 
+    if profile in ("flyio", "railway"):
+        from app.adapters.llm.openai_adapter import OpenAIAdapter
+        from app.adapters.vector.chromadb_adapter import ChromaDBAdapter
+
+        return OpenAIAdapter(), ChromaDBAdapter()
+
     # Default: local (Ollama + ChromaDB)
     from app.adapters.llm.ollama_adapter import OllamaAdapter
     from app.adapters.vector.chromadb_adapter import ChromaDBAdapter

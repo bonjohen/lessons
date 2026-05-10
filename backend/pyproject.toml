@@ -34,13 +34,16 @@ gcp = [
     "google-cloud-aiplatform>=1.60",
     "vertexai>=1.60",
 ]
+openai = [
+    "openai>=1.40",
+]
 metrics = [
     "prometheus_client>=0.20",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
+filterwarnings = ["ignore::DeprecationWarning:pytest_asyncio",]
 [tool.ruff]
 target-version = "py311"
 line-length = 120
