@@ -1,0 +1,11 @@
+/* Shared tag layout styles — imported globally via BaseLayout.astro */
+.tags,
+.tag-list {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 0.75rem;
+}

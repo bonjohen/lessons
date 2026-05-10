@@ -140,7 +140,7 @@ Open  -->  Started  -->  Completed
 | 5.3 | Completed | 2026-05-10 12:12 AM (PST) | 2026-05-10 12:14 AM (PST) | Add test in `backend/tests/test_discovery.py`: mock `httpx.get` returning rate-limit headers with remaining=1, assert the searcher pauses (mock `time.sleep` and verify it's called). |
 | 5.4 | Completed | 2026-05-10 12:12 AM (PST) | 2026-05-10 12:14 AM (PST) | Add test for clone timeout: mock `subprocess.run` raising `subprocess.TimeoutExpired`, assert `clone_or_pull` returns None instead of crashing. |
 | 5.5 | Completed | 2026-05-10 12:14 AM (PST) | 2026-05-10 12:14 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 5.6 | Started | 2026-05-10 12:14 AM (PST) |  | Stage and commit all Phase 5 changes. |
+| 5.6 | Completed | 2026-05-10 12:14 AM (PST) | 2026-05-10 12:14 AM (PST) | Stage and commit all Phase 5 changes. |
 
 ### Phase 5 Summary
 
@@ -158,17 +158,17 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 6.1 | Open |  |  | In `scripts/lesson_core.py`: add shared `log_error(msg)`, `log_warning(msg)`, `log_info(msg)` functions that write to stderr with `[ERROR]`/`[WARNING]`/`[INFO]` prefixes and track counts in a module-level `LogStats` dataclass. |
-| 6.2 | Open |  |  | In `scripts/harvest_lessons.py`: replace `warn()`/`error()` with `lesson_core.log_warning()`/`lesson_core.log_error()`. Remove old helper functions and list-based tracking. |
-| 6.3 | Open |  |  | In `scripts/validate_lessons.py`: replace `log_error()`/`log_warning()`/`log_info()` with `lesson_core.log_error()`/`lesson_core.log_warning()`/`lesson_core.log_info()`. Remove old helper functions and global counter variables. Change print calls from stdout to use the shared helpers. |
-| 6.4 | Open |  |  | Extract shared tag CSS: create `src/styles/tags.css` with `.tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }` and `.tag { font-size: 0.75rem; }`. Import in `BaseLayout.astro` via `import '../styles/tags.css'`. |
-| 6.5 | Open |  |  | Remove duplicated `.tags` and `.tag` style blocks from `src/components/LessonCard.astro`, `src/components/RepoCard.astro`, `src/components/TagList.astro` (remove the `.tag-list` equivalent rule too). |
-| 6.6 | Open |  |  | Verify: `pytest tests/` green. `npm run build` succeeds. Visual spot-check of tag styling on lessons, repos, and tags pages. |
-| 6.7 | Open |  |  | Stage and commit all Phase 6 changes. |
+| 6.1 | Completed | 2026-05-10 12:15 AM (PST) | 2026-05-10 12:20 AM (PST) | In `scripts/lesson_core.py`: add shared `log_error(msg)`, `log_warning(msg)`, `log_info(msg)` functions that write to stderr with `[ERROR]`/`[WARNING]`/`[INFO]` prefixes and track counts in a module-level `LogStats` dataclass. |
+| 6.2 | Completed | 2026-05-10 12:15 AM (PST) | 2026-05-10 12:20 AM (PST) | In `scripts/harvest_lessons.py`: replace `warn()`/`error()` with `lesson_core.log_warning()`/`lesson_core.log_error()`. Remove old helper functions and list-based tracking. |
+| 6.3 | Completed | 2026-05-10 12:15 AM (PST) | 2026-05-10 12:20 AM (PST) | In `scripts/validate_lessons.py`: replace `log_error()`/`log_warning()`/`log_info()` with `lesson_core.log_error()`/`lesson_core.log_warning()`/`lesson_core.log_info()`. Remove old helper functions and global counter variables. Change print calls from stdout to use the shared helpers. |
+| 6.4 | Completed | 2026-05-10 12:15 AM (PST) | 2026-05-10 12:20 AM (PST) | Extract shared tag CSS: create `src/styles/tags.css` with `.tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }` and `.tag { font-size: 0.75rem; }`. Import in `BaseLayout.astro` via `import '../styles/tags.css'`. |
+| 6.5 | Completed | 2026-05-10 12:15 AM (PST) | 2026-05-10 12:20 AM (PST) | Remove duplicated `.tags` and `.tag` style blocks from `src/components/LessonCard.astro`, `src/components/RepoCard.astro`, `src/components/TagList.astro` (remove the `.tag-list` equivalent rule too). |
+| 6.6 | Completed | 2026-05-10 12:20 AM (PST) | 2026-05-10 12:20 AM (PST) | Verify: `pytest tests/` green. `npm run build` succeeds. Visual spot-check of tag styling on lessons, repos, and tags pages. |
+| 6.7 | Started | 2026-05-10 12:20 AM (PST) |  | Stage and commit all Phase 6 changes. |
 
 ### Phase 6 Summary
 
-- **Changes:** TBD
+- **Changes:** Added `LogStats` dataclass + `log_error/log_warning/log_info/get_log_stats/reset_log_stats` to `lesson_core.py`. Refactored `harvest_lessons.py` and `validate_lessons.py` to use shared logging. Created `src/styles/tags.css` with common `.tags`/`.tag-list`/`.tag` rules, imported in `BaseLayout.astro`. Removed duplicated CSS from `LessonCard.astro`, `RepoCard.astro`, `TagList.astro`. Updated integration tests.
 - **Changes hosted at:** TBD
 - **Commit:** `fix: consistent error handling and deduplicated tag CSS (R-10, R-11)`
 

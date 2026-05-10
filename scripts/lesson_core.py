@@ -2,10 +2,12 @@
 
 This module contains all logic that can be tested without side effects:
 tag normalization, slug generation, title extraction, field validation,
-and controlled vocabulary definitions.
+controlled vocabulary definitions, and shared logging.
 """
 
 import re
+import sys
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
@@ -204,3 +206,51 @@ def build_source_url(repo: dict, rel_path) -> str:
 def compute_reading_time(word_count: int) -> int:
     """Compute reading time in minutes from word count."""
     return max(1, round(word_count / READING_WPM))
+
+
+# --- Shared logging ---
+
+@dataclass
+class LogStats:
+    """Tracks counts for structured log output."""
+    errors: int = 0
+    warnings: int = 0
+    infos: int = 0
+    messages: list[str] = field(default_factory=list)
+
+
+_log_stats = LogStats()
+
+
+def log_error(msg: str) -> None:
+    """Log an error to stderr and track the count."""
+    _log_stats.errors += 1
+    _log_stats.messages.append(f"[ERROR] {msg}")
+    print(f"  [ERROR] {msg}", file=sys.stderr)
+
+
+def log_warning(msg: str) -> None:
+    """Log a warning to stderr and track the count."""
+    _log_stats.warnings += 1
+    _log_stats.messages.append(f"[WARNING] {msg}")
+    print(f"  [WARNING] {msg}", file=sys.stderr)
+
+
+def log_info(msg: str) -> None:
+    """Log an info message to stderr and track the count."""
+    _log_stats.infos += 1
+    _log_stats.messages.append(f"[INFO] {msg}")
+    print(f"  [INFO] {msg}", file=sys.stderr)
+
+
+def get_log_stats() -> LogStats:
+    """Return the current log stats."""
+    return _log_stats
+
+
+def reset_log_stats() -> None:
+    """Reset all log counters and messages."""
+    _log_stats.errors = 0
+    _log_stats.warnings = 0
+    _log_stats.infos = 0
+    _log_stats.messages.clear()

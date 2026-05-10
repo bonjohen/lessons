@@ -41,8 +41,8 @@ class TestParseLesson:
     def _setup(self, tmp_path):
         # Import harvest_lessons and reset its module-level state
         import harvest_lessons
-        harvest_lessons.warnings.clear()
-        harvest_lessons.errors.clear()
+        import lesson_core
+        lesson_core.reset_log_stats()
         self.harvest = harvest_lessons
         self.tmp_path = tmp_path
 
@@ -123,8 +123,8 @@ class TestScanLessons:
     @pytest.fixture(autouse=True)
     def _setup(self, tmp_path):
         import harvest_lessons
-        harvest_lessons.warnings.clear()
-        harvest_lessons.errors.clear()
+        import lesson_core
+        lesson_core.reset_log_stats()
         self.harvest = harvest_lessons
         self.tmp_path = tmp_path
 
@@ -151,7 +151,8 @@ class TestScanLessons:
 
         lessons = self.harvest.scan_lessons(repo, repo_root)
         assert lessons == []
-        assert len(self.harvest.errors) > 0
+        import lesson_core
+        assert lesson_core.get_log_stats().errors > 0
 
 
 class TestGenerateIndexes:
@@ -160,8 +161,8 @@ class TestGenerateIndexes:
     @pytest.fixture(autouse=True)
     def _setup(self, tmp_path):
         import harvest_lessons
-        harvest_lessons.warnings.clear()
-        harvest_lessons.errors.clear()
+        import lesson_core
+        lesson_core.reset_log_stats()
         self.harvest = harvest_lessons
         self.tmp_path = tmp_path
 

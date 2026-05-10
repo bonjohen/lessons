@@ -13,33 +13,16 @@ from lesson_core import (
     validate_repo_entry,
     find_duplicate_ids,
     validate_lesson_record,
+    get_log_stats,
+    log_error,
+    log_info,
+    log_warning,
+    reset_log_stats,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
 REPOS_YML = ROOT / "data" / "repos.yml"
 GENERATED_DIR = ROOT / "src" / "content" / "generated"
-
-error_count = 0
-warning_count = 0
-info_count = 0
-
-
-def log_error(msg: str) -> None:
-    global error_count
-    error_count += 1
-    print(f"  ERROR: {msg}", file=sys.stderr)
-
-
-def log_warning(msg: str) -> None:
-    global warning_count
-    warning_count += 1
-    print(f"  WARNING: {msg}", file=sys.stderr)
-
-
-def log_info(msg: str) -> None:
-    global info_count
-    info_count += 1
-    print(f"  INFO: {msg}", file=sys.stderr)
 
 
 def load_json(filename: str) -> list | None:
@@ -108,6 +91,8 @@ def validate_lessons(lessons: list) -> None:
 
 
 def main() -> int:
+    reset_log_stats()
+    stats = get_log_stats()
     print("Lessons Hub Validator")
     print("=" * 40)
 
@@ -134,12 +119,12 @@ def main() -> int:
     # Summary
     print("\n" + "=" * 40)
     print("Validation Summary")
-    print(f"  Errors:   {error_count}")
-    print(f"  Warnings: {warning_count}")
-    print(f"  Info:     {info_count}")
+    print(f"  Errors:   {stats.errors}")
+    print(f"  Warnings: {stats.warnings}")
+    print(f"  Info:     {stats.infos}")
     print("=" * 40)
 
-    if error_count > 0:
+    if stats.errors > 0:
         print("\nFAILED: validation errors found.")
         return 1
 

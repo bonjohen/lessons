@@ -21,6 +21,10 @@ from lesson_core import (
     coerce_date,
     build_source_url,
     compute_reading_time,
+    get_log_stats,
+    log_error,
+    log_warning,
+    reset_log_stats,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,57 +33,44 @@ TMP_DIR = ROOT / "tmp" / "repos"
 GENERATED_DIR = ROOT / "src" / "content" / "generated"
 EXPORTS_DIR = ROOT / "public" / "exports"
 
-warnings = []
-errors = []
-
-
-def warn(msg: str) -> None:
-    warnings.append(msg)
-    print(f"  WARNING: {msg}", file=sys.stderr)
-
-
-def error(msg: str) -> None:
-    errors.append(msg)
-    print(f"  ERROR: {msg}", file=sys.stderr)
-
 
 def load_repos() -> list[dict]:
     """Load and validate data/repos.yml."""
     if not REPOS_YML.exists():
-        error(f"Missing {REPOS_YML}")
+        log_error(f"Missing {REPOS_YML}")
         return []
 
     with open(REPOS_YML, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
 
     if not isinstance(data, dict) or "repos" not in data:
-        error("repos.yml must contain a top-level 'repos' list")
+        log_error("repos.yml must contain a top-level 'repos' list")
         return []
 
     repos = data["repos"]
     if not isinstance(repos, list):
-        error("repos.yml 'repos' must be a list")
+        log_error("repos.yml 'repos' must be a list")
         return []
 
     seen_ids = set()
     valid = []
     for repo in repos:
         if not isinstance(repo, dict):
-            error(f"Invalid repo entry: {repo}")
+            log_error(f"Invalid repo entry: {repo}")
             continue
 
         missing = REQUIRED_REPO_FIELDS - set(repo.keys())
         if missing:
-            error(f"Repo entry missing fields {missing}: {repo.get('id', '?')}")
+            log_error(f"Repo entry missing fields {missing}: {repo.get('id', '?')}")
             continue
 
         rid = repo["id"]
         if not REPO_ID_PATTERN.match(rid):
-            error(f"Invalid repo ID format: {rid}")
+            log_error(f"Invalid repo ID format: {rid}")
             continue
 
         if rid in seen_ids:
-            error(f"Duplicate repo ID: {rid}")
+            log_error(f"Duplicate repo ID: {rid}")
             continue
         seen_ids.add(rid)
 
@@ -119,7 +110,7 @@ def clone_repo(repo: dict) -> Path | None:
             text=True,
         )
     except subprocess.CalledProcessError as e:
-        error(f"Failed to clone {rid}: {e.stderr.strip()}")
+        log_error(f"Failed to clone {rid}: {e.stderr.strip()}")
         return None
 
     return dest
@@ -132,17 +123,17 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
     try:
         post = frontmatter.load(filepath)
     except Exception as e:
-        error(f"Unreadable lesson file {filepath}: {e}")
+        log_error(f"Unreadable lesson file {filepath}: {e}")
         return None
 
     content = post.content.strip()
     if not content:
-        error(f"Empty lesson content: {filepath}")
+        log_error(f"Empty lesson content: {filepath}")
         return None
 
     title, inferred = extract_title(post, filepath)
     if inferred:
-        warn(f"Title inferred from filename: {filepath.name} -> '{title}'")
+        log_warning(f"Title inferred from filename: {filepath.name} -> '{title}'")
 
     # Source path relative to lessons_path
     lessons_root = TMP_DIR / rid / repo["lessons_path"]
@@ -212,7 +203,7 @@ def scan_lessons(repo: dict, clone_path: Path) -> list[dict]:
     lessons_dir = clone_path / repo["lessons_path"]
 
     if not lessons_dir.exists():
-        error(f"Lessons path not found: {lessons_dir} (repo: {rid})")
+        log_error(f"Lessons path not found: {lessons_dir} (repo: {rid})")
         return []
 
     md_files = sorted(lessons_dir.rglob("*.md"))
@@ -220,7 +211,7 @@ def scan_lessons(repo: dict, clone_path: Path) -> list[dict]:
     md_files = [f for f in md_files if f.name.lower() != "readme.md"]
 
     if not md_files:
-        warn(f"No lesson files found in {lessons_dir} (repo: {rid})")
+        log_warning(f"No lesson files found in {lessons_dir} (repo: {rid})")
         return []
 
     lessons = []
@@ -238,7 +229,7 @@ def check_duplicate_ids(lessons: list[dict]) -> None:
     for lesson in lessons:
         lid = lesson["id"]
         if lid in seen:
-            error(f"Duplicate lesson ID: {lid} (first in {seen[lid]}, also in {lesson['repo_id']})")
+            log_error(f"Duplicate lesson ID: {lid} (first in {seen[lid]}, also in {lesson['repo_id']})")
         else:
             seen[lid] = lesson["repo_id"]
 
@@ -374,12 +365,14 @@ def write_json(path: Path, data) -> None:
 
 
 def main() -> int:
+    reset_log_stats()
+    stats = get_log_stats()
     print("Lessons Hub Harvester")
     print("=" * 40)
 
     # Load repos
     repos = load_repos()
-    if errors:
+    if stats.errors:
         print(f"\nFATAL: {len(errors)} error(s) loading repos. Aborting.")
         return 1
 
@@ -410,14 +403,14 @@ def main() -> int:
         all_lessons.extend(lessons)
         print(f"  Found {len(lessons)} lesson(s) in {repo['id']}")
 
-    if errors:
-        print(f"\nFATAL: {len(errors)} error(s) during harvest. Aborting.")
+    if stats.errors:
+        print(f"\nFATAL: {stats.errors} error(s) during harvest. Aborting.")
         return 1
 
     # Check duplicate IDs
     check_duplicate_ids(all_lessons)
-    if errors:
-        print(f"\nFATAL: {len(errors)} error(s) — duplicate IDs. Aborting.")
+    if stats.errors:
+        print(f"\nFATAL: {stats.errors} error(s) — duplicate IDs. Aborting.")
         return 1
 
     # Generate outputs
@@ -432,8 +425,8 @@ def main() -> int:
     print("Harvest Summary")
     print(f"  Repos scanned:  {repos_scanned}")
     print(f"  Lessons found:  {len(all_lessons)}")
-    print(f"  Warnings:       {len(warnings)}")
-    print(f"  Errors:         {len(errors)}")
+    print(f"  Warnings:       {stats.warnings}")
+    print(f"  Errors:         {stats.errors}")
     print("=" * 40)
 
     return 0
