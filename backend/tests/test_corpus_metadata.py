@@ -15,9 +15,7 @@ build_corpus = _mod.build_corpus
 
 def _make_lessons_json(lessons: list[dict]) -> Path:
     """Write a temporary lessons.json and return its path."""
-    tmp = tempfile.NamedTemporaryFile(
-        mode="w", suffix=".json", delete=False, encoding="utf-8"
-    )
+    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8")
     json.dump(lessons, tmp)
     tmp.close()
     return Path(tmp.name)
@@ -25,19 +23,21 @@ def _make_lessons_json(lessons: list[dict]) -> Path:
 
 def test_corpus_chunk_includes_lesson_type():
     """Chunks built from a lesson with lesson_type carry that field."""
-    path = _make_lessons_json([
-        {
-            "id": "test-lesson",
-            "title": "Deploy Guide",
-            "summary": "How to deploy",
-            "repo_id": "repo1",
-            "tags": ["deploy"],
-            "lesson_type": "deployment",
-            "phase": "production",
-            "status": "active",
-            "content": "## Setup\n\nInstall the thing.\n\n## Deploy\n\nRun the command.",
-        }
-    ])
+    path = _make_lessons_json(
+        [
+            {
+                "id": "test-lesson",
+                "title": "Deploy Guide",
+                "summary": "How to deploy",
+                "repo_id": "repo1",
+                "tags": ["deploy"],
+                "lesson_type": "deployment",
+                "phase": "production",
+                "status": "active",
+                "content": "## Setup\n\nInstall the thing.\n\n## Deploy\n\nRun the command.",
+            }
+        ]
+    )
     chunks, manifest = build_corpus(path)
     assert len(chunks) >= 1
     for chunk in chunks:
@@ -49,13 +49,15 @@ def test_corpus_chunk_includes_lesson_type():
 
 def test_corpus_chunk_defaults_missing_metadata():
     """Chunks from lessons without lesson_type/phase/status default to empty string."""
-    path = _make_lessons_json([
-        {
-            "id": "minimal-lesson",
-            "title": "Minimal",
-            "content": "## Intro\n\nSome content.",
-        }
-    ])
+    path = _make_lessons_json(
+        [
+            {
+                "id": "minimal-lesson",
+                "title": "Minimal",
+                "content": "## Intro\n\nSome content.",
+            }
+        ]
+    )
     chunks, _ = build_corpus(path)
     assert len(chunks) >= 1
     for chunk in chunks:

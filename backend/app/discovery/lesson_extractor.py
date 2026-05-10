@@ -53,9 +53,7 @@ def detect_extractable_content(repo_dir: Path) -> dict:
     return found
 
 
-def _summarize_sources(
-    repo_dir: Path, content_files: dict
-) -> list[tuple[Path, str]]:
+def _summarize_sources(repo_dir: Path, content_files: dict) -> list[tuple[Path, str]]:
     """Extract a 1–3 sentence summary from each evidence file.
 
     Returns a list of (file_path, summary) tuples.
@@ -107,9 +105,7 @@ def _summarize_sources(
     return summaries
 
 
-def _draft_lesson(
-    topic: str, missing_concepts: list[str], summaries: list[tuple[Path, str]]
-) -> str:
+def _draft_lesson(topic: str, missing_concepts: list[str], summaries: list[tuple[Path, str]]) -> str:
     """Combine source summaries into a cohesive lesson body paragraph."""
     if not summaries:
         return (

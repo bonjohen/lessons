@@ -136,7 +136,7 @@ Open  -->  Started  -->  Completed
 | 4.6 | Completed | 2026-05-10 02:53 AM (PST) | 2026-05-10 02:55 AM (PST) | Update candidate lesson frontmatter: set `review_status: needs_review` and add `generated_by: lesson_extractor_v2`. |
 | 4.7 | Completed | 2026-05-10 02:55 AM (PST) | 2026-05-10 02:56 AM (PST) | Add test: generate a candidate lesson from a mock repo with README + Dockerfile + .github/workflows/deploy.yml. Assert all four sections present. Assert evidence links point to valid GitHub blob URLs. Assert review checklist has 4 items. |
 | 4.8 | Completed | 2026-05-10 02:56 AM (PST) | 2026-05-10 02:56 AM (PST) | Verify: `python -m pytest backend/tests/` green. `ruff check backend/` clean. |
-| 4.9 | Started | 2026-05-10 02:56 AM (PST) | | Stage and commit all Phase 4 changes. |
+| 4.9 | Completed | 2026-05-10 02:56 AM (PST) | 2026-05-10 02:57 AM (PST) | Stage and commit all Phase 4 changes. |
 
 ### Phase 4 Summary
 
@@ -154,15 +154,15 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 5.1 | Open | | | Run full test suite: `python -m pytest tests/` (76 tests) and `python -m pytest backend/tests/` (96+ tests). Fix any failures. |
-| 5.2 | Open | | | Run `ruff check backend/` and `ruff format --check backend/`. Fix any issues. |
-| 5.3 | Open | | | Run `npm run build` to confirm Astro site still builds. |
-| 5.4 | Open | | | Review all changes across phases 1–4 for consistency: schema fields match between corpus builder, ChromaDB adapter, and schemas.py; gap store writes to both paths; discovery tests use enabled flag. |
-| 5.5 | Open | | | Stage and commit any final fixes. |
+| 5.1 | Completed | 2026-05-10 02:57 AM (PST) | 2026-05-10 02:57 AM (PST) | Run full test suite: `python -m pytest tests/` (76 tests) and `python -m pytest backend/tests/` (134 tests). All green. |
+| 5.2 | Completed | 2026-05-10 02:57 AM (PST) | 2026-05-10 02:58 AM (PST) | Run `ruff check backend/` and `ruff format --check backend/`. Reformatted 2 files (lesson_extractor.py, test_corpus_metadata.py). |
+| 5.3 | Completed | 2026-05-10 02:58 AM (PST) | 2026-05-10 02:58 AM (PST) | Run `npm run build` — 152 pages built in 1.21s. |
+| 5.4 | Completed | 2026-05-10 02:58 AM (PST) | 2026-05-10 02:58 AM (PST) | Consistency verified: schema fields match (lesson_type/phase/status) across corpus builder, ChromaDB adapter, and schemas.py. Gap store writes to both JSON and markdown. Discovery endpoints gated by GITHUB_DISCOVERY_ENABLED. |
+| 5.5 | Started | 2026-05-10 02:58 AM (PST) | | Stage and commit any final fixes. |
 
 ### Phase 5 Summary
 
-- **Changes:** TBD
+- **Changes:** Reformatted `lesson_extractor.py` and `test_corpus_metadata.py` via ruff format. All 210 tests (76 project + 134 backend) green. Lint clean. Astro build clean (152 pages).
 - **Changes hosted at:** TBD
 - **Commit:** `chore: verification and cleanup for suggestions implementation (S-final)`
 
