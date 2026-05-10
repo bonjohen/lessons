@@ -1,6 +1,6 @@
 # Lessons Hub
 
-A static website and build pipeline that consolidates markdown-based lesson documents from multiple GitHub repositories into one searchable, browsable, AI-readable lessons library. Includes a RAG-powered chatbot for querying lessons with source citations. Deployed via GitHub Pages.
+A static website and build pipeline that consolidates markdown-based lesson documents from multiple GitHub repositories into one searchable, browsable, AI-readable lessons library. Includes a RAG-powered chatbot, voice reader for lesson pages, and corpus gap detection. Deployed via GitHub Pages at [lessons.johnboen.com](https://lessons.johnboen.com).
 
 ## Architecture
 
@@ -21,14 +21,17 @@ ChatPanel.astro → POST /api/chat → FastAPI Backend
 - **Generated JSON** in `src/content/generated/` drives all Astro pages
 - **Export packs** in `public/exports/` provide AI-readable lesson data
 - **FastAPI backend** provides RAG chatbot, gap detection, and GitHub discovery (runs independently of the static site)
+- **Voice reader** on lesson and about pages using the Web Speech API (no external dependencies)
 
-### V2 Features
+### Features
 
+- **Full-text search** via Pagefind (static, no backend required)
 - **RAG chatbot** — ask questions, get grounded answers citing specific lessons
+- **Voice reader** — browser-native text-to-speech with paragraph highlighting, section skip, and keyboard shortcuts
 - **Gap detection** — queries the corpus can't answer create trackable gap records
 - **GitHub discovery** — gaps produce candidate external repos, scored and ranked
 - **Multi-cloud deployment** — AWS (Bedrock + OpenSearch), Azure (OpenAI + AI Search), GCP (Vertex AI)
-- **CI/CD hardening** — pytest, ruff, corpus validation; staging/production split with approval gates
+- **CI/CD** — pytest, ruff, corpus validation; staging/production split with approval gates
 
 ## Source Repository Contract
 
@@ -72,6 +75,8 @@ Recommended: `summary`, `date`, `tags`, `phase`, `lesson_type`.
 3. Run `npm run validate:lessons` to check for issues
 4. Commit the updated `data/repos.yml`
 
+See [docs/adding-a-repo.md](docs/adding-a-repo.md) for the full procedure.
+
 ## Local Development
 
 ### Prerequisites
@@ -91,13 +96,13 @@ pip install -e backend[dev]
 ### Commands
 
 ```bash
-npm run dev              # Astro dev server
+npm run dev              # Astro dev server (localhost:4331)
 npm run harvest          # Clone repos and generate JSON
 npm run validate:lessons # Validate harvested data
 npm run build            # Astro build
 npm run index            # Pagefind indexing
 npm run build:full       # Full pipeline: harvest → validate → corpus → build → index
-npm run backend          # Start FastAPI backend (localhost:8000)
+npm run backend          # Start FastAPI backend (localhost:8010)
 npm run corpus           # Build RAG corpus from lessons.json
 npm run validate:corpus  # Validate RAG corpus
 ```
@@ -106,10 +111,21 @@ npm run validate:corpus  # Validate RAG corpus
 
 ```bash
 python -m pytest tests/           # Project tests (76)
-python -m pytest backend/tests/   # Backend tests (102)
+python -m pytest backend/tests/   # Backend tests (138)
 ruff check backend/               # Lint
 ruff format --check backend/      # Format check
+npm run test:e2e:links            # Link crawl (Playwright, requires running site)
+npm run test:e2e:smoke            # Smoke tests (Playwright)
 ```
+
+### Port Allocation
+
+This project uses non-default ports to allow concurrent development across multiple repos:
+
+| Service | Port |
+|---------|------|
+| Astro dev server | 4331 |
+| FastAPI backend | 8010 |
 
 ## Deployment
 
@@ -135,6 +151,22 @@ AWS, Azure, and GCP deployment workflows are available via manual dispatch. Each
 | GCP | Cloud Run | Vertex AI (Gemini 1.5 Flash) | Vertex Vector Search | `deploy-gcp.yml` |
 
 Infrastructure templates: `infra/aws/cloudformation.yml`, `infra/azure/main.bicep`, `infra/gcp/deploy.sh`.
+
+## Documentation
+
+Active reference documents in `docs/`:
+
+| Document | Purpose |
+|----------|---------|
+| [architecture.md](docs/architecture.md) | System architecture, V1/V2 data flow, repo treatment |
+| [PDR.md](docs/PDR.md) | V1 product design requirements |
+| [PDR_V2.md](docs/PDR_V2.md) | V2 product design requirements (RAG, gaps, discovery, cloud) |
+| [project_walkthrough.md](docs/project_walkthrough.md) | End-to-end system walkthrough (rendered as the About page) |
+| [lesson-schema.md](docs/lesson-schema.md) | Frontmatter schema, controlled vocabularies, ID rules |
+| [lesson-template.md](docs/lesson-template.md) | Markdown template for writing new lessons |
+| [adding-a-repo.md](docs/adding-a-repo.md) | How to add a source repository to the registry |
+
+Completed plans, historical reviews, and superseded specs are in [docs/archive/](docs/archive/index.md).
 
 ## Export Files
 
