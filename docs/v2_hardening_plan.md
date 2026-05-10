@@ -92,7 +92,7 @@ Open  -->  Started  -->  Completed
 | 3.4 | Completed | 2026-05-10 12:05 AM (PST) | 2026-05-10 12:08 AM (PST) | In `backend/app/rag/gap_detector.py`: add logger. Log each rule evaluation at DEBUG level with the rule name and whether it fired. Log the final gap decision (detected vs. not) at INFO. |
 | 3.5 | Completed | 2026-05-10 12:08 AM (PST) | 2026-05-10 12:08 AM (PST) | Update existing tests if any assert on silent behavior. Add a test in `test_discovery.py` that mocks an HTTP error and asserts the error is logged (use `caplog` fixture). |
 | 3.6 | Completed | 2026-05-10 12:08 AM (PST) | 2026-05-10 12:08 AM (PST) | Verify: `pytest backend/tests/` green. Start backend, send a chat query, confirm log output at INFO level shows adapter init and gap detection result. |
-| 3.7 | Started | 2026-05-10 12:08 AM (PST) |  | Stage and commit all Phase 3 changes. |
+| 3.7 | Completed | 2026-05-10 12:08 AM (PST) | 2026-05-10 12:08 AM (PST) | Stage and commit all Phase 3 changes. |
 
 ### Phase 3 Summary
 
@@ -110,18 +110,18 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 4.1 | Open |  |  | Add `filelock>=3.15` to `backend/pyproject.toml` core dependencies. Run `pip install -e backend[dev]`. |
-| 4.2 | Open |  |  | In `backend/app/rag/gap_store.py`: add `FileLock` import. Create lock path as `self._path.with_suffix('.lock')`. Wrap `_load()` + `_save()` sequences in `create_or_update()` and `update_status()` with `with FileLock(self._lock_path):`. |
-| 4.3 | Open |  |  | Find TODO store (grep for similar JSON read-write pattern in `backend/app/discovery/`). Apply same `FileLock` pattern. |
-| 4.4 | Open |  |  | Add concurrent write test in `backend/tests/test_gap_store_locking.py`: 10 threads each calling `create_or_update()` with unique gaps, assert final file has all 10 records and valid JSON. |
-| 4.5 | Open |  |  | In `backend/app/rag/gap_detector.py`: extract `0.5` → `RELATED_BUT_UNANSWERED_THRESHOLD = 0.5`, `200` → `MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE = 200`, `3` → `MIN_CHUNKS_FOR_RELATED = 3`. Replace inline usages. |
-| 4.6 | Open |  |  | In `backend/app/rag/retriever.py` and `backend/app/rag/prompt_builder.py`: extract any inline numeric defaults (top_k, token limits) to named constants at module top. |
-| 4.7 | Open |  |  | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 4.8 | Open |  |  | Stage and commit all Phase 4 changes. |
+| 4.1 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | Add `filelock>=3.15` to `backend/pyproject.toml` core dependencies. Run `pip install -e backend[dev]`. |
+| 4.2 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | In `backend/app/rag/gap_store.py`: add `FileLock` import. Create lock path as `self._path.with_suffix('.lock')`. Wrap `_load()` + `_save()` sequences in `create_or_update()` and `update_status()` with `with FileLock(self._lock_path):`. |
+| 4.3 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | Find TODO store (grep for similar JSON read-write pattern in `backend/app/discovery/`). Apply same `FileLock` pattern. |
+| 4.4 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | Add concurrent write test in `backend/tests/test_gap_store_locking.py`: 10 threads each calling `create_or_update()` with unique gaps, assert final file has all 10 records and valid JSON. |
+| 4.5 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | In `backend/app/rag/gap_detector.py`: extract `0.5` → `RELATED_BUT_UNANSWERED_THRESHOLD = 0.5`, `200` → `MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE = 200`, `3` → `MIN_CHUNKS_FOR_RELATED = 3`. Replace inline usages. |
+| 4.6 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | In `backend/app/rag/retriever.py` and `backend/app/rag/prompt_builder.py`: extract any inline numeric defaults (top_k, token limits) to named constants at module top. |
+| 4.7 | Completed | 2026-05-10 12:11 AM (PST) | 2026-05-10 12:11 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
+| 4.8 | Started | 2026-05-10 12:11 AM (PST) |  | Stage and commit all Phase 4 changes. |
 
 ### Phase 4 Summary
 
-- **Changes:** TBD
+- **Changes:** Added `filelock>=3.15` dependency. `gap_store.py` and `todo_writer.py` use `FileLock` on all read-write sequences. Extracted named constants in `gap_detector.py` (`RELATED_BUT_UNANSWERED_THRESHOLD`, `MIN_CHUNKS_FOR_RELATED`, `MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE`) and `retriever.py` (`DEFAULT_TOP_K`). Added `test_gap_store_locking.py` (10-thread concurrent write test).
 - **Changes hosted at:** TBD
 - **Commit:** `fix: file locking on JSON stores and named constants for thresholds (R-04, R-08)`
 

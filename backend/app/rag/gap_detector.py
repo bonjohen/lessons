@@ -15,6 +15,13 @@ MIN_RELEVANCE_THRESHOLD = 0.3
 # Minimum distinct lessons for adequate coverage
 MIN_DISTINCT_LESSONS = 2
 
+# Rule 3: related-but-unanswered thresholds
+RELATED_BUT_UNANSWERED_THRESHOLD = 0.5
+MIN_CHUNKS_FOR_RELATED = 3
+
+# Rule 7: general-knowledge answer threshold
+MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE = 200
+
 # Weak-answer signal phrases
 WEAK_ANSWER_PHRASES = [
     "does not appear to contain",
@@ -87,7 +94,7 @@ def detect_gap(
 
     # Rule 3: Retrieved lessons related but don't answer the question
     # (Detected via low top score with some results present)
-    rule3 = scores and 0 < max(scores) < 0.5 and len(chunks) >= 3
+    rule3 = scores and 0 < max(scores) < RELATED_BUT_UNANSWERED_THRESHOLD and len(chunks) >= MIN_CHUNKS_FOR_RELATED
     if rule3:
         reasons.append("related_but_unanswered")
     logger.debug("Rule 3 (related_but_unanswered): %s", "fired" if rule3 else "passed")
@@ -134,7 +141,7 @@ def detect_gap(
 
     # Rule 7: Answer depends mostly on general knowledge
     # (Proxy: answer is long but few relevant chunks)
-    rule7 = len(answer) > 200 and len(above_threshold) < 2
+    rule7 = len(answer) > MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE and len(above_threshold) < MIN_DISTINCT_LESSONS
     if rule7:
         reasons.append("general_knowledge_answer")
     logger.debug("Rule 7 (general_knowledge_answer): %s", "fired" if rule7 else "passed")

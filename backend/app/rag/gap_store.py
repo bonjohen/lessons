@@ -6,6 +6,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from filelock import FileLock
+
 DEFAULT_GAPS_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "gaps" / "corpus-gaps.json"
 
 # Valid status transitions
@@ -26,6 +28,7 @@ class GapStore:
     def __init__(self, path: Path | None = None):
         self._path = path or DEFAULT_GAPS_PATH
         self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = FileLock(self._path.with_suffix(".lock"))
 
     def _load(self) -> list[dict]:
         if not self._path.exists():
@@ -60,43 +63,45 @@ class GapStore:
 
         If a gap with a similar topic exists, merge the trigger query and update.
         """
-        gaps = self._load()
-        gap_id = gap["gap_id"]
+        with self._lock:
+            gaps = self._load()
+            gap_id = gap["gap_id"]
 
-        # Check for existing gap with same ID
-        for i, existing in enumerate(gaps):
-            if existing["gap_id"] == gap_id:
-                # Update existing
-                existing["updated_date"] = datetime.now(timezone.utc).isoformat()
-                if gap["trigger_query"] != existing.get("trigger_query"):
-                    # Append new trigger query to notes
-                    existing.setdefault("additional_queries", [])
-                    existing["additional_queries"].append(gap["trigger_query"])
-                # Update retrieval summary with latest
-                existing["retrieval_summary"] = gap.get("retrieval_summary", existing.get("retrieval_summary", ""))
-                existing["confidence_score"] = gap.get("confidence_score", existing.get("confidence_score", 0))
-                gaps[i] = existing
-                self._save(gaps)
-                return existing
+            # Check for existing gap with same ID
+            for i, existing in enumerate(gaps):
+                if existing["gap_id"] == gap_id:
+                    # Update existing
+                    existing["updated_date"] = datetime.now(timezone.utc).isoformat()
+                    if gap["trigger_query"] != existing.get("trigger_query"):
+                        # Append new trigger query to notes
+                        existing.setdefault("additional_queries", [])
+                        existing["additional_queries"].append(gap["trigger_query"])
+                    # Update retrieval summary with latest
+                    existing["retrieval_summary"] = gap.get("retrieval_summary", existing.get("retrieval_summary", ""))
+                    existing["confidence_score"] = gap.get("confidence_score", existing.get("confidence_score", 0))
+                    gaps[i] = existing
+                    self._save(gaps)
+                    return existing
 
-        # Create new
-        gaps.append(gap)
-        self._save(gaps)
-        return gap
+            # Create new
+            gaps.append(gap)
+            self._save(gaps)
+            return gap
 
     def update_status(self, gap_id: str, status: str) -> dict | None:
         """Update a gap's status."""
         if status not in VALID_STATUSES:
             return None
 
-        gaps = self._load()
-        for i, gap in enumerate(gaps):
-            if gap["gap_id"] == gap_id:
-                gap["status"] = status
-                gap["updated_date"] = datetime.now(timezone.utc).isoformat()
-                gaps[i] = gap
-                self._save(gaps)
-                return gap
+        with self._lock:
+            gaps = self._load()
+            for i, gap in enumerate(gaps):
+                if gap["gap_id"] == gap_id:
+                    gap["status"] = status
+                    gap["updated_date"] = datetime.now(timezone.utc).isoformat()
+                    gaps[i] = gap
+                    self._save(gaps)
+                    return gap
         return None
 
     def count(self) -> int:

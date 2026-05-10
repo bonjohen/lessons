@@ -5,6 +5,8 @@ from __future__ import annotations
 from app.adapters.llm.base import LLMAdapter
 from app.adapters.vector.base import VectorAdapter
 
+DEFAULT_TOP_K = 8
+
 
 class Retriever:
     """Retrieves relevant lesson chunks for a query."""
@@ -13,7 +15,7 @@ class Retriever:
         self._vector = vector
         self._llm = llm
 
-    def retrieve(self, query: str, top_k: int = 8, filters: dict | None = None) -> list[dict]:
+    def retrieve(self, query: str, top_k: int = DEFAULT_TOP_K, filters: dict | None = None) -> list[dict]:
         """Embed the query and retrieve similar chunks.
 
         Returns list of chunk results with similarity scores.
