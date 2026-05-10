@@ -114,3 +114,16 @@ class ChromaDBAdapter(VectorAdapter):
     def count(self) -> int:
         """Return number of indexed chunks."""
         return self._collection.count()
+
+    def get_all_ids(self) -> set[str]:
+        """Return all chunk IDs in the collection."""
+        result = self._collection.get(include=[])
+        return set(result["ids"]) if result["ids"] else set()
+
+    def delete_chunks(self, ids: list[str]) -> None:
+        """Delete specific chunks by ID."""
+        if ids:
+            # ChromaDB delete has batch limits
+            batch_size = 500
+            for i in range(0, len(ids), batch_size):
+                self._collection.delete(ids=ids[i : i + batch_size])

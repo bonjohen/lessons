@@ -25,3 +25,10 @@ class VectorAdapter(ABC):
     def count(self) -> int:
         """Return number of indexed chunks."""
         ...
+
+    def get_all_ids(self) -> set[str]:
+        """Return all chunk IDs in the collection. Override for efficiency."""
+        return set()
+
+    def delete_chunks(self, ids: list[str]) -> None:
+        """Delete specific chunks by ID. Override for incremental support."""

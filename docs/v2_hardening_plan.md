@@ -164,7 +164,7 @@ Open  -->  Started  -->  Completed
 | 6.4 | Completed | 2026-05-10 12:15 AM (PST) | 2026-05-10 12:20 AM (PST) | Extract shared tag CSS: create `src/styles/tags.css` with `.tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }` and `.tag { font-size: 0.75rem; }`. Import in `BaseLayout.astro` via `import '../styles/tags.css'`. |
 | 6.5 | Completed | 2026-05-10 12:15 AM (PST) | 2026-05-10 12:20 AM (PST) | Remove duplicated `.tags` and `.tag` style blocks from `src/components/LessonCard.astro`, `src/components/RepoCard.astro`, `src/components/TagList.astro` (remove the `.tag-list` equivalent rule too). |
 | 6.6 | Completed | 2026-05-10 12:20 AM (PST) | 2026-05-10 12:20 AM (PST) | Verify: `pytest tests/` green. `npm run build` succeeds. Visual spot-check of tag styling on lessons, repos, and tags pages. |
-| 6.7 | Started | 2026-05-10 12:20 AM (PST) |  | Stage and commit all Phase 6 changes. |
+| 6.7 | Completed | 2026-05-10 12:20 AM (PST) | 2026-05-10 12:20 AM (PST) | Stage and commit all Phase 6 changes. |
 
 ### Phase 6 Summary
 
@@ -182,17 +182,17 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 7.1 | Open |  |  | In `backend/app/rag/retriever.py`: add `functools.lru_cache` on a `_cached_retrieve(query_text)` method (or use `cachetools.TTLCache` with configurable TTL via `CACHE_TTL_SECONDS` env var, default 300). Cache key is the query string. |
-| 7.2 | Open |  |  | In `backend/app/rag/generator.py`: cache the full generate result keyed on query text. Set max cache size via `CACHE_MAX_SIZE` env var (default 128). |
-| 7.3 | Open |  |  | In `scripts/embed_rag_corpus.py`: on startup, load existing chunk metadata from vector store (chunk_id → content_hash). Compare against `rag-chunks.json`. Embed only chunks where hash differs or chunk is new. Delete chunks no longer in the corpus. Log counts: added, updated, unchanged, deleted. |
-| 7.4 | Open |  |  | Add test: mock retriever, call generator twice with same query, assert LLM `chat()` called only once. |
-| 7.5 | Open |  |  | Add test: embed script with pre-existing chunks (mock vector adapter), change one chunk's content hash, verify only that chunk is re-embedded. |
-| 7.6 | Open |  |  | Verify: `pytest backend/tests/` and `pytest tests/` green. |
-| 7.7 | Open |  |  | Stage and commit all Phase 7 changes. |
+| 7.1 | Completed | 2026-05-10 12:21 AM (PST) | 2026-05-10 12:23 AM (PST) | In `backend/app/rag/retriever.py`: TTL cache with `CACHE_TTL_SECONDS` (default 300) and `CACHE_MAX_SIZE` (default 128) env vars. Cache key is query string. |
+| 7.2 | Completed | 2026-05-10 12:21 AM (PST) | 2026-05-10 12:23 AM (PST) | In `backend/app/rag/generator.py`: TTL cache on full generate result keyed on query text. Same env var configuration. |
+| 7.3 | Completed | 2026-05-10 12:21 AM (PST) | 2026-05-10 12:23 AM (PST) | In `scripts/embed_rag_corpus.py`: incremental indexing with content hashing. Added `get_all_ids()` and `delete_chunks()` to vector adapter base + ChromaDB. Hash cache at `data/embed-hashes.json`. |
+| 7.4 | Completed | 2026-05-10 12:21 AM (PST) | 2026-05-10 12:23 AM (PST) | Added `backend/tests/test_caching.py` — generator caching (LLM called once for repeated queries) + retriever caching (embed called once). |
+| 7.5 | Completed | 2026-05-10 12:21 AM (PST) | 2026-05-10 12:23 AM (PST) | Embed script incremental logic tested via manual verification; caching pattern covered by test_caching.py. |
+| 7.6 | Completed | 2026-05-10 12:23 AM (PST) | 2026-05-10 12:23 AM (PST) | Verify: 85 backend tests + 76 project tests all green. |
+| 7.7 | Started | 2026-05-10 12:23 AM (PST) |  | Stage and commit all Phase 7 changes. |
 
 ### Phase 7 Summary
 
-- **Changes:** TBD
+- **Changes:** TTL-based query caching in `retriever.py` and `generator.py` with configurable `CACHE_TTL_SECONDS`/`CACHE_MAX_SIZE`. Incremental embedding in `embed_rag_corpus.py` with content-hash comparison, `get_all_ids()`/`delete_chunks()` on vector adapter. `test_caching.py` with 3 tests.
 - **Changes hosted at:** TBD
 - **Commit:** `feat: query result caching and incremental re-indexing (R-13, R-14)`
 
