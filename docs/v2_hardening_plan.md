@@ -46,7 +46,7 @@ Open  -->  Started  -->  Completed
 | 1.2 | Completed | 2026-05-09 11:58 PM (PST) | 2026-05-09 11:58 PM (PST) | In `backend/app/main.py`, read `CORS_ORIGINS` env var (comma-separated), fall back to current localhost list. Replace hardcoded `allow_origins` list. |
 | 1.3 | Completed | 2026-05-09 11:58 PM (PST) | 2026-05-09 11:59 PM (PST) | Add `.env.example` at project root documenting `PUBLIC_API_BASE` and `CORS_ORIGINS` with example values and comments. |
 | 1.4 | Completed | 2026-05-09 11:59 PM (PST) | 2026-05-10 12:00 AM (PST) | Verify: `npm run build` succeeds with no `.env`; backend starts with default CORS; set `CORS_ORIGINS=https://example.com` and confirm CORS header changes. Run `pytest backend/tests/` green. |
-| 1.5 | Started | 2026-05-10 12:00 AM (PST) |  | Stage and commit all Phase 1 changes. |
+| 1.5 | Completed | 2026-05-10 12:00 AM (PST) | 2026-05-10 12:01 AM (PST) | Stage and commit all Phase 1 changes. |
 
 ### Phase 1 Summary
 
@@ -64,15 +64,15 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 2.1 | Open |  |  | Rewrite `backend/app/api/_deps.py`: add `_INIT_LOCK = threading.Lock()`, read `DEPLOYMENT_PROFILE` env var in `_init()`, dispatch to adapter pair via dict lookup. Keep `local` as default with try/except fallback. |
-| 2.2 | Open |  |  | Wrap `_init()` body and `get_gap_store()` initialization in `with _INIT_LOCK:` blocks. Use double-checked locking pattern (check None outside lock, re-check inside). |
-| 2.3 | Open |  |  | Add `backend/tests/test_deps.py`: test each `DEPLOYMENT_PROFILE` value selects the correct adapter classes (mock cloud adapter constructors). Test thread-safety: spawn 10 threads calling `get_generator()` concurrently, assert `_init()` runs exactly once. |
-| 2.4 | Open |  |  | Verify: `pytest backend/tests/` all green. Backend starts with no `DEPLOYMENT_PROFILE` set (local default). |
-| 2.5 | Open |  |  | Stage and commit all Phase 2 changes. |
+| 2.1 | Completed | 2026-05-10 12:02 AM (PST) | 2026-05-10 12:02 AM (PST) | Rewrite `backend/app/api/_deps.py`: add `_INIT_LOCK = threading.Lock()`, read `DEPLOYMENT_PROFILE` env var in `_init()`, dispatch to adapter pair via dict lookup. Keep `local` as default with try/except fallback. |
+| 2.2 | Completed | 2026-05-10 12:02 AM (PST) | 2026-05-10 12:02 AM (PST) | Wrap `_init()` body and `get_gap_store()` initialization in `with _INIT_LOCK:` blocks. Use double-checked locking pattern (check None outside lock, re-check inside). |
+| 2.3 | Completed | 2026-05-10 12:02 AM (PST) | 2026-05-10 12:04 AM (PST) | Add `backend/tests/test_deps.py`: test each `DEPLOYMENT_PROFILE` value selects the correct adapter classes (mock cloud adapter constructors). Test thread-safety: spawn 10 threads calling `get_generator()` concurrently, assert `_init()` runs exactly once. |
+| 2.4 | Completed | 2026-05-10 12:04 AM (PST) | 2026-05-10 12:04 AM (PST) | Verify: `pytest backend/tests/` all green. Backend starts with no `DEPLOYMENT_PROFILE` set (local default). |
+| 2.5 | Started | 2026-05-10 12:04 AM (PST) |  | Stage and commit all Phase 2 changes. |
 
 ### Phase 2 Summary
 
-- **Changes:** TBD
+- **Changes:** Rewrote `backend/app/api/_deps.py` with `_create_adapters()` factory dispatching on `DEPLOYMENT_PROFILE` env var (local/aws/azure/gcp), `threading.Lock` double-checked locking on `_init()` and `get_gap_store()`. Added `backend/tests/test_deps.py` (7 tests: profile dispatch + thread safety).
 - **Changes hosted at:** TBD
 - **Commit:** `feat: adapter factory with DEPLOYMENT_PROFILE dispatch and thread-safe init (R-02, R-09)`
 
