@@ -78,6 +78,8 @@ async def harvest_candidate(
 
     # Clone/pull
     repo_dir = clone_or_pull(owner, repo_name, clone_url)
+    if repo_dir is None:
+        raise HTTPException(status_code=504, detail=f"Clone timed out for {owner}/{repo_name}")
 
     # Detect extractable content
     content_files = detect_extractable_content(repo_dir)

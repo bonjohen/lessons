@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 
 import httpx
 
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 GITHUB_API = "https://api.github.com"
 DEFAULT_MAX_RESULTS = 20
+RATE_LIMIT_FLOOR = 3
 
 
 class GitHubSearcher:
@@ -53,6 +55,19 @@ class GitHubSearcher:
                     timeout=15,
                 )
                 resp.raise_for_status()
+
+                # Respect GitHub API rate limits
+                remaining = resp.headers.get("X-RateLimit-Remaining")
+                reset_at = resp.headers.get("X-RateLimit-Reset")
+                if remaining is not None and int(remaining) < RATE_LIMIT_FLOOR and reset_at:
+                    wait = max(0, int(reset_at) - int(time.time())) + 1
+                    logger.warning(
+                        "GitHub rate limit low (%s remaining), sleeping %ds until reset",
+                        remaining,
+                        wait,
+                    )
+                    time.sleep(wait)
+
                 data = resp.json()
 
                 for item in data.get("items", []):

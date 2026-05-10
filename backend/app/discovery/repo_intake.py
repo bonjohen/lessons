@@ -3,27 +3,46 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
 import subprocess
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 EXTERNAL_WORKSPACE = PROJECT_ROOT / ".external" / "repos"
 CANDIDATE_REPOS_PATH = PROJECT_ROOT / "data" / "external" / "candidate-repos.json"
 
+CLONE_TIMEOUT_SECONDS = int(os.environ.get("CLONE_TIMEOUT_SECONDS", "60"))
 
-def clone_or_pull(owner: str, repo_name: str, clone_url: str) -> Path:
-    """Clone or pull a repo into the external workspace."""
+
+def clone_or_pull(owner: str, repo_name: str, clone_url: str) -> Path | None:
+    """Clone or pull a repo into the external workspace.
+
+    Returns the repo directory path, or None if the operation times out.
+    """
     repo_dir = EXTERNAL_WORKSPACE / owner / repo_name
     repo_dir.parent.mkdir(parents=True, exist_ok=True)
 
-    if (repo_dir / ".git").exists():
-        subprocess.run(["git", "-C", str(repo_dir), "pull", "--ff-only"], capture_output=True, timeout=60)
-    else:
-        subprocess.run(
-            ["git", "clone", "--depth", "1", clone_url, str(repo_dir)],
-            capture_output=True,
-            timeout=120,
-        )
+    try:
+        if (repo_dir / ".git").exists():
+            logger.info("Pulling %s/%s", owner, repo_name)
+            subprocess.run(
+                ["git", "-C", str(repo_dir), "pull", "--ff-only"],
+                capture_output=True,
+                timeout=CLONE_TIMEOUT_SECONDS,
+            )
+        else:
+            logger.info("Cloning %s/%s (depth=1, timeout=%ds)", owner, repo_name, CLONE_TIMEOUT_SECONDS)
+            subprocess.run(
+                ["git", "clone", "--depth", "1", clone_url, str(repo_dir)],
+                capture_output=True,
+                timeout=CLONE_TIMEOUT_SECONDS,
+            )
+    except subprocess.TimeoutExpired:
+        logger.error("Clone/pull timed out for %s/%s after %ds", owner, repo_name, CLONE_TIMEOUT_SECONDS)
+        return None
 
     return repo_dir
 

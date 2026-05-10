@@ -2,7 +2,9 @@
 
 import json
 import logging
-from unittest.mock import patch
+import subprocess
+import time
+from unittest.mock import MagicMock, patch
 
 import httpx
 
@@ -159,6 +161,39 @@ class TestGitHubSearcher:
         assert "test query" in result["failed_queries"]
         assert len(result["repos"]) == 0
         assert any("GitHub search failed" in r.message for r in caplog.records)
+
+    def test_rate_limit_triggers_sleep(self, caplog):
+        from app.discovery.github_search import GitHubSearcher
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.raise_for_status = MagicMock()
+        mock_resp.headers = {
+            "X-RateLimit-Remaining": "1",
+            "X-RateLimit-Reset": str(int(time.time()) + 5),
+        }
+        mock_resp.json.return_value = {"items": []}
+
+        searcher = GitHubSearcher(token="fake")
+        with (
+            patch("app.discovery.github_search.httpx.get", return_value=mock_resp),
+            patch("app.discovery.github_search.time.sleep") as mock_sleep,
+            caplog.at_level(logging.WARNING, logger="app.discovery.github_search"),
+        ):
+            searcher.search_repos(["test query"])
+
+        mock_sleep.assert_called_once()
+        assert any("rate limit low" in r.message for r in caplog.records)
+
+
+class TestCloneTimeout:
+    def test_clone_timeout_returns_none(self):
+        from app.discovery.repo_intake import clone_or_pull
+
+        with patch("app.discovery.repo_intake.subprocess.run", side_effect=subprocess.TimeoutExpired("git", 60)):
+            result = clone_or_pull("owner", "repo", "https://github.com/owner/repo.git")
+
+        assert result is None
 
 
 class TestRepoIntake:

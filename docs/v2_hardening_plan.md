@@ -117,7 +117,7 @@ Open  -->  Started  -->  Completed
 | 4.5 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | In `backend/app/rag/gap_detector.py`: extract `0.5` → `RELATED_BUT_UNANSWERED_THRESHOLD = 0.5`, `200` → `MIN_ANSWER_LENGTH_FOR_WEAK_EVIDENCE = 200`, `3` → `MIN_CHUNKS_FOR_RELATED = 3`. Replace inline usages. |
 | 4.6 | Completed | 2026-05-10 12:09 AM (PST) | 2026-05-10 12:11 AM (PST) | In `backend/app/rag/retriever.py` and `backend/app/rag/prompt_builder.py`: extract any inline numeric defaults (top_k, token limits) to named constants at module top. |
 | 4.7 | Completed | 2026-05-10 12:11 AM (PST) | 2026-05-10 12:11 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 4.8 | Started | 2026-05-10 12:11 AM (PST) |  | Stage and commit all Phase 4 changes. |
+| 4.8 | Completed | 2026-05-10 12:11 AM (PST) | 2026-05-10 12:11 AM (PST) | Stage and commit all Phase 4 changes. |
 
 ### Phase 4 Summary
 
@@ -135,16 +135,16 @@ Open  -->  Started  -->  Completed
 
 | PhaseNo | Status | Started (PST) | Completed (PST) | Description |
 |---------|--------|---------------|------------------|-------------|
-| 5.1 | Open |  |  | In `backend/app/discovery/lesson_extractor.py`: change `git clone` to `git clone --depth 1`. Add configurable timeout (env var `CLONE_TIMEOUT_SECONDS`, default 60). Use `asyncio.create_subprocess_exec` if the function is async, or `subprocess.run(timeout=...)` if sync. |
-| 5.2 | Open |  |  | In `backend/app/discovery/github_search.py`: after each `httpx.get()`, read `X-RateLimit-Remaining` and `X-RateLimit-Reset` from response headers. If remaining < 3, log a warning and `time.sleep()` until reset time. |
-| 5.3 | Open |  |  | Add test in `backend/tests/test_discovery.py`: mock `httpx.get` returning rate-limit headers with remaining=1, assert the searcher pauses (mock `time.sleep` and verify it's called). |
-| 5.4 | Open |  |  | Add test for clone timeout: mock `subprocess.run` raising `subprocess.TimeoutExpired`, assert the extractor returns an error result instead of crashing. |
-| 5.5 | Open |  |  | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
-| 5.6 | Open |  |  | Stage and commit all Phase 5 changes. |
+| 5.1 | Completed | 2026-05-10 12:12 AM (PST) | 2026-05-10 12:14 AM (PST) | In `backend/app/discovery/repo_intake.py` (actual clone location): add configurable timeout via `CLONE_TIMEOUT_SECONDS` env var (default 60). Clone already uses `--depth 1`. Add logging for clone/pull operations. |
+| 5.2 | Completed | 2026-05-10 12:12 AM (PST) | 2026-05-10 12:14 AM (PST) | In `backend/app/discovery/github_search.py`: after each `httpx.get()`, read `X-RateLimit-Remaining` and `X-RateLimit-Reset` from response headers. If remaining < 3, log a warning and `time.sleep()` until reset time. |
+| 5.3 | Completed | 2026-05-10 12:12 AM (PST) | 2026-05-10 12:14 AM (PST) | Add test in `backend/tests/test_discovery.py`: mock `httpx.get` returning rate-limit headers with remaining=1, assert the searcher pauses (mock `time.sleep` and verify it's called). |
+| 5.4 | Completed | 2026-05-10 12:12 AM (PST) | 2026-05-10 12:14 AM (PST) | Add test for clone timeout: mock `subprocess.run` raising `subprocess.TimeoutExpired`, assert `clone_or_pull` returns None instead of crashing. |
+| 5.5 | Completed | 2026-05-10 12:14 AM (PST) | 2026-05-10 12:14 AM (PST) | Verify: `pytest backend/tests/` green. `ruff check backend/` clean. |
+| 5.6 | Started | 2026-05-10 12:14 AM (PST) |  | Stage and commit all Phase 5 changes. |
 
 ### Phase 5 Summary
 
-- **Changes:** TBD
+- **Changes:** `repo_intake.py` now has configurable `CLONE_TIMEOUT_SECONDS` env var, returns `None` on timeout, logs clone/pull operations. `github_search.py` reads `X-RateLimit-Remaining`/`X-RateLimit-Reset` headers and sleeps when remaining < 3. `github_discovery.py` returns 504 on clone timeout. Added rate-limit and clone-timeout tests.
 - **Changes hosted at:** TBD
 - **Commit:** `fix: shallow clone with timeout and GitHub API rate limiting (R-06, R-07)`
 
