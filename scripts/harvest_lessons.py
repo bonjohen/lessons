@@ -347,6 +347,7 @@ def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
             "repo": repo["repo"],
             "branch": repo["branch"],
             "project_url": repo.get("project_url", ""),
+            "description": repo.get("description", ""),
             "lesson_count": len(repo_lessons),
             "tags": sorted(all_tags),
             "recent_date": max(dates) if dates else None,

@@ -27,6 +27,7 @@ const phases = [...new Set(repoLessons.map((l) => l.phase).filter(Boolean))].sor
   </nav>
 
   <h1>{repo.name}</h1>
+  {repo.description && <p class="repo-description">{repo.description}</p>}
   <p>{repo.lesson_count} lesson{repo.lesson_count !== 1 ? 's' : ''}</p>
   {repo.project_url && <p><a href={repo.project_url}>Project page</a></p>}
 

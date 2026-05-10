@@ -6,6 +6,7 @@ repos:
     branch: main
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/certification
+    description: "Multi-provider certification exam study site with scenario-based quizzes across 10 cloud and security platforms including AWS, Azure, GCP, and CompTIA."
     enabled: true
 
   - id: artemis
@@ -15,6 +16,7 @@ repos:
     branch: main
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/Artemis
+    description: "Data science platform for Artemis II 13-month calendar image selection using CLIP embeddings, statistical modeling, and multi-objective optimization."
     enabled: true
 
   - id: lessons-hub
@@ -24,6 +26,7 @@ repos:
     branch: main
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/lessons
+    description: "Static website and build pipeline consolidating markdown lessons from multiple repositories into one searchable, AI-powered library."
     enabled: true
 
   - id: jobclass
@@ -33,4 +36,5 @@ repos:
     branch: main
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/JobClass
+    description: "Labor market data pipeline ingesting SOC, OEWS, O*NET, and BLS data into a four-layer DuckDB warehouse with interactive web exploration."
     enabled: true

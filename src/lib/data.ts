@@ -43,6 +43,7 @@ export interface Repo {
   repo: string;
   branch: string;
   project_url: string;
+  description: string;
   lesson_count: number;
   tags: string[];
   recent_date: string | null;

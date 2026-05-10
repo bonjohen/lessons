@@ -11,6 +11,7 @@ const { repo } = Astro.props;
 
 <article class="repo-card">
   <h3><a href={url(`/repos/${repo.id}`)}>{repo.name}</a></h3>
+  {repo.description && <p class="description">{repo.description}</p>}
   <div class="meta">
     <span>{repo.lesson_count} lesson{repo.lesson_count !== 1 ? 's' : ''}</span>
     {repo.recent_date && <span>Latest: {repo.recent_date}</span>}
@@ -38,6 +39,13 @@ const { repo } = Astro.props;
   .repo-card h3 { margin: 0 0 0.25rem; font-size: 1.1rem; }
   .repo-card h3 a { text-decoration: none; color: var(--color-text); }
   .repo-card h3 a:hover { color: var(--color-link); }
+
+  .description {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
 
   .meta {
     display: flex;
