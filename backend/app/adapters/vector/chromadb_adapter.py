@@ -39,6 +39,9 @@ class ChromaDBAdapter(VectorAdapter):
                 "lesson_url": c["lesson_url"],
                 "tags": ",".join(c.get("tags", [])),
                 "chunk_index": c["chunk_index"],
+                "lesson_type": c.get("lesson_type", ""),
+                "phase": c.get("phase", ""),
+                "status": c.get("status", ""),
             }
             for c in chunks
         ]
@@ -98,6 +101,7 @@ class ChromaDBAdapter(VectorAdapter):
                         "tags": metadata.get("tags", "").split(",") if metadata.get("tags") else [],
                         "lesson_url": metadata.get("lesson_url", ""),
                         "repo_id": metadata.get("repo_id", ""),
+                        "lesson_type": metadata.get("lesson_type", ""),
                     }
                 )
 

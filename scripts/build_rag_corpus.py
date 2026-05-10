@@ -62,6 +62,9 @@ def chunk_by_heading(content: str, lesson_id: str, lesson_meta: dict) -> list[di
             "token_count": estimate_tokens(text),
             "tags": lesson_meta.get("tags", []),
             "content_hash": content_hash(text),
+            "lesson_type": lesson_meta.get("lesson_type", ""),
+            "phase": lesson_meta.get("phase", ""),
+            "status": lesson_meta.get("status", ""),
             "embedding_model": "",
             "indexed_at": "",
         })
@@ -101,6 +104,9 @@ def build_corpus(lessons_path: Path = LESSONS_JSON) -> tuple[list[dict], dict]:
             "summary": lesson.get("summary", ""),
             "repo_id": lesson.get("repo_id", ""),
             "tags": lesson.get("tags", []),
+            "lesson_type": lesson.get("lesson_type", ""),
+            "phase": lesson.get("phase", ""),
+            "status": lesson.get("status", ""),
         }
 
         chunks = chunk_by_heading(content, lesson["id"], meta)

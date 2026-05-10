@@ -22,19 +22,14 @@ class ChunkRecord(BaseModel):
     token_count: int
     tags: list[str] = Field(default_factory=list)
     content_hash: str
+    lesson_type: str = ""
+    phase: str = ""
+    status: str = ""
     embedding_model: str = ""
     indexed_at: str = ""
 
 
 # --- Chat ---
-
-
-class ChatRequest(BaseModel):
-    """Incoming chat request."""
-
-    message: str
-    top_k: int = 8
-    filters: ChatFilters | None = None
 
 
 class ChatFilters(BaseModel):
@@ -43,6 +38,14 @@ class ChatFilters(BaseModel):
     repo: str | None = None
     tags: list[str] = Field(default_factory=list)
     lesson_type: str | None = None
+
+
+class ChatRequest(BaseModel):
+    """Incoming chat request."""
+
+    message: str
+    top_k: int = 8
+    filters: ChatFilters | None = None
 
 
 class RelevantLesson(BaseModel):
@@ -68,6 +71,19 @@ class ChatResponse(BaseModel):
 # --- Retrieve ---
 
 
+class ChunkResult(BaseModel):
+    """A single chunk result from retrieval."""
+
+    chunk_id: str
+    lesson_id: str
+    title: str
+    heading_path: str
+    chunk_text: str
+    similarity_score: float
+    tags: list[str] = Field(default_factory=list)
+    lesson_type: str = ""
+
+
 class RetrieveRequest(BaseModel):
     """Retrieve request — returns chunks without generation."""
 
@@ -81,18 +97,6 @@ class RetrieveResponse(BaseModel):
 
     query: str
     chunks: list[ChunkResult] = Field(default_factory=list)
-
-
-class ChunkResult(BaseModel):
-    """A single chunk result from retrieval."""
-
-    chunk_id: str
-    lesson_id: str
-    title: str
-    heading_path: str
-    chunk_text: str
-    similarity_score: float
-    tags: list[str] = Field(default_factory=list)
 
 
 # --- Corpus Gap ---
