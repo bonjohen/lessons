@@ -31,6 +31,7 @@ export interface Lesson {
   related_issues: string[];
   related_commits: string[];
   audience: string[];
+  original_source: string;
   content: string;
   word_count: number;
   reading_minutes: number;

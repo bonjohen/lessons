@@ -224,7 +224,10 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
         log_warning(f"Title inferred from filename: {filepath.name} -> '{title}'")
 
     # Source path relative to lessons_path
-    lessons_root = TMP_DIR / rid / repo["lessons_path"]
+    if repo.get("virtual"):
+        lessons_root = ROOT / repo["lessons_path"]
+    else:
+        lessons_root = TMP_DIR / rid / repo["lessons_path"]
 
     lesson_slug = make_slug(post, filepath, lessons_root)
     lesson_id = f"{rid}-{lesson_slug}"
@@ -281,6 +284,7 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
         "related_issues": post.get("related_issues", []) or [],
         "related_commits": post.get("related_commits", []) or [],
         "audience": post.get("audience", []) or [],
+        "original_source": post.get("original_source", ""),
         "content": content,
         "word_count": word_count,
         "reading_minutes": reading_minutes,
@@ -486,9 +490,13 @@ def main() -> int:
     all_lessons = []
     repos_scanned = 0
     for repo in repos:
-        clone_path = clone_repo(repo)
-        if clone_path is None:
-            continue
+        if repo.get("virtual"):
+            clone_path = ROOT
+            print(f"  Scanning local {repo['id']}...")
+        else:
+            clone_path = clone_repo(repo)
+            if clone_path is None:
+                continue
         repos_scanned += 1
         lessons = scan_lessons(repo, clone_path)
         all_lessons.extend(lessons)

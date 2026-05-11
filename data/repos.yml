@@ -29,6 +29,15 @@ repos:
     description: "Static website and build pipeline consolidating markdown lessons from multiple repositories into one searchable, AI-powered library."
     enabled: true
 
+  - id: external
+    name: External Sources
+    owner: bonjohen
+    repo: lessons
+    branch: main
+    lessons_path: data/external-lessons
+    description: "Lessons from articles, books, talks, retrospectives, and other non-repo sources."
+    virtual: true
+
   - id: jobclass
     name: JobClass
     owner: bonjohen
@@ -37,4 +46,13 @@ repos:
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/JobClass
     description: "Labor market data pipeline ingesting SOC, OEWS, O*NET, and BLS data into a four-layer DuckDB warehouse with interactive web exploration."
+    enabled: true
+
+  - id: morelessons
+    name: MoreLessons
+    owner: bonjohen
+    repo: MoreLessons
+    branch: main
+    lessons_path: docs/lessons
+    project_url: https://github.com/bonjohen/MoreLessons
     enabled: true

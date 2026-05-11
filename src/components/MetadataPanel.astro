@@ -51,6 +51,13 @@ const { lesson } = Astro.props;
     <dt>Source</dt>
     <dd><a href={lesson.source_url}>View markdown</a></dd>
 
+    {lesson.original_source && (
+      <>
+        <dt>Original</dt>
+        <dd><a href={lesson.original_source}>Original source</a></dd>
+      </>
+    )}
+
     {lesson.project_url && (
       <>
         <dt>Project</dt>
