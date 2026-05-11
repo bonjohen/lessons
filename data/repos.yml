@@ -55,4 +55,4 @@ repos:
     branch: main
     lessons_path: docs/lessons
     project_url: https://github.com/bonjohen/MoreLessons
-    enabled: true
+    enabled: false
