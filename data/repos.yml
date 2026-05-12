@@ -48,6 +48,16 @@ repos:
     description: "Labor market data pipeline ingesting SOC, OEWS, O*NET, and BLS data into a four-layer DuckDB warehouse with interactive web exploration."
     enabled: true
 
+  - id: corpbattlecards
+    name: CorpBattleCards
+    owner: bonjohen
+    repo: corpbattlecards
+    branch: main
+    lessons_path: data/corpbattlecards-lessons
+    project_url: https://github.com/bonjohen/corpbattlecards
+    description: "Multiplayer corporate strategy card game with verb-grammar engine, AI opponent, batch simulation, and spreadsheet-driven content pipeline."
+    virtual: true
+
   - id: morelessons
     name: MoreLessons
     owner: bonjohen
