@@ -1,9 +1,6 @@
 """Tests for repo config parsing and validation."""
 
-from pathlib import Path
-
 import yaml
-import pytest
 
 from lesson_core import validate_repo_entry, find_duplicate_ids
 
@@ -45,7 +42,9 @@ class TestRepoConfig:
 
     def test_valid_id_formats(self):
         for rid in ["myproject", "my-project", "project123", "a"]:
-            assert validate_repo_entry(_make_repo(id=rid)) == [], f"ID '{rid}' should be valid"
+            assert validate_repo_entry(_make_repo(id=rid)) == [], (
+                f"ID '{rid}' should be valid"
+            )
 
     def test_non_dict_entry(self):
         errors = validate_repo_entry("not-a-dict")

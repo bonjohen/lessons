@@ -1,11 +1,13 @@
 """Tests for lesson frontmatter parsing and title inference."""
 
-from pathlib import Path
-
 import frontmatter
-import pytest
 
-from lesson_core import extract_title, coerce_date, build_source_url, compute_reading_time
+from lesson_core import (
+    extract_title,
+    coerce_date,
+    build_source_url,
+    compute_reading_time,
+)
 
 
 class TestTitleExtraction:
@@ -35,7 +37,9 @@ class TestTitleExtraction:
 
     def test_frontmatter_title_preferred_over_h1(self, tmp_path):
         md = tmp_path / "lesson.md"
-        md.write_text("---\ntitle: FM Title\n---\n\n# H1 Title\n\nBody.", encoding="utf-8")
+        md.write_text(
+            "---\ntitle: FM Title\n---\n\n# H1 Title\n\nBody.", encoding="utf-8"
+        )
         post = frontmatter.load(str(md))
         title, inferred = extract_title(post, md)
         assert title == "FM Title"
@@ -51,13 +55,19 @@ class TestCoerceDate:
 
     def test_datetime(self):
         from datetime import datetime
+
         dt = datetime(2025, 3, 15, 10, 30)
         assert coerce_date(dt) == "2025-03-15"
 
 
 class TestBuildSourceUrl:
     def test_basic(self):
-        repo = {"owner": "user", "repo": "proj", "branch": "main", "lessons_path": "docs/lessons"}
+        repo = {
+            "owner": "user",
+            "repo": "proj",
+            "branch": "main",
+            "lessons_path": "docs/lessons",
+        }
         url = build_source_url(repo, "my-lesson.md")
         assert url == "https://github.com/user/proj/blob/main/docs/lessons/my-lesson.md"
 

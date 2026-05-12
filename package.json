@@ -13,7 +13,7 @@
     "corpus": "python scripts/build_rag_corpus.py",
     "validate:corpus": "python scripts/validate_rag_corpus.py",
     "embed": "python scripts/embed_rag_corpus.py",
-    "backend": "cd backend && uvicorn app.main:app --reload --port 8010",
+    "backend": "cd backend && uvicorn app.main:app --reload --port 8011",
     "index": "npx pagefind --site dist",
     "build:full": "npm run harvest && npm run validate:lessons && npm run corpus && npm run validate:corpus && npm run build && npm run index",
     "test:e2e": "npx playwright test --config tests/e2e/playwright.config.ts",

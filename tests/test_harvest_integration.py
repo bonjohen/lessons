@@ -1,14 +1,12 @@
 """Integration tests for the harvest pipeline."""
 
 import json
-import sys
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 # Import production modules
-from lesson_core import normalize_tags, make_slug, extract_title
 
 
 def _write_lesson(path: Path, content: str) -> None:
@@ -42,6 +40,7 @@ class TestParseLesson:
         # Import harvest_lessons and reset its module-level state
         import harvest_lessons
         import lesson_core
+
         lesson_core.reset_log_stats()
         self.harvest = harvest_lessons
         self.tmp_path = tmp_path
@@ -51,20 +50,23 @@ class TestParseLesson:
         repo_root = _setup_repo_dir(self.tmp_path)
         lessons_dir = repo_root / "docs" / "lessons"
         md = lessons_dir / "my-lesson.md"
-        _write_lesson(md, (
-            "---\n"
-            "title: Full Lesson\n"
-            "summary: A complete lesson\n"
-            "date: 2025-06-01\n"
-            "phase: implementation\n"
-            "lesson_type: architecture\n"
-            "status: active\n"
-            "tags: [python, testing]\n"
-            "---\n\n"
-            "This is the body of the lesson with enough words to avoid the short content warning easily.\n"
-        ))
+        _write_lesson(
+            md,
+            (
+                "---\n"
+                "title: Full Lesson\n"
+                "summary: A complete lesson\n"
+                "date: 2025-06-01\n"
+                "phase: implementation\n"
+                "lesson_type: architecture\n"
+                "status: active\n"
+                "tags: [python, testing]\n"
+                "---\n\n"
+                "This is the body of the lesson with enough words to avoid the short content warning easily.\n"
+            ),
+        )
 
-        with patch.object(self.harvest, 'TMP_DIR', self.tmp_path):
+        with patch.object(self.harvest, "TMP_DIR", self.tmp_path):
             result = self.harvest.parse_lesson(md, repo)
 
         assert result is not None
@@ -83,7 +85,7 @@ class TestParseLesson:
         md = lessons_dir / "bare.md"
         _write_lesson(md, "# Heading Title\n\nBody content here with some words.\n")
 
-        with patch.object(self.harvest, 'TMP_DIR', self.tmp_path):
+        with patch.object(self.harvest, "TMP_DIR", self.tmp_path):
             result = self.harvest.parse_lesson(md, repo)
 
         assert result is not None
@@ -98,7 +100,7 @@ class TestParseLesson:
         md = lessons_dir / "empty.md"
         _write_lesson(md, "---\ntitle: Empty\n---\n")
 
-        with patch.object(self.harvest, 'TMP_DIR', self.tmp_path):
+        with patch.object(self.harvest, "TMP_DIR", self.tmp_path):
             result = self.harvest.parse_lesson(md, repo)
 
         assert result is None
@@ -110,7 +112,7 @@ class TestParseLesson:
         md = lessons_dir / "block1" / "index.md"
         _write_lesson(md, "# Block 1 Intro\n\nContent for block one.\n")
 
-        with patch.object(self.harvest, 'TMP_DIR', self.tmp_path):
+        with patch.object(self.harvest, "TMP_DIR", self.tmp_path):
             result = self.harvest.parse_lesson(md, repo)
 
         assert result is not None
@@ -124,6 +126,7 @@ class TestScanLessons:
     def _setup(self, tmp_path):
         import harvest_lessons
         import lesson_core
+
         lesson_core.reset_log_stats()
         self.harvest = harvest_lessons
         self.tmp_path = tmp_path
@@ -136,7 +139,7 @@ class TestScanLessons:
         _write_lesson(lessons_dir / "sub" / "lesson-b.md", "# B\n\nContent B.\n")
         _write_lesson(lessons_dir / "README.md", "# README\n\nShould be excluded.\n")
 
-        with patch.object(self.harvest, 'TMP_DIR', self.tmp_path):
+        with patch.object(self.harvest, "TMP_DIR", self.tmp_path):
             lessons = self.harvest.scan_lessons(repo, repo_root)
 
         assert len(lessons) == 2
@@ -152,6 +155,7 @@ class TestScanLessons:
         lessons = self.harvest.scan_lessons(repo, repo_root)
         assert lessons == []
         import lesson_core
+
         assert lesson_core.get_log_stats().errors > 0
 
 
@@ -162,32 +166,65 @@ class TestGenerateIndexes:
     def _setup(self, tmp_path):
         import harvest_lessons
         import lesson_core
+
         lesson_core.reset_log_stats()
         self.harvest = harvest_lessons
         self.tmp_path = tmp_path
 
-    def _make_lesson_record(self, lid="test-repo-a", tags=None, phase="impl", lesson_type="arch"):
+    def _make_lesson_record(
+        self, lid="test-repo-a", tags=None, phase="impl", lesson_type="arch"
+    ):
         return {
-            "id": lid, "title": "T", "summary": "S", "repo_id": "test-repo",
-            "repo_name": "Test", "repo_owner": "o", "repo_slug": "r",
-            "source_path": "a.md", "source_url": "http://x", "project_url": "http://y",
-            "date": "2025-01-01", "updated": None, "phase": phase,
-            "lesson_type": lesson_type, "status": "active",
-            "tags": tags or ["python"], "source_files": [], "related_prs": [],
-            "related_issues": [], "related_commits": [], "audience": [],
-            "content": "Body.", "word_count": 1, "reading_minutes": 1,
+            "id": lid,
+            "title": "T",
+            "summary": "S",
+            "repo_id": "test-repo",
+            "repo_name": "Test",
+            "repo_owner": "o",
+            "repo_slug": "r",
+            "source_path": "a.md",
+            "source_url": "http://x",
+            "project_url": "http://y",
+            "date": "2025-01-01",
+            "updated": None,
+            "phase": phase,
+            "lesson_type": lesson_type,
+            "status": "active",
+            "tags": tags or ["python"],
+            "source_files": [],
+            "related_prs": [],
+            "related_issues": [],
+            "related_commits": [],
+            "audience": [],
+            "content": "Body.",
+            "word_count": 1,
+            "reading_minutes": 1,
         }
 
     def test_generates_all_index_files(self):
         gen_dir = self.tmp_path / "generated"
-        repos = [{"id": "test-repo", "name": "Test", "owner": "o", "repo": "r",
-                  "branch": "main", "lessons_path": "docs/lessons"}]
+        repos = [
+            {
+                "id": "test-repo",
+                "name": "Test",
+                "owner": "o",
+                "repo": "r",
+                "branch": "main",
+                "lessons_path": "docs/lessons",
+            }
+        ]
         lessons = [self._make_lesson_record()]
 
-        with patch.object(self.harvest, 'GENERATED_DIR', gen_dir):
+        with patch.object(self.harvest, "GENERATED_DIR", gen_dir):
             self.harvest.generate_indexes(lessons, repos)
 
-        for name in ["lessons.json", "repos.json", "tags.json", "phases.json", "lesson_types.json"]:
+        for name in [
+            "lessons.json",
+            "repos.json",
+            "tags.json",
+            "phases.json",
+            "lesson_types.json",
+        ]:
             path = gen_dir / name
             assert path.exists(), f"Missing {name}"
             data = json.loads(path.read_text(encoding="utf-8"))
@@ -195,11 +232,19 @@ class TestGenerateIndexes:
 
     def test_repos_json_has_lesson_count(self):
         gen_dir = self.tmp_path / "generated"
-        repos = [{"id": "test-repo", "name": "Test", "owner": "o", "repo": "r",
-                  "branch": "main", "lessons_path": "docs/lessons"}]
+        repos = [
+            {
+                "id": "test-repo",
+                "name": "Test",
+                "owner": "o",
+                "repo": "r",
+                "branch": "main",
+                "lessons_path": "docs/lessons",
+            }
+        ]
         lessons = [self._make_lesson_record("a"), self._make_lesson_record("b")]
 
-        with patch.object(self.harvest, 'GENERATED_DIR', gen_dir):
+        with patch.object(self.harvest, "GENERATED_DIR", gen_dir):
             self.harvest.generate_indexes(lessons, repos)
 
         repos_data = json.loads((gen_dir / "repos.json").read_text(encoding="utf-8"))

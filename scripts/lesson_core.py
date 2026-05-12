@@ -19,9 +19,17 @@ from slugify import slugify
 REQUIRED_REPO_FIELDS = {"id", "name", "owner", "repo", "branch", "lessons_path"}
 
 VALID_LESSON_TYPES = {
-    "architecture", "implementation", "testing", "deployment", "debugging",
-    "data-design", "ai-assisted-development", "documentation", "maintenance",
-    "process", "other",
+    "architecture",
+    "implementation",
+    "testing",
+    "deployment",
+    "debugging",
+    "data-design",
+    "ai-assisted-development",
+    "documentation",
+    "maintenance",
+    "process",
+    "other",
 }
 
 VALID_STATUSES = {"active", "superseded", "draft", "deprecated"}
@@ -33,6 +41,7 @@ READING_WPM = 200
 
 
 # --- Tag normalization ---
+
 
 def normalize_tags(tags) -> list[str]:
     """Normalize tags: lowercase, trim, hyphens for spaces, dedup.
@@ -59,6 +68,7 @@ def normalize_tags(tags) -> list[str]:
 
 # --- Slug generation ---
 
+
 def make_slug(post: frontmatter.Post, filepath: Path, lessons_root: Path) -> str:
     """Generate slug from frontmatter slug, or path relative to lessons root.
 
@@ -76,6 +86,7 @@ def make_slug(post: frontmatter.Post, filepath: Path, lessons_root: Path) -> str
 
 
 # --- Title extraction ---
+
 
 def extract_title(post: frontmatter.Post, filepath: Path) -> tuple[str, bool]:
     """Extract title from frontmatter, first H1, or filename.
@@ -98,6 +109,7 @@ def extract_title(post: frontmatter.Post, filepath: Path) -> tuple[str, bool]:
 
 
 # --- Repo config validation ---
+
 
 def validate_repo_entry(repo: dict) -> list[str]:
     """Validate a single repo config entry. Returns list of error strings."""
@@ -131,6 +143,7 @@ def find_duplicate_ids(items: list[dict], key: str = "id") -> list[str]:
 
 
 # --- Lesson record validation ---
+
 
 def validate_lesson_record(lesson: dict) -> tuple[list[str], list[str]]:
     """Validate a single lesson record.
@@ -186,6 +199,7 @@ def validate_lesson_record(lesson: dict) -> tuple[list[str], list[str]]:
 
 # --- Lesson parsing helpers ---
 
+
 def coerce_date(val) -> str | None:
     """Convert a date value to ISO string or None."""
     if val is None:
@@ -210,9 +224,11 @@ def compute_reading_time(word_count: int) -> int:
 
 # --- Shared logging ---
 
+
 @dataclass
 class LogStats:
     """Tracks counts for structured log output."""
+
     errors: int = 0
     warnings: int = 0
     infos: int = 0

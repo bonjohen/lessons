@@ -46,28 +46,34 @@ def chunk_by_heading(content: str, lesson_id: str, lesson_meta: dict) -> list[di
         if not text:
             return
         chunk_index = len(chunks)
-        full_heading = f"{heading_path} > {current_heading}" if current_heading != "Introduction" else heading_path
+        full_heading = (
+            f"{heading_path} > {current_heading}"
+            if current_heading != "Introduction"
+            else heading_path
+        )
         lesson_url = f"/lessons/{lesson_id}"
 
-        chunks.append({
-            "chunk_id": f"{lesson_id}-{chunk_index}",
-            "lesson_id": lesson_id,
-            "repo_id": lesson_meta.get("repo_id", ""),
-            "title": lesson_meta.get("title", ""),
-            "summary": lesson_meta.get("summary", ""),
-            "lesson_url": lesson_url,
-            "chunk_index": chunk_index,
-            "heading_path": full_heading,
-            "chunk_text": text,
-            "token_count": estimate_tokens(text),
-            "tags": lesson_meta.get("tags", []),
-            "content_hash": content_hash(text),
-            "lesson_type": lesson_meta.get("lesson_type", ""),
-            "phase": lesson_meta.get("phase", ""),
-            "status": lesson_meta.get("status", ""),
-            "embedding_model": "",
-            "indexed_at": "",
-        })
+        chunks.append(
+            {
+                "chunk_id": f"{lesson_id}-{chunk_index}",
+                "lesson_id": lesson_id,
+                "repo_id": lesson_meta.get("repo_id", ""),
+                "title": lesson_meta.get("title", ""),
+                "summary": lesson_meta.get("summary", ""),
+                "lesson_url": lesson_url,
+                "chunk_index": chunk_index,
+                "heading_path": full_heading,
+                "chunk_text": text,
+                "token_count": estimate_tokens(text),
+                "tags": lesson_meta.get("tags", []),
+                "content_hash": content_hash(text),
+                "lesson_type": lesson_meta.get("lesson_type", ""),
+                "phase": lesson_meta.get("phase", ""),
+                "status": lesson_meta.get("status", ""),
+                "embedding_model": "",
+                "indexed_at": "",
+            }
+        )
 
     for line in lines:
         h2_match = re.match(r"^##\s+(.+)$", line.strip())
@@ -121,7 +127,8 @@ def build_corpus(lessons_path: Path = LESSONS_JSON) -> tuple[list[dict], dict]:
         "total_chunks": len(all_chunks),
         "avg_tokens_per_chunk": (
             round(sum(c["token_count"] for c in all_chunks) / len(all_chunks))
-            if all_chunks else 0
+            if all_chunks
+            else 0
         ),
     }
 
@@ -130,7 +137,10 @@ def build_corpus(lessons_path: Path = LESSONS_JSON) -> tuple[list[dict], dict]:
 
 def main():
     if not LESSONS_JSON.exists():
-        print(f"ERROR: {LESSONS_JSON} not found. Run 'npm run harvest' first.", file=sys.stderr)
+        print(
+            f"ERROR: {LESSONS_JSON} not found. Run 'npm run harvest' first.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     print("Building RAG corpus...")

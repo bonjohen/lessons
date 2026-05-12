@@ -4,12 +4,16 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
 
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
-from build_rag_corpus import build_corpus, chunk_by_heading, content_hash, estimate_tokens
+from build_rag_corpus import (
+    build_corpus,
+    chunk_by_heading,
+    content_hash,
+    estimate_tokens,
+)
 
 
 class TestChunkByHeading:
@@ -48,7 +52,12 @@ class TestChunkByHeading:
 
     def test_preserves_metadata(self):
         content = "## Section\n\nBody text."
-        meta = {"title": "My Title", "repo_id": "my-repo", "tags": ["python", "testing"], "summary": "A summary"}
+        meta = {
+            "title": "My Title",
+            "repo_id": "my-repo",
+            "tags": ["python", "testing"],
+            "summary": "A summary",
+        }
         chunks = chunk_by_heading(content, "my-lesson", meta)
         chunk = chunks[0]
         assert chunk["title"] == "My Title"
@@ -57,7 +66,9 @@ class TestChunkByHeading:
         assert chunk["lesson_id"] == "my-lesson"
 
     def test_empty_content_returns_no_chunks(self):
-        chunks = chunk_by_heading("", "id", {"title": "T", "repo_id": "r", "tags": [], "summary": ""})
+        chunks = chunk_by_heading(
+            "", "id", {"title": "T", "repo_id": "r", "tags": [], "summary": ""}
+        )
         assert chunks == []
 
     def test_chunk_text_includes_heading_line(self):
@@ -121,7 +132,16 @@ class TestBuildCorpus:
         assert len(ids) == len(set(ids))
 
     def test_skips_empty_content(self, tmp_path):
-        lessons = [{"id": "empty", "title": "Empty", "summary": "", "repo_id": "r", "content": "", "tags": []}]
+        lessons = [
+            {
+                "id": "empty",
+                "title": "Empty",
+                "summary": "",
+                "repo_id": "r",
+                "content": "",
+                "tags": [],
+            }
+        ]
         lessons_file = tmp_path / "lessons.json"
         lessons_file.write_text(json.dumps(lessons), encoding="utf-8")
 

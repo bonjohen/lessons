@@ -102,7 +102,7 @@ npm run validate:lessons # Validate harvested data
 npm run build            # Astro build
 npm run index            # Pagefind indexing
 npm run build:full       # Full pipeline: harvest → validate → corpus → build → index
-npm run backend          # Start FastAPI backend (localhost:8010)
+npm run backend          # Start FastAPI backend (localhost:8011)
 npm run corpus           # Build RAG corpus from lessons.json
 npm run validate:corpus  # Validate RAG corpus
 ```
@@ -125,7 +125,7 @@ This project uses non-default ports to allow concurrent development across multi
 | Service | Port |
 |---------|------|
 | Astro dev server | 4331 |
-| FastAPI backend | 8010 |
+| FastAPI backend | 8011 |
 
 ## Deployment
 

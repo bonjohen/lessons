@@ -13,8 +13,15 @@ CHUNKS_PATH = PROJECT_ROOT / "data" / "rag-chunks.json"
 LESSONS_PATH = PROJECT_ROOT / "src" / "content" / "generated" / "lessons.json"
 
 REQUIRED_CHUNK_FIELDS = {
-    "chunk_id", "lesson_id", "repo_id", "title", "chunk_index",
-    "heading_path", "chunk_text", "token_count", "content_hash",
+    "chunk_id",
+    "lesson_id",
+    "repo_id",
+    "title",
+    "chunk_index",
+    "heading_path",
+    "chunk_text",
+    "token_count",
+    "content_hash",
 }
 
 errors = 0

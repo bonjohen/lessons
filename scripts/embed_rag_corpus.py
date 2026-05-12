@@ -43,7 +43,10 @@ def _save_hash_cache(hashes: dict[str, str]) -> None:
 
 def main():
     if not CHUNKS_PATH.exists():
-        print(f"ERROR: {CHUNKS_PATH} not found. Run 'npm run corpus' first.", file=sys.stderr)
+        print(
+            f"ERROR: {CHUNKS_PATH} not found. Run 'npm run corpus' first.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     with open(CHUNKS_PATH, encoding="utf-8") as f:
@@ -64,13 +67,19 @@ def main():
     new_ids = current_ids - existing_ids
     deleted_ids = existing_ids - current_ids
     possibly_changed = current_ids & existing_ids
-    updated_ids = {cid for cid in possibly_changed if current_hashes.get(cid) != previous_hashes.get(cid)}
+    updated_ids = {
+        cid
+        for cid in possibly_changed
+        if current_hashes.get(cid) != previous_hashes.get(cid)
+    }
     unchanged_ids = possibly_changed - updated_ids
 
     to_embed = [c for c in chunks if c["chunk_id"] in (new_ids | updated_ids)]
 
-    print(f"Incremental embed: {len(new_ids)} new, {len(updated_ids)} updated, "
-          f"{len(unchanged_ids)} unchanged, {len(deleted_ids)} to delete")
+    print(
+        f"Incremental embed: {len(new_ids)} new, {len(updated_ids)} updated, "
+        f"{len(unchanged_ids)} unchanged, {len(deleted_ids)} to delete"
+    )
 
     # Delete removed chunks
     if deleted_ids:
@@ -84,7 +93,9 @@ def main():
         for i in range(0, len(to_embed), batch_size):
             batch = to_embed[i : i + batch_size]
             texts = [c["chunk_text"] for c in batch]
-            print(f"  Embedding batch {i // batch_size + 1}/{(len(to_embed) - 1) // batch_size + 1}...")
+            print(
+                f"  Embedding batch {i // batch_size + 1}/{(len(to_embed) - 1) // batch_size + 1}..."
+            )
             embeddings = llm.embed(texts)
             indexed = vector.index_chunks(batch, embeddings)
             total_indexed += indexed
@@ -95,7 +106,7 @@ def main():
     # Save updated hash cache
     _save_hash_cache(current_hashes)
 
-    print(f"\nEmbedding complete:")
+    print("\nEmbedding complete:")
     print(f"  Vector store count: {vector.count()}")
 
 

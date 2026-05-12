@@ -1,13 +1,10 @@
 """Tests for validation rules using production code from lesson_core."""
 
-import pytest
-
 from lesson_core import (
     validate_lesson_record,
     find_duplicate_ids,
     normalize_tags,
     VALID_LESSON_TYPES,
-    VALID_STATUSES,
 )
 
 
@@ -69,7 +66,9 @@ class TestValidation:
         assert any("Missing tags" in w for w in warnings)
 
     def test_unknown_lesson_type_warning(self):
-        errors, warnings = validate_lesson_record(make_lesson(lesson_type="nonexistent"))
+        errors, warnings = validate_lesson_record(
+            make_lesson(lesson_type="nonexistent")
+        )
         assert any("Unknown lesson_type" in w for w in warnings)
 
     def test_known_lesson_types_pass(self):
@@ -82,7 +81,9 @@ class TestValidation:
         assert any("Unknown status" in w for w in warnings)
 
     def test_short_content_warning(self):
-        errors, warnings = validate_lesson_record(make_lesson(content="Short.", word_count=1))
+        errors, warnings = validate_lesson_record(
+            make_lesson(content="Short.", word_count=1)
+        )
         assert any("Short content" in w for w in warnings)
 
     def test_duplicate_id_detection(self):

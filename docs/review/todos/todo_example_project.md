@@ -3,7 +3,7 @@ todo_id: todo_example_project
 status: open
 priority: 2
 severity: 2
-created: 2026-05-11
+created: 2026-05-12
 source_project_url: https://github.com/example/project
 candidate_lesson_path: /path/to/lesson2.md
 ---

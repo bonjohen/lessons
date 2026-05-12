@@ -1,9 +1,6 @@
 """Tests for slug generation and ID creation."""
 
-from pathlib import Path
-
 import frontmatter
-import pytest
 
 from lesson_core import make_slug, find_duplicate_ids
 

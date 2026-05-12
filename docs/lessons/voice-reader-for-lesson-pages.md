@@ -44,7 +44,7 @@ A lessons-learned hub built with Astro (static output) needed a "read aloud" fea
 
 - **Paragraph highlighting transforms the reading experience.** The reference implementation had no visual feedback beyond a progress bar. Adding a CSS highlight (`.vr-reading`) to the current block element and scrolling it into view turns passive listening into active reading — users can follow along and jump back to re-read sections.
 
-- **Port allocation for concurrent development needs a scheme, not defaults.** When running multiple repos' dev servers simultaneously, default ports (4321, 8000) collide immediately. Assigning each project a unique port pair (e.g., 4331/8010 for this project) in config files prevents the "which project stole my port" problem. The scheme should leave gaps for future projects.
+- **Port allocation for concurrent development needs a scheme, not defaults.** When running multiple repos' dev servers simultaneously, default ports (4321, 8000) collide immediately. Assigning each project a unique port pair (e.g., 4331/8011 for this project) in config files prevents the "which project stole my port" problem. The scheme should leave gaps for future projects.
 
 ## Recommendations
 

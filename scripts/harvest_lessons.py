@@ -37,67 +37,168 @@ EXPORTS_DIR = ROOT / "public" / "exports"
 
 # Rules checked against title only (high confidence)
 _TITLE_RULES: list[tuple[str, list[str]]] = [
-    ("deployment", [
-        r"\bdeploy", r"\bci[/-]cd\b", r"\bgithub actions\b", r"\bdocker\b",
-        r"\bcontainer\b", r"\boidc\b", r"\brelease artifact", r"\bci\b.*\bportab",
-    ]),
-    ("security", [
-        r"\bcsp\b", r"\bxss\b", r"\bpii\b", r"\bsanitiz", r"\binjection\b",
-        r"\bentity encod",
-    ]),
-    ("data-engineering", [
-        r"\bduckdb\b", r"\betl\b", r"\bmigration\b", r"\bdata quality\b",
-        r"\bpyarrow\b", r"\bsurrogate key\b", r"\bidempotent\b", r"\bvintage\b",
-        r"\bbatch\b.*\b(?:db|insert|operat)", r"\bpipeline\b",
-    ]),
-    ("algorithms", [
-        r"\balgorithm\b", r"\bbayesian\b", r"\belo\b", r"\bchi-squared\b",
-        r"\bmmr\b", r"\bhungarian\b", r"\bcluster(?:ing)?\b", r"\bembedding\b",
-        r"\bsimilarity\b", r"\bk-means\b", r"\bborda\b", r"\bbradley-terry\b",
-        r"\bkrippendorff", r"\bsigmoid\b", r"\bcalibrat", r"\bscoring\b",
-        r"\bdiversity.(?:aware|select)", r"\bdedup(?:licat)?",
-    ]),
-    ("testing", [
-        r"\btest", r"\bvalidat", r"\bmock\b", r"\bfixture\b", r"\btdd\b",
-        r"\bcoverage\b",
-    ]),
-    ("architecture", [
-        r"\badapter\b", r"\bdesign system\b", r"\bschema\b", r"\btaxonomy\b",
-        r"\bprovider.agnostic\b", r"\blazy import", r"\bdimensional\b",
-        r"\babstraction\b",
-    ]),
-    ("process", [
-        r"\bphased\b", r"\bplanning\b", r"\baudit\b", r"\blessons learned\b",
-        r"\bdesign.first\b", r"\bremediat", r"\bcode review\b",
-        r"\bautonomous execution\b",
-    ]),
-    ("frontend", [
-        r"\bspa\b", r"\bcss\b", r"\bjavascript\b", r"\bdrag.and.drop\b",
-        r"\bdesign tokens?\b", r"\bstatic site\b", r"\bvanilla js\b",
-        r"\blocalstorage\b", r"\bfetch shim\b",
-    ]),
+    (
+        "deployment",
+        [
+            r"\bdeploy",
+            r"\bci[/-]cd\b",
+            r"\bgithub actions\b",
+            r"\bdocker\b",
+            r"\bcontainer\b",
+            r"\boidc\b",
+            r"\brelease artifact",
+            r"\bci\b.*\bportab",
+        ],
+    ),
+    (
+        "security",
+        [
+            r"\bcsp\b",
+            r"\bxss\b",
+            r"\bpii\b",
+            r"\bsanitiz",
+            r"\binjection\b",
+            r"\bentity encod",
+        ],
+    ),
+    (
+        "data-engineering",
+        [
+            r"\bduckdb\b",
+            r"\betl\b",
+            r"\bmigration\b",
+            r"\bdata quality\b",
+            r"\bpyarrow\b",
+            r"\bsurrogate key\b",
+            r"\bidempotent\b",
+            r"\bvintage\b",
+            r"\bbatch\b.*\b(?:db|insert|operat)",
+            r"\bpipeline\b",
+        ],
+    ),
+    (
+        "algorithms",
+        [
+            r"\balgorithm\b",
+            r"\bbayesian\b",
+            r"\belo\b",
+            r"\bchi-squared\b",
+            r"\bmmr\b",
+            r"\bhungarian\b",
+            r"\bcluster(?:ing)?\b",
+            r"\bembedding\b",
+            r"\bsimilarity\b",
+            r"\bk-means\b",
+            r"\bborda\b",
+            r"\bbradley-terry\b",
+            r"\bkrippendorff",
+            r"\bsigmoid\b",
+            r"\bcalibrat",
+            r"\bscoring\b",
+            r"\bdiversity.(?:aware|select)",
+            r"\bdedup(?:licat)?",
+        ],
+    ),
+    (
+        "testing",
+        [
+            r"\btest",
+            r"\bvalidat",
+            r"\bmock\b",
+            r"\bfixture\b",
+            r"\btdd\b",
+            r"\bcoverage\b",
+        ],
+    ),
+    (
+        "architecture",
+        [
+            r"\badapter\b",
+            r"\bdesign system\b",
+            r"\bschema\b",
+            r"\btaxonomy\b",
+            r"\bprovider.agnostic\b",
+            r"\blazy import",
+            r"\bdimensional\b",
+            r"\babstraction\b",
+        ],
+    ),
+    (
+        "process",
+        [
+            r"\bphased\b",
+            r"\bplanning\b",
+            r"\baudit\b",
+            r"\blessons learned\b",
+            r"\bdesign.first\b",
+            r"\bremediat",
+            r"\bcode review\b",
+            r"\bautonomous execution\b",
+        ],
+    ),
+    (
+        "frontend",
+        [
+            r"\bspa\b",
+            r"\bcss\b",
+            r"\bjavascript\b",
+            r"\bdrag.and.drop\b",
+            r"\bdesign tokens?\b",
+            r"\bstatic site\b",
+            r"\bvanilla js\b",
+            r"\blocalstorage\b",
+            r"\bfetch shim\b",
+        ],
+    ),
 ]
 
 # Fallback rules checked against full content (lower confidence, stricter patterns)
 _CONTENT_RULES: list[tuple[str, list[str]]] = [
-    ("deployment", [
-        r"\bgithub actions\b", r"\bdocker(?:file)?\b", r"\bci[/-]cd\b",
-    ]),
-    ("data-engineering", [
-        r"\bduckdb\b", r"\bpyarrow\b", r"\b(?:bulk|batch) insert\b",
-    ]),
-    ("algorithms", [
-        r"## (?:the )?algorithm\b", r"\btime complexity\b", r"\bbig-?o\b",
-    ]),
-    ("security", [
-        r"\bcontent.security.policy\b", r"\bcross.site scripting\b",
-    ]),
-    ("architecture", [
-        r"\babstract base class\b", r"\badapter pattern\b",
-    ]),
-    ("frontend", [
-        r"\bdom\b.*\bmanipu", r"\bevent listener\b",
-    ]),
+    (
+        "deployment",
+        [
+            r"\bgithub actions\b",
+            r"\bdocker(?:file)?\b",
+            r"\bci[/-]cd\b",
+        ],
+    ),
+    (
+        "data-engineering",
+        [
+            r"\bduckdb\b",
+            r"\bpyarrow\b",
+            r"\b(?:bulk|batch) insert\b",
+        ],
+    ),
+    (
+        "algorithms",
+        [
+            r"## (?:the )?algorithm\b",
+            r"\btime complexity\b",
+            r"\bbig-?o\b",
+        ],
+    ),
+    (
+        "security",
+        [
+            r"\bcontent.security.policy\b",
+            r"\bcross.site scripting\b",
+        ],
+    ),
+    (
+        "architecture",
+        [
+            r"\babstract base class\b",
+            r"\badapter pattern\b",
+        ],
+    ),
+    (
+        "frontend",
+        [
+            r"\bdom\b.*\bmanipu",
+            r"\bevent listener\b",
+        ],
+    ),
 ]
 
 
@@ -237,7 +338,9 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
         rel_path = filepath.name
 
     source_url = build_source_url(repo, rel_path)
-    project_url = repo.get("project_url", f"https://github.com/{repo['owner']}/{repo['repo']}")
+    project_url = repo.get(
+        "project_url", f"https://github.com/{repo['owner']}/{repo['repo']}"
+    )
 
     # Frontmatter fields — coerce list values to strings (malformed YAML)
     summary = post.get("summary", "")
@@ -302,7 +405,9 @@ def scan_lessons(repo: dict, clone_path: Path) -> list[dict]:
 
     md_files = sorted(lessons_dir.rglob("*.md"))
     # Exclude README.md and TEMPLATE.md files
-    md_files = [f for f in md_files if f.name.lower() not in ("readme.md", "template.md")]
+    md_files = [
+        f for f in md_files if f.name.lower() not in ("readme.md", "template.md")
+    ]
 
     if not md_files:
         log_warning(f"No lesson files found in {lessons_dir} (repo: {rid})")
@@ -323,7 +428,9 @@ def check_duplicate_ids(lessons: list[dict]) -> None:
     for lesson in lessons:
         lid = lesson["id"]
         if lid in seen:
-            log_error(f"Duplicate lesson ID: {lid} (first in {seen[lid]}, also in {lesson['repo_id']})")
+            log_error(
+                f"Duplicate lesson ID: {lid} (first in {seen[lid]}, also in {lesson['repo_id']})"
+            )
         else:
             seen[lid] = lesson["repo_id"]
 
@@ -344,18 +451,20 @@ def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
         for l in repo_lessons:
             all_tags.update(l["tags"])
         dates = [l["date"] for l in repo_lessons if l["date"]]
-        repo_index.append({
-            "id": rid,
-            "name": repo["name"],
-            "owner": repo["owner"],
-            "repo": repo["repo"],
-            "branch": repo["branch"],
-            "project_url": repo.get("project_url", ""),
-            "description": repo.get("description", ""),
-            "lesson_count": len(repo_lessons),
-            "tags": sorted(all_tags),
-            "recent_date": max(dates) if dates else None,
-        })
+        repo_index.append(
+            {
+                "id": rid,
+                "name": repo["name"],
+                "owner": repo["owner"],
+                "repo": repo["repo"],
+                "branch": repo["branch"],
+                "project_url": repo.get("project_url", ""),
+                "description": repo.get("description", ""),
+                "lesson_count": len(repo_lessons),
+                "tags": sorted(all_tags),
+                "recent_date": max(dates) if dates else None,
+            }
+        )
     write_json(GENERATED_DIR / "repos.json", repo_index)
 
     # tags.json — tag name + count + lesson IDs
@@ -364,7 +473,10 @@ def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
         for tag in l["tags"]:
             tag_map.setdefault(tag, []).append(l["id"])
     tags_index = sorted(
-        [{"tag": t, "count": len(ids), "lesson_ids": sorted(ids)} for t, ids in tag_map.items()],
+        [
+            {"tag": t, "count": len(ids), "lesson_ids": sorted(ids)}
+            for t, ids in tag_map.items()
+        ],
         key=lambda x: (-x["count"], x["tag"]),
     )
     write_json(GENERATED_DIR / "tags.json", tags_index)
@@ -377,7 +489,10 @@ def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
             p = p[0] if p else "unspecified"
         phase_map.setdefault(p, []).append(l["id"])
     phases_index = sorted(
-        [{"phase": p, "count": len(ids), "lesson_ids": sorted(ids)} for p, ids in phase_map.items()],
+        [
+            {"phase": p, "count": len(ids), "lesson_ids": sorted(ids)}
+            for p, ids in phase_map.items()
+        ],
         key=lambda x: (-x["count"], x["phase"]),
     )
     write_json(GENERATED_DIR / "phases.json", phases_index)
@@ -390,7 +505,10 @@ def generate_indexes(lessons: list[dict], repos: list[dict]) -> None:
             t = t[0] if t else "unspecified"
         type_map.setdefault(t, []).append(l["id"])
     types_index = sorted(
-        [{"lesson_type": t, "count": len(ids), "lesson_ids": sorted(ids)} for t, ids in type_map.items()],
+        [
+            {"lesson_type": t, "count": len(ids), "lesson_ids": sorted(ids)}
+            for t, ids in type_map.items()
+        ],
         key=lambda x: (-x["count"], x["lesson_type"]),
     )
     write_json(GENERATED_DIR / "lesson_types.json", types_index)
@@ -420,11 +538,11 @@ def generate_exports(lessons: list[dict]) -> None:
     # lessons-pack.md — all lessons in markdown
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
-        f"# Lessons Pack",
-        f"",
+        "# Lessons Pack",
+        "",
         f"Generated: {timestamp}",
         f"Total lessons: {len(lessons)}",
-        f"",
+        "",
     ]
 
     # Group by repo
@@ -468,7 +586,7 @@ def main() -> int:
     # Load repos
     repos = load_repos()
     if stats.errors:
-        print(f"\nFATAL: {len(errors)} error(s) loading repos. Aborting.")
+        print(f"\nFATAL: {stats.errors} error(s) loading repos. Aborting.")
         return 1
 
     if not repos:
@@ -483,6 +601,7 @@ def main() -> int:
         def on_rm_error(func, path, exc_info):
             os.chmod(path, 0o777)
             func(path)
+
         shutil.rmtree(TMP_DIR, onexc=on_rm_error)
     TMP_DIR.mkdir(parents=True)
 

@@ -16,11 +16,14 @@ Standalone learning resources extracted from real project work on Lessons Hub. E
 - [Code Review as Requirements Source](code-review-as-requirements-source.md) — Systematic triage turns review findings into a traceable requirements backlog
 - [Validation Severity Model](validation-severity-model.md) — Why warnings never fail the build
 - [Skill-Driven Workflow Automation](skill-driven-workflow-automation.md) — Composable slash-command skills enforce guardrails and eliminate workflow friction
+- [Tidy Skill for Repo Housekeeping](tidy-skill-for-repo-housekeeping.md) — A structured, behavior-preserving housekeeping pass prevents repo entropy without accidental refactors
+- [Dev Port Registry for Multi-Project Work](dev-port-registry-for-multi-project-work.md) — Centralized port assignments in shared config prevent localhost collisions across projects
 
 ## Deployment & Infrastructure
 
 - [Phased Multi-Cloud Infrastructure](phased-multi-cloud-infrastructure.md) — Three cloud stacks with OIDC federation, built in isolated phases
 - [GitHub Pages Build Pipeline](github-pages-build-pipeline.md) — GitHub Actions workflow for harvest, validate, build, and deploy
+- [Public and Private Repo Harvesting](public-and-private-repo-harvesting.md) — Mixed-visibility repos need token scope management, graceful clone failures, and registry-level gating
 - [Static Search with Pagefind](static-search-with-pagefind.md) — Full-text search on a static site with no backend
 
 ## Testing

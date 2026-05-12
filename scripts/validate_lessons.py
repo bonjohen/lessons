@@ -8,8 +8,6 @@ from pathlib import Path
 import yaml
 
 from lesson_core import (
-    REQUIRED_REPO_FIELDS,
-    REPO_ID_PATTERN,
     validate_repo_entry,
     find_duplicate_ids,
     validate_lesson_record,
@@ -67,9 +65,15 @@ def validate_repos_yml() -> bool:
     for repo in repos:
         entry_errors = validate_repo_entry(repo)
         for msg in entry_errors:
-            log_error(f"Repo '{repo.get('id', '?') if isinstance(repo, dict) else '?'}': {msg}")
+            log_error(
+                f"Repo '{repo.get('id', '?') if isinstance(repo, dict) else '?'}': {msg}"
+            )
 
-    dupes = find_duplicate_ids(repos if all(isinstance(r, dict) for r in repos) else [r for r in repos if isinstance(r, dict)])
+    dupes = find_duplicate_ids(
+        repos
+        if all(isinstance(r, dict) for r in repos)
+        else [r for r in repos if isinstance(r, dict)]
+    )
     for dup in dupes:
         log_error(f"Duplicate repo ID: {dup}")
 
