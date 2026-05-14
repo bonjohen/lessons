@@ -58,6 +58,16 @@ repos:
     description: "Multiplayer corporate strategy card game with verb-grammar engine, AI opponent, batch simulation, and spreadsheet-driven content pipeline."
     virtual: true
 
+  - id: diagram
+    name: Diagram
+    owner: bonjohen
+    repo: diagram
+    branch: main
+    lessons_path: data/diagram-lessons
+    project_url: https://github.com/bonjohen/diagram
+    description: "Architecture diagramming tool with canonical graph model, multi-renderer output, and rule-based extraction from codebases."
+    virtual: true
+
   - id: morelessons
     name: MoreLessons
     owner: bonjohen
