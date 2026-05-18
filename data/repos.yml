@@ -77,3 +77,13 @@ repos:
     project_url: https://github.com/bonjohen/morelessons
     description: "Standalone lessons on deployment, CI, security, and review practices extracted from cross-project work."
     virtual: true
+
+  - id: ai-benchmark
+    name: AI Benchmark
+    owner: bonjohen
+    repo: ai_benchmark
+    branch: main
+    lessons_path: data/ai-benchmark-lessons
+    project_url: https://github.com/bonjohen/ai_benchmark
+    description: "LLM benchmark pipeline with model comparison, data quality remediation, and async scraping patterns."
+    virtual: true
