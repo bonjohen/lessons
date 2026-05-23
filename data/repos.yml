@@ -87,3 +87,13 @@ repos:
     project_url: https://github.com/bonjohen/ai_benchmark
     description: "LLM benchmark pipeline with model comparison, data quality remediation, and async scraping patterns."
     virtual: true
+
+  - id: hax
+    name: HAx
+    owner: bonjohen
+    repo: hax
+    branch: main
+    lessons_path: docs/lessons
+    project_url: https://github.com/bonjohen/hax
+    description: "Evidence-rated TED Talk experiments site built with Astro 6.x, Preact islands, Pagefind search, and Zod content validation."
+    enabled: true
