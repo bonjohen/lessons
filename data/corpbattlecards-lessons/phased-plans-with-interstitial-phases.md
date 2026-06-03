@@ -1,3 +1,7 @@
+---
+phase: process
+---
+
 # Phased Plans with Interstitial Phases
 
 ## The Lesson

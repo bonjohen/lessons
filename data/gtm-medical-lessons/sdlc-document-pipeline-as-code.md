@@ -1,3 +1,7 @@
+---
+phase: process
+---
+
 # SDLC Document Pipeline as Code
 
 ## The Lesson

@@ -1,3 +1,7 @@
+---
+phase: implementation
+---
+
 # AI Scoring Weights as a Balance Lever
 
 ## The Lesson

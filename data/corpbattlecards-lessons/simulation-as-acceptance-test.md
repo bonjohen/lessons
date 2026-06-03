@@ -1,3 +1,7 @@
+---
+phase: execution
+---
+
 # Simulation as Acceptance Test
 
 ## The Lesson

@@ -1,3 +1,7 @@
+---
+phase: implementation
+---
+
 # Counter Wheel as Asymmetric Balance
 
 ## The Lesson

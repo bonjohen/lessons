@@ -1,3 +1,7 @@
+---
+phase: deployment
+---
+
 # Astro Dev Proxy for API Backend
 
 ## The Lesson

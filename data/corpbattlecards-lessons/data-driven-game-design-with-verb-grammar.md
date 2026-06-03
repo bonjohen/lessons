@@ -1,3 +1,7 @@
+---
+phase: implementation
+---
+
 # Data-Driven Game Design with a Verb Grammar
 
 ## The Lesson

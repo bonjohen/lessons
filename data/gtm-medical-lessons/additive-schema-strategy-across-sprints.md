@@ -1,3 +1,7 @@
+---
+phase: process
+---
+
 # Additive Schema Strategy Across Sprints
 
 ## The Lesson

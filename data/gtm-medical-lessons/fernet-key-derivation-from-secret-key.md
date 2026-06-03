@@ -1,3 +1,7 @@
+---
+phase: implementation
+---
+
 # Fernet Key Derivation from SECRET_KEY
 
 ## The Lesson

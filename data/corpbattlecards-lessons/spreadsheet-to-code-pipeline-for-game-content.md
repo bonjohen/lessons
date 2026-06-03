@@ -1,3 +1,7 @@
+---
+phase: implementation
+---
+
 # Spreadsheet-to-Code Pipeline for Game Content
 
 ## The Lesson

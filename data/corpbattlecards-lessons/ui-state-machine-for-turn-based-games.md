@@ -1,3 +1,7 @@
+---
+phase: implementation
+---
+
 # UI State Machine for Turn-Based Games
 
 ## The Lesson

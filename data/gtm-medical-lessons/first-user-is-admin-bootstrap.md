@@ -1,3 +1,7 @@
+---
+phase: implementation
+---
+
 # First-User-Is-Admin Bootstrap
 
 ## The Lesson
