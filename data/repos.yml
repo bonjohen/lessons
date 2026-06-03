@@ -97,3 +97,12 @@ repos:
     project_url: https://github.com/bonjohen/hax
     description: "Evidence-rated TED Talk experiments site built with Astro 6.x, Preact islands, Pagefind search, and Zod content validation."
     enabled: true
+
+  - id: gtm-medical
+    name: GTM Medical
+    owner: bonjohen
+    repo: gtm-medical
+    branch: main
+    lessons_path: data/gtm-medical-lessons
+    description: "Healthcare GTM platform with Astro frontend, FastAPI backend, role-based permissions, Fernet encryption, and SDLC document pipeline."
+    virtual: true
