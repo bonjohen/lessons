@@ -1,3 +1,10 @@
+---
+title: "Two-Stage Report Generation: Extract Then Synthesize"
+summary: "When building reports that combine deterministic data extraction with LLM synthesis, split them into two explicit stages: a repeatable extraction step that produces a structured intermediate file, and a separate synthesis step that feeds that file to the LLM. This makes each stage independently test..."
+date: 2026-05-17
+lesson_type: implementation
+tags: [database, authentication, pipeline, python, ai]
+---
 # Two-Stage Report Generation: Extract Then Synthesize
 
 ## The Lesson

@@ -1,3 +1,10 @@
+---
+title: "Google OAuth2"
+summary: "Google OAuth2 lets users sign in with their Google account. Your server redirects to Google, Google authenticates the user, and redirects back with a code. You exchange the code for the user's email. The entire flow is four HTTP calls and requires no client-side SDK."
+date: 2026-06-06
+lesson_type: implementation
+tags: [cloudflare, serverless, authentication, frontend, devops]
+---
 # Google OAuth2
 
 ## The Lesson

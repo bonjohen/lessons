@@ -1,3 +1,10 @@
+---
+title: "SQLite Single-Writer for Async Pipelines"
+summary: "SQLite supports exactly one concurrent writer. When an async pipeline shares a database with a long-running server process, the fix is architectural (serialize writers) — not a PRAGMA tweak. WAL mode reduces contention but does not eliminate it."
+date: 2026-05-17
+lesson_type: implementation
+tags: [cloudflare, database, deployment, pipeline, python]
+---
 # SQLite Single-Writer for Async Pipelines
 
 ## The Lesson

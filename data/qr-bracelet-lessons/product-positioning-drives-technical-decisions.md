@@ -1,3 +1,10 @@
+---
+title: "Product Positioning Drives Technical Decisions"
+summary: "How you describe your product to users determines which features you build, which fields you show, and which language your code uses. A positioning document written before implementation saves more engineering time than any technical design doc because it eliminates features before they're built."
+date: 2026-06-06
+lesson_type: implementation
+tags: [database, security, data-modeling]
+---
 # Product Positioning Drives Technical Decisions
 
 ## The Lesson

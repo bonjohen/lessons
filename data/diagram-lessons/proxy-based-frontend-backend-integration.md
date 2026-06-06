@@ -1,3 +1,10 @@
+---
+title: "Proxy-Based Frontend-Backend Integration"
+summary: "In a split-stack project (separate frontend and backend processes on different ports), configure the frontend dev server to proxy API requests to the backend rather than hardcoding backend URLs or relying on CORS alone. The proxy eliminates cross-origin issues during development, keeps the frontend..."
+date: 2026-05-13
+lesson_type: implementation
+tags: [deployment, api, python, javascript]
+---
 # Proxy-Based Frontend-Backend Integration
 
 ## The Lesson

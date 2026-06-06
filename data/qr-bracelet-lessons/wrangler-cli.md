@@ -1,3 +1,10 @@
+---
+title: "Wrangler CLI"
+summary: "Wrangler is the CLI tool that manages the entire Cloudflare Workers lifecycle — creating databases, setting secrets, deploying code, tailing logs, and managing environments. It replaces what would otherwise be a CI/CD pipeline, a deployment script, and a cloud console."
+date: 2026-06-06
+lesson_type: deployment
+tags: [cloudflare, serverless, database, authentication, deployment]
+---
 # Wrangler CLI
 
 ## The Lesson

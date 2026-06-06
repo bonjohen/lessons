@@ -1,3 +1,10 @@
+---
+title: "Client-Side PDF Generation in Serverless"
+summary: "When your serverless backend can't run PDF libraries (no headless Chrome, no native modules), generate the PDF in the browser instead. The server renders an HTML page with the data embedded, and client-side JavaScript builds and downloads the PDF. The user doesn't notice the difference."
+date: 2026-06-06
+lesson_type: implementation
+tags: [cloudflare, serverless, pdf, frontend, javascript]
+---
 # Client-Side PDF Generation in Serverless
 
 ## The Lesson

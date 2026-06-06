@@ -115,3 +115,21 @@ repos:
     lessons_path: data/qr-bracelet-lessons
     description: "QR code bracelet platform with Cloudflare Workers, D1 database, Twilio Verify, Google OAuth2, and client-side PDF generation."
     virtual: true
+
+  - id: gtmleads
+    name: GTMLeads
+    owner: bonjohen
+    repo: gtmleads
+    branch: main
+    lessons_path: data/gtmleads-lessons
+    description: "GTM lead generation platform with multi-source API adapters, SQLite FTS5 search, four-level deduplication, and scoring composition pipeline."
+    virtual: true
+
+  - id: data-readiness
+    name: Data Readiness
+    owner: bonjohen
+    repo: data-readiness
+    branch: main
+    lessons_path: data/data-readiness-lessons
+    description: "Regulatory compliance platform with Astro content collections, MDX schemas, and multi-topic hub architecture for 12 data regulation frameworks."
+    virtual: true

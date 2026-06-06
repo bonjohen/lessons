@@ -1,3 +1,10 @@
+---
+title: "Revert as a Design Signal"
+summary: "A git revert is a signal that the original change had a design gap — not just a bug. When you revert, don't just re-implement the same approach with a fix; use the revert as a forcing function to write down what the original approach missed before trying again."
+date: 2026-05-17
+lesson_type: implementation
+tags: [pipeline]
+---
 # Revert as a Design Signal
 
 ## The Lesson

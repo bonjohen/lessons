@@ -1,3 +1,10 @@
+---
+title: "XSS via innerHTML in LLM Chat Interfaces"
+summary: "Any UI that displays LLM-generated text has two untrusted input sources: the user's query and the model's response. Both must be sanitized before DOM insertion. The model's output is especially dangerous because developers intuitively trust \"their own backend\" — but the LLM's response is no more tru..."
+date: 2026-05-13
+lesson_type: security
+tags: [security, deployment, frontend, python, javascript]
+---
 # XSS via innerHTML in LLM Chat Interfaces
 
 ## The Lesson

@@ -1,3 +1,10 @@
+---
+title: "Shipping a Product with Unfamiliar Technologies"
+summary: "You can ship a production web app in a single day using technologies you've never touched before — if you choose technologies that have small API surfaces, skip the tutorials, and build the real thing from the start. The fastest way to learn a tool is to use it on a real problem, not to study it in..."
+date: 2026-06-06
+lesson_type: implementation
+tags: [cloudflare, serverless, authentication, deployment, pdf]
+---
 # Shipping a Product with Unfamiliar Technologies
 
 ## The Lesson

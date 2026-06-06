@@ -209,6 +209,83 @@ def coerce_date(val) -> str | None:
     return str(val)
 
 
+def infer_summary(content: str) -> str:
+    """Extract summary from '## The Lesson' section, or first non-heading paragraph."""
+    # Try "## The Lesson" section first
+    m = re.search(
+        r"^##\s+The\s+Lesson\s*\n+(.*?)(?=\n##\s|\Z)",
+        content,
+        re.MULTILINE | re.DOTALL,
+    )
+    if m:
+        text = m.group(1).strip()
+        # Take first paragraph only
+        text = text.split("\n\n")[0].replace("\n", " ").strip()
+        if len(text) > 20:
+            return text[:300].rstrip() + ("..." if len(text) > 300 else "")
+
+    # Fallback: first non-heading, non-empty paragraph
+    for para in re.split(r"\n{2,}", content):
+        para = para.strip()
+        if para and not para.startswith("#"):
+            text = para.replace("\n", " ").strip()
+            if len(text) > 20:
+                return text[:300].rstrip() + ("..." if len(text) > 300 else "")
+    return ""
+
+
+# Tag inference keyword map: tag -> list of patterns to match in content
+_TAG_KEYWORDS: list[tuple[str, list[str]]] = [
+    ("cloudflare", [r"\bcloudflare\b", r"\bworkers?\b.*\bcloudflare\b"]),
+    ("serverless", [r"\bserverless\b", r"\bcloudflare workers?\b", r"\blambda\b"]),
+    ("database", [r"\bsqlite\b", r"\bpostgres", r"\bdatabase\b", r"\bsql\b"]),
+    ("authentication", [r"\boauth\b", r"\bauth\b.*\bflow\b", r"\blogin\b"]),
+    ("security", [r"\bxss\b", r"\bcsp\b", r"\bsecurity\b", r"\binjection\b"]),
+    ("testing", [r"\btest(s|ing)?\b.*\b(suite|framework|pass|fail)\b"]),
+    ("deployment", [r"\bdeploy(ment|ing|ed)?\b", r"\bci/cd\b", r"\bgithub actions\b"]),
+    ("api", [r"\brest\s*api\b", r"\bapi\s+(endpoint|route|call)\b"]),
+    ("pdf", [r"\bpdf\b.*\bgenerat", r"\bjspdf\b"]),
+    ("sms", [r"\btwilio\b", r"\bsms\b", r"\bverif(y|ication)\b.*\bphone\b"]),
+    ("frontend", [r"\bclient.side\b", r"\bbrowser\b.*\b(render|generat)"]),
+    ("data-modeling", [r"\bschema\b", r"\bmigration\b", r"\bdata\s*model\b"]),
+    ("devops", [r"\bwrangler\b", r"\bcli\b.*\bdeploy\b"]),
+    ("pipeline", [r"\bpipeline\b", r"\bharvest\b", r"\betl\b"]),
+    ("python", [r"\bpython\b", r"\bpytest\b", r"\bfastapi\b"]),
+    ("javascript", [r"\bjavascript\b", r"\bnode\.?js\b", r"\btypescript\b"]),
+    ("astro", [r"\bastro\b"]),
+    ("docker", [r"\bdocker\b", r"\bcontainer\b"]),
+    ("cloud", [r"\baws\b", r"\bazure\b", r"\bgcp\b", r"\bbedrock\b"]),
+    ("ai", [r"\bllm\b", r"\brag\b", r"\bembedding\b", r"\bmachine learning\b"]),
+    ("git", [r"\bgit\s+(push|pull|commit|branch|rebase)\b"]),
+    ("statistics", [r"\bbayesian\b", r"\bchi.squared\b", r"\bborda\b", r"\bkrippendorff\b", r"\belo\s+rating\b", r"\bbradley.terry\b", r"\bscoring\b.*\b(composite|heterogeneous)\b", r"\bbaseline\b", r"\bbias\s+detect", r"\bheuristic\b.*\bscor"]),
+    ("architecture", [r"\bstate\s+machine\b", r"\bpermission\b.*\b(union|role)\b", r"\barchitect\b"]),
+    ("ui", [r"\bdrag.and.drop\b", r"\binteraction\b.*\b(pattern|design)\b", r"\bui\s+state\b"]),
+]
+
+
+def infer_tags(title: str, content: str, max_tags: int = 5) -> list[str]:
+    """Infer tags from title and content using keyword matching."""
+    text = (title + "\n" + content).lower()
+    matched: list[str] = []
+    for tag, patterns in _TAG_KEYWORDS:
+        for pat in patterns:
+            if re.search(pat, text, re.IGNORECASE):
+                matched.append(tag)
+                break
+        if len(matched) >= max_tags:
+            break
+    return matched
+
+
+def infer_date_from_file(filepath: "Path") -> str | None:
+    """Infer date from file modification time."""
+    try:
+        mtime = filepath.stat().st_mtime
+        return datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
+    except OSError:
+        return None
+
+
 def build_source_url(repo: dict, rel_path) -> str:
     """Build the GitHub source URL for a lesson file."""
     return (

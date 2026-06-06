@@ -1,3 +1,10 @@
+---
+title: "Structured Code Review as a Phase Gate"
+summary: "Running a systematic, category-driven code review after implementation is complete catches a class of issues that per-phase testing and acceptance criteria miss. Per-phase verification asks \"does this phase work?\" — a structured review asks \"what's wrong across the whole codebase?\" The two are compl..."
+date: 2026-05-13
+lesson_type: process
+tags: [security, testing, pipeline, python, astro]
+---
 # Structured Code Review as a Phase Gate
 
 ## The Lesson

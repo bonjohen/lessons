@@ -1,3 +1,10 @@
+---
+title: "CI Dependency Lists Drift from pyproject.toml"
+summary: "When CI workflows hand-maintain `pip install` commands that duplicate what `pyproject.toml` already declares, the two lists will drift. New dependencies added to `pyproject.toml` will be missing in CI, causing build failures that can't be reproduced locally. The fix is to use `pip install .` so `pyp..."
+date: 2026-05-13
+lesson_type: deployment
+tags: [testing, deployment, pipeline, python, javascript]
+---
 # CI Dependency Lists Drift from pyproject.toml
 
 ## The Lesson

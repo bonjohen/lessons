@@ -1,3 +1,10 @@
+---
+title: "Base URL Misconfiguration Breaks Subdirectory Deploys"
+summary: "When deploying a static site to a subdirectory path (e.g., `github.io/project/` instead of a custom domain root), every internal link must be prefixed with the base path. Setting the framework's `site` config is not enough — you must also set `base`, and every hardcoded absolute `href` in components..."
+date: 2026-05-13
+lesson_type: deployment
+tags: [security, deployment, astro, ai]
+---
 # Base URL Misconfiguration Breaks Subdirectory Deploys
 
 ## The Lesson

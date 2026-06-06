@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import RepoCard from '../../components/RepoCard.astro';
 import { getRepos } from '../../lib/data';
 
-const repos = getRepos();
+const repos = getRepos().sort((a, b) => a.name.localeCompare(b.name));
 ---
 
 <BaseLayout title="Repos - Lessons Hub">

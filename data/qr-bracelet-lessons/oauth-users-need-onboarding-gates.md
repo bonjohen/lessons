@@ -1,3 +1,10 @@
+---
+title: "OAuth Users Need Onboarding Gates"
+summary: "When users can sign up via OAuth (Google, Apple, etc.), they bypass your signup form — and any required fields on it. If your app requires data that OAuth doesn't provide (a phone number, a company name, a role), you need a gate between login and the main app that collects it before proceeding."
+date: 2026-06-06
+lesson_type: implementation
+tags: [database, authentication, sms, data-modeling, javascript]
+---
 # OAuth Users Need Onboarding Gates
 
 ## The Lesson

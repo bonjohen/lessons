@@ -1,3 +1,10 @@
+---
+title: "Phone Numbers as Data, Not Identity"
+summary: "When a phone number appears in your product, decide early whether it's an identity (the account itself) or data (a field on a record). Conflating the two creates the wrong data model, the wrong auth flow, and forces users into a single-phone-per-account constraint that doesn't match reality."
+date: 2026-06-06
+lesson_type: implementation
+tags: [authentication, sms, data-modeling]
+---
 # Phone Numbers as Data, Not Identity
 
 ## The Lesson

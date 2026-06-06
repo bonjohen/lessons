@@ -1,3 +1,10 @@
+---
+title: "OAuth Credit Routing for CLI Tools"
+summary: "When a CLI tool supports multiple authentication methods with different billing paths, scripts that invoke it must explicitly select the intended billing path — otherwise, environment variable precedence silently routes charges to the wrong budget."
+date: 2026-05-17
+lesson_type: deployment
+tags: [authentication, deployment, pipeline, cloud, ai]
+---
 # OAuth Credit Routing for CLI Tools
 
 ## The Lesson

@@ -1,3 +1,10 @@
+---
+title: "Phased Plan Execution with One Commit Per Phase"
+summary: "When building a multi-phase system, track progress at the row level within each phase (Open → Started → Completed with timestamps), commit only when an entire phase is green, and never batch multiple phases into one commit. This granularity makes it possible to resume mid-phase, measure velocity, an..."
+date: 2026-05-13
+lesson_type: process
+tags: [database, testing, api, data-modeling, pipeline]
+---
 # Phased Plan Execution with One Commit Per Phase
 
 ## The Lesson

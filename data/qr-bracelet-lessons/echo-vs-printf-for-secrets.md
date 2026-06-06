@@ -1,3 +1,10 @@
+---
+title: "Echo vs Printf for CLI Secrets"
+summary: "When piping a value to a CLI tool that stores secrets, `echo` adds a trailing newline that becomes part of the stored value. This silently breaks any credential that's compared byte-for-byte — OAuth client IDs, API tokens, webhook secrets. Always use `printf` instead."
+date: 2026-06-06
+lesson_type: implementation
+tags: [cloudflare, serverless, authentication, sms, devops]
+---
 # Echo vs Printf for CLI Secrets
 
 ## The Lesson

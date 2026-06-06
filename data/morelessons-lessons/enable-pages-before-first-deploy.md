@@ -1,3 +1,10 @@
+---
+title: "Enable GitHub Pages Before First Deploy"
+summary: "A GitHub Actions workflow that deploys to GitHub Pages will fail on the first run if Pages is not enabled in the repository settings. The workflow will build successfully but the deploy step returns a 404 — \"Ensure GitHub Pages has been enabled.\" This is a configuration prerequisite, not a code bug,..."
+date: 2026-05-13
+lesson_type: deployment
+tags: [deployment, api, pipeline, python, astro]
+---
 # Enable GitHub Pages Before First Deploy
 
 ## The Lesson

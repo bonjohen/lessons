@@ -1,3 +1,10 @@
+---
+title: "RSS as Fallback Collection Method"
+summary: "When primary collection methods fail due to anti-bot defenses (Cloudflare, JS rendering), Google News RSS feeds provide a reliable fallback that requires no browser automation — but RSS item bodies are often useless title echoes that need enrichment from the actual article pages."
+date: 2026-05-17
+lesson_type: implementation
+tags: [cloudflare, frontend, pipeline, javascript]
+---
 # RSS as Fallback Collection Method
 
 ## The Lesson

@@ -1,3 +1,10 @@
+---
+title: "Pipeline Data Quality Remediation: Design Doc First"
+summary: "When a data pipeline has multiple interacting failure modes, writing a design document that catalogs all errors before fixing any of them produces better fixes than addressing errors one at a time. The design doc reveals which failures share root causes and which fixes would conflict."
+date: 2026-05-17
+lesson_type: data-engineering
+tags: [cloudflare, database, deployment, pipeline]
+---
 # Pipeline Data Quality Remediation: Design Doc First
 
 ## The Lesson

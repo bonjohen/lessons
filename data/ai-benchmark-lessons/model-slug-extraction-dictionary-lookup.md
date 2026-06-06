@@ -1,3 +1,10 @@
+---
+title: "Model Slug Extraction: Dictionary Lookup Over Pure Regex"
+summary: "When extracting structured identifiers (model names, product versions, package names) from unstructured text, a dictionary of known values with normalization beats regex-only extraction. Regex handles the general case; the dictionary handles the important cases correctly."
+date: 2026-05-17
+lesson_type: implementation
+tags: [pipeline, javascript]
+---
 # Model Slug Extraction: Dictionary Lookup Over Pure Regex
 
 ## The Lesson

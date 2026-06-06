@@ -1,3 +1,10 @@
+---
+title: "Entity ID Stability Through Format Conventions"
+summary: "When building a knowledge graph that must support regeneration, deduplication, and cross-system references, enforce a structured ID format from day one. An ID like `entity_type.domain.name` is simultaneously human-readable, machine-parseable, and stable across re-extraction — properties that free-fo..."
+date: 2026-05-13
+lesson_type: implementation
+tags: [database, data-modeling, pipeline, python, ai]
+---
 # Entity ID Stability Through Format Conventions
 
 ## The Lesson

@@ -1,3 +1,10 @@
+---
+title: "Cloudflare Workers"
+summary: "Cloudflare Workers are serverless JavaScript functions that run at the edge — no server to manage, no container to configure. They wake up on each request, execute, and sleep. For small to medium web apps, they replace traditional backend servers entirely."
+date: 2026-06-06
+lesson_type: deployment
+tags: [cloudflare, serverless, database, deployment, pdf]
+---
 # Cloudflare Workers
 
 ## The Lesson

@@ -1,3 +1,10 @@
+---
+title: "Preset Configs vs. Custom Configs for Diagram Generation"
+summary: "When building a query or configuration system, provide a registry of named presets for the common cases and a full custom endpoint for everything else. Presets give users instant value without learning the schema; the custom path preserves full flexibility for power users."
+date: 2026-05-13
+lesson_type: implementation
+tags: [data-modeling, pipeline]
+---
 # Preset Configs vs. Custom Configs for Diagram Generation
 
 ## The Lesson

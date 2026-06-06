@@ -1,3 +1,10 @@
+---
+title: "Deploying is Not Pushing"
+summary: "In a serverless workflow where `wrangler deploy` pushes code directly to production, deployment is decoupled from git. This means there's no CI/CD pipeline gating production changes — the developer must impose their own discipline. Treat every production deploy like a `git push --force`: require exp..."
+date: 2026-06-06
+lesson_type: deployment
+tags: [cloudflare, serverless, deployment, data-modeling, devops]
+---
 # Deploying is Not Pushing
 
 ## The Lesson

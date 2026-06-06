@@ -1,3 +1,10 @@
+---
+title: "Preflight Checks Prevent Push-then-Fix Cycles"
+summary: "Running the same lint, format, and test checks locally before pushing catches failures that would otherwise require a push-fix-push cycle through CI. The cost of a local preflight is seconds; the cost of a CI round-trip is minutes plus noise (failed build notifications, red badges, extra commits). A..."
+date: 2026-05-13
+lesson_type: deployment
+tags: [security, testing, deployment, python, javascript]
+---
 # Preflight Checks Prevent Push-then-Fix Cycles
 
 ## The Lesson

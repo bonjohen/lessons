@@ -1,3 +1,10 @@
+---
+title: "Revert-Restore-Reapply: Safe Source Catalog Changes"
+summary: "Never bundle additive changes (new sources) with destructive changes (dropping existing pages) in one commit. If a rollback is needed, you lose the additions along with the removals — and untangling them under pressure wastes time."
+date: 2026-05-17
+lesson_type: implementation
+tags: [pipeline]
+---
 # Revert-Restore-Reapply: Safe Source Catalog Changes
 
 ## The Lesson

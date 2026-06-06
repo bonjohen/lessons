@@ -23,6 +23,9 @@ from lesson_core import (
     build_source_url,
     compute_reading_time,
     get_log_stats,
+    infer_summary,
+    infer_tags,
+    infer_date_from_file,
     log_error,
     log_warning,
     reset_log_stats,
@@ -346,7 +349,11 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
     summary = post.get("summary", "")
     if isinstance(summary, list):
         summary = summary[0] if summary else ""
+    if not summary:
+        summary = infer_summary(content)
     date = coerce_date(post.get("date"))
+    if not date:
+        date = infer_date_from_file(filepath)
     updated = coerce_date(post.get("updated"))
     phase = post.get("phase")
     if isinstance(phase, list):
@@ -360,6 +367,8 @@ def parse_lesson(filepath: Path, repo: dict) -> dict | None:
     if isinstance(status, list):
         status = status[0] if status else "active"
     tags = normalize_tags(post.get("tags", []))
+    if not tags:
+        tags = infer_tags(title, content)
 
     word_count = len(content.split())
 
@@ -404,9 +413,20 @@ def scan_lessons(repo: dict, clone_path: Path) -> list[dict]:
         return []
 
     md_files = sorted(lessons_dir.rglob("*.md"))
-    # Exclude README.md and TEMPLATE.md files
+    # Exclude non-lesson files: READMEs, templates, indexes, plans, reviews
+    _EXCLUDED_NAMES = {
+        "readme.md",
+        "template.md",
+        "index.md",
+        "planned.md",
+        "data-curation-page-design.md",
+    }
+    _EXCLUDED_SUFFIXES = ("-plan.md", "-review.md", "-suggestions.md")
     md_files = [
-        f for f in md_files if f.name.lower() not in ("readme.md", "template.md")
+        f
+        for f in md_files
+        if f.name.lower() not in _EXCLUDED_NAMES
+        and not f.name.lower().endswith(_EXCLUDED_SUFFIXES)
     ]
 
     if not md_files:

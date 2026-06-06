@@ -1,3 +1,10 @@
+---
+title: "Cloudflare D1"
+summary: "D1 is serverless SQLite hosted by Cloudflare. It gives you a real SQL database accessible only from your Worker — no connection strings, no connection pooling, no database server to manage. For small apps, it eliminates the entire database operations layer."
+date: 2026-06-06
+lesson_type: implementation
+tags: [cloudflare, serverless, database, api, data-modeling]
+---
 # Cloudflare D1
 
 ## The Lesson

@@ -1,3 +1,10 @@
+---
+title: "Rule-Based Extraction Before LLM Extraction"
+summary: "When building an entity extraction pipeline, implement rule-based heuristics first and defer LLM-assisted extraction until the deterministic baseline is tested and measured. The rule-based layer gives you a reproducible, cost-free, fast foundation that LLM extraction can extend — not replace."
+date: 2026-05-13
+lesson_type: implementation
+tags: [api, pipeline, python, ai, statistics]
+---
 # Rule-Based Extraction Before LLM Extraction
 
 ## The Lesson

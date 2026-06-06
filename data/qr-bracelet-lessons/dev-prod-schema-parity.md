@@ -1,3 +1,10 @@
+---
+title: "Dev-Prod Schema Parity"
+summary: "When you add a database column via direct SQL instead of a migration file, your dev environment won't have it. The code works in production (where you ran the SQL) but crashes in dev (where the column doesn't exist). Always use migration files, even for \"quick\" schema changes."
+date: 2026-06-06
+lesson_type: architecture
+tags: [cloudflare, database, data-modeling, devops]
+---
 # Dev-Prod Schema Parity
 
 ## The Lesson

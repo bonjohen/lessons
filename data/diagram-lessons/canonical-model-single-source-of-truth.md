@@ -1,3 +1,10 @@
+---
+title: "Canonical Model as Single Source of Truth"
+summary: "When a system must produce multiple visual representations of the same architecture, build a single normalized graph model and derive all outputs from it. Renderers that read the same model cannot drift from each other; renderers that maintain their own state always will."
+date: 2026-05-13
+lesson_type: implementation
+tags: [data-modeling, ai]
+---
 # Canonical Model as Single Source of Truth
 
 ## The Lesson

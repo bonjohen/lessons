@@ -1,3 +1,10 @@
+---
+title: "Twilio Verify"
+summary: "Twilio Verify is a two-API-call service for phone number verification. You call \"send code,\" Twilio texts a 6-digit code to the phone. You call \"check code\" with what the user entered, Twilio tells you if it matches. You never see, store, or manage the code yourself."
+date: 2026-06-06
+lesson_type: implementation
+tags: [cloudflare, serverless, security, sms, devops]
+---
 # Twilio Verify
 
 ## The Lesson

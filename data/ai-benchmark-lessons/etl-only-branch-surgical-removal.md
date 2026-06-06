@@ -1,3 +1,10 @@
+---
+title: "ETL-Only Branch: Surgical Code Removal"
+summary: "When stripping a codebase down to a subset of its functionality, remove in dependency order — packages first, then CLI registrations, then migrations, then dependencies, then tests, then deployment artifacts. Each commit should leave the system runnable, not just compilable."
+date: 2026-05-17
+lesson_type: data-engineering
+tags: [database, deployment, data-modeling, pipeline, python]
+---
 # ETL-Only Branch: Surgical Code Removal
 
 ## The Lesson

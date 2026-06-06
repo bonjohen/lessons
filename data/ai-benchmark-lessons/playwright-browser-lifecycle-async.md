@@ -1,3 +1,10 @@
+---
+title: "Playwright Browser Lifecycle in Async Pipelines"
+summary: "Shared browser instances in async code need explicit synchronization at creation time and explicit cleanup at shutdown. Without both, you get leaked browser processes from races and resource warnings from incomplete teardown — problems that surface only under concurrent load, not in unit tests."
+date: 2026-05-17
+lesson_type: implementation
+tags: [cloudflare, database, testing, pipeline, python]
+---
 # Playwright Browser Lifecycle in Async Pipelines
 
 ## The Lesson

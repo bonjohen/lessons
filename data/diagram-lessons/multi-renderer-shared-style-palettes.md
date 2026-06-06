@@ -1,3 +1,10 @@
+---
+title: "Multi-Renderer Architecture with Shared Style Palettes"
+summary: "When building multiple rendering backends for the same data model, define the visual language (colors, shape semantics, edge style categories) once and map it to each renderer's syntax independently. Visual consistency across output formats is easy to lose when renderers are built in isolation; a sh..."
+date: 2026-05-13
+lesson_type: implementation
+tags: [frontend, data-modeling, javascript]
+---
 # Multi-Renderer Architecture with Shared Style Palettes
 
 ## The Lesson
