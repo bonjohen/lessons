@@ -1,7 +1,7 @@
 ---
 title: "Prototype One Instance Before Scaling to N"
 summary: "When building a system that will serve N instances of the same pattern, build one instance end-to-end first — from scaffold through deployment — before replicating. The prototype surfaces architectural assumptions that only become visible under real content, real routing, and real build constraints."
-date: 2026-06-06
+date: 2026-05-24
 lesson_type: deployment
 tags: [security, deployment, data-modeling, astro]
 ---

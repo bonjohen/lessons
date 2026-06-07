@@ -1,7 +1,7 @@
 ---
 title: "Nine-Phase Sequential Build"
 summary: "For a full-stack application built from scratch, a strict bottom-up phase order — schema, models, data, services, pipeline, API, UI, export — with one commit per phase and a green test suite at each boundary, produces a codebase where every layer is testable in isolation and integration bugs surface..."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: implementation
 tags: [database, testing, api, data-modeling, pipeline]
 ---

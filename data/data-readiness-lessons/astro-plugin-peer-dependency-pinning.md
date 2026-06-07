@@ -1,7 +1,7 @@
 ---
 title: "Astro Plugin Peer Dependency Pinning"
 summary: "In the Astro ecosystem, plugin packages (`@astrojs/*`) release independently of the core framework and frequently break peer dependency compatibility. Pin plugin versions explicitly and test upgrades in isolation rather than accepting latest."
-date: 2026-06-06
+date: 2026-05-24
 lesson_type: implementation
 tags: [astro]
 ---

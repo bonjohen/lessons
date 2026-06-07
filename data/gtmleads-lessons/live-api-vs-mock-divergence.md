@@ -1,7 +1,7 @@
 ---
 title: "Live API vs Mock Divergence"
 summary: "Mock-based tests validate your code's logic, not your assumptions about the external API. When an adapter passes all mock tests but fails against the real API, the bug is almost always in the mock — you encoded incorrect assumptions about field names, response structure, or protocol behavior."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: testing
 tags: [testing, api, data-modeling, pipeline, python]
 ---

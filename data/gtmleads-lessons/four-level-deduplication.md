@@ -1,7 +1,7 @@
 ---
 title: "Four-Level Deduplication Strategy"
 summary: "When deduplicating records from heterogeneous sources with varying ID reliability, use a priority-ordered cascade of match strategies — from strongest (source-native IDs) to weakest (fuzzy metadata). Check each level in order and stop at the first match. This avoids both false negatives (missed dupl..."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: algorithms
 tags: [database, pipeline]
 ---

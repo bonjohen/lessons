@@ -6,6 +6,7 @@ controlled vocabulary definitions, and shared logging.
 """
 
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -278,7 +279,19 @@ def infer_tags(title: str, content: str, max_tags: int = 5) -> list[str]:
 
 
 def infer_date_from_file(filepath: "Path") -> str | None:
-    """Infer date from file modification time."""
+    """Infer date from git last-commit time, falling back to file mtime."""
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%ai", "--", str(filepath.name)],
+            cwd=str(filepath.parent),
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip().split(" ")[0]
+    except (OSError, subprocess.TimeoutExpired):
+        pass
     try:
         mtime = filepath.stat().st_mtime
         return datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")

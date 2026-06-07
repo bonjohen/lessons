@@ -1,7 +1,7 @@
 ---
 title: "FTS5 Integration with SQLite"
 summary: "SQLite's FTS5 extension provides production-quality full-text search without an external service. The key to making it work reliably is sync triggers (not application-level writes), `rowid`-based joins (not column joins), and treating the FTS table as a read-only projection of the main table."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: implementation
 tags: [database, data-modeling, python]
 ---

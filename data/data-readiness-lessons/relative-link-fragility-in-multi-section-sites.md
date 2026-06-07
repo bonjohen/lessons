@@ -1,7 +1,7 @@
 ---
 title: "Relative Link Fragility in Multi-Section Static Sites"
 summary: "Relative links in templated multi-section static sites break silently when page nesting depth varies. Use a systematic link strategy — either always-absolute paths from the site root, or a helper that resolves relative to the current topic — rather than hand-coding relative hrefs in content files."
-date: 2026-06-06
+date: 2026-05-24
 lesson_type: implementation
 tags: [astro]
 ---

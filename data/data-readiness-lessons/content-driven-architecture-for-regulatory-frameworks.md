@@ -1,7 +1,7 @@
 ---
 title: "Content-Driven Architecture for Regulatory Frameworks"
 summary: "When multiple domains share identical page structures but differ only in subject matter, model the variation as typed content collections and render everything through shared components. The architecture's value comes from enforcing uniform structure via schemas while allowing unlimited content vari..."
-date: 2026-06-06
+date: 2026-05-24
 lesson_type: implementation
 tags: [data-modeling, astro]
 ---

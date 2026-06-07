@@ -1,7 +1,7 @@
 ---
 title: "MDX Scoped Styles in Astro"
 summary: "Astro's scoped `<style>` blocks do not penetrate MDX `<Content />` output. Any styles that need to reach MDX-rendered HTML must live in global CSS or use `:global()` selectors. This is a framework-level constraint, not a bug to work around."
-date: 2026-06-06
+date: 2026-05-24
 lesson_type: implementation
 tags: [security, astro]
 ---

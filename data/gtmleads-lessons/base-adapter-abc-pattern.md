@@ -1,7 +1,7 @@
 ---
 title: "Base Adapter ABC Pattern"
 summary: "When integrating with multiple external APIs that share a common pipeline contract, define an abstract base class that handles cross-cutting concerns (rate limiting, timeouts, credential redaction, error classification) and requires subclasses to implement only the source-specific logic (`fetch` and..."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: architecture
 tags: [authentication, pipeline, python]
 ---

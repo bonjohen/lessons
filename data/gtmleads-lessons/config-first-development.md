@@ -1,7 +1,7 @@
 ---
 title: "Config-First Development"
 summary: "When building a system that depends on external data sources, templates, or configuration-driven behavior, ship the configuration files before the code that consumes them. This forces you to validate your data model against real requirements before investing in implementation, and it makes each subs..."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: implementation
 tags: [data-modeling, pipeline]
 ---

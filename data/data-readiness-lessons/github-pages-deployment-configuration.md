@@ -1,7 +1,7 @@
 ---
 title: "GitHub Pages Deployment Configuration"
 summary: "GitHub Pages deployment with static site generators has three independently-failing configuration points — workflow file location, CNAME record, and site URL in the build config — and all three must be correct simultaneously. A deploy that \"almost works\" is usually missing exactly one of these."
-date: 2026-06-06
+date: 2026-05-24
 lesson_type: deployment
 tags: [cloudflare, deployment, pipeline, astro]
 ---

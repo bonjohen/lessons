@@ -1,7 +1,7 @@
 ---
 title: "Scoring Composition"
 summary: "When ranking records from heterogeneous sources, decompose the score into independent components with explicit weights, each normalized to 0.0–1.0. This makes the scoring system auditable (you can explain why a record scored high), tunable (change one weight without affecting others), and extensible..."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: algorithms
 tags: [database, testing, statistics]
 ---

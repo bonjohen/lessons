@@ -1,7 +1,7 @@
 ---
 title: "Hub Consolidation Over Per-Site Scaffolding"
 summary: "When building a platform that serves N variants of the same structure, start with a single consolidated site that treats variation as data, not as separate projects. Late consolidation — after scaffolding N separate sites — is expensive and produces a massive, risky changeset."
-date: 2026-06-06
+date: 2026-05-24
 lesson_type: implementation
 tags: [deployment, astro]
 ---

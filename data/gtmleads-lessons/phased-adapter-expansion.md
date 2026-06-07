@@ -1,7 +1,7 @@
 ---
 title: "Phased Adapter Expansion"
 summary: "When scaling a plugin architecture, ship configuration and data files first (before any code), tier new plugins by API complexity, and close with registry-level consistency tests. This ordering catches integration mismatches early and keeps each phase independently shippable."
-date: 2026-06-06
+date: 2026-05-20
 lesson_type: architecture
 tags: [authentication, data-modeling, pipeline]
 ---
