@@ -39,6 +39,110 @@ A lessons library of 116 markdown documents needed to be chunked for vector sear
 
 - **Validation should warn, not block.** A 5,000-token chunk is unusual but not necessarily wrong — some lessons have long reference sections. Warning lets the maintainer investigate; failing the build blocks deployment for a content issue. Error severity should match the consequence: empty chunks are errors (would produce nonsense embeddings), large chunks are warnings.
 
+## Implementation Guide
+
+### Step 1: Split on H2 headings
+
+Parse each markdown document into chunks at `## ` boundaries. Content before the first H2 becomes chunk 0 (the introduction). Each H2 section becomes a subsequent chunk:
+
+```python
+import re
+
+def chunk_document(lesson_id: str, title: str, content: str) -> list[dict]:
+    chunks = []
+    # Split on H2 headings, keeping the heading with its content
+    sections = re.split(r"(?=^## )", content, flags=re.MULTILINE)
+
+    for i, section in enumerate(sections):
+        text = section.strip()
+        if not text:
+            continue
+
+        # Extract heading name (if this section starts with ##)
+        heading_match = re.match(r"^## (.+)", text)
+        if heading_match:
+            heading = heading_match.group(1).strip()
+            heading_path = f"{title} > {heading}"
+        else:
+            heading_path = title  # Intro chunk
+
+        chunks.append({
+            "chunk_id": f"{lesson_id}-{i}",
+            "chunk_index": i,
+            "lesson_id": lesson_id,
+            "heading_path": heading_path,
+            "content": text,
+        })
+
+    return chunks
+```
+
+Keep H3 and deeper headings within their parent H2 chunk. Splitting on every heading level creates fragments too small for meaningful retrieval.
+
+### Step 2: Add content hashes for incremental re-indexing
+
+Compute a SHA-256 hash of each chunk's text content. This allows the vector store to detect which chunks changed between builds without re-embedding everything:
+
+```python
+import hashlib
+
+def add_content_hash(chunk: dict) -> dict:
+    normalized = " ".join(chunk["content"].lower().split())
+    chunk["content_hash"] = hashlib.sha256(
+        normalized.encode()
+    ).hexdigest()[:16]
+    return chunk
+```
+
+Normalize whitespace before hashing so that formatting-only changes don't trigger re-embedding.
+
+### Step 3: Estimate token counts and validate
+
+Approximate token count as `word_count * 1.33` (roughly 0.75 words per token for English text). Warn on chunks that exceed your embedding model's context window:
+
+```python
+def estimate_tokens(text: str) -> int:
+    return max(1, int(len(text.split()) * 1.33))
+
+MAX_CHUNK_TOKENS = 5000
+
+for chunk in chunks:
+    tokens = estimate_tokens(chunk["content"])
+    chunk["estimated_tokens"] = tokens
+    if tokens > MAX_CHUNK_TOKENS:
+        print(f"WARNING: {chunk['chunk_id']} has {tokens} estimated tokens")
+```
+
+Don't fail the build on large chunks — some sections are legitimately long. Warn so maintainers can investigate.
+
+### Step 4: Write the corpus and manifest
+
+Output the chunks as JSON along with a manifest file containing build statistics for monitoring corpus drift:
+
+```python
+import json
+from datetime import datetime, timezone
+
+def write_corpus(chunks: list[dict], output_dir: str):
+    # Write chunks
+    with open(f"{output_dir}/rag-chunks.json", "w") as f:
+        json.dump(chunks, f, indent=2)
+
+    # Write manifest with statistics
+    total_tokens = sum(c["estimated_tokens"] for c in chunks)
+    manifest = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "total_chunks": len(chunks),
+        "total_lessons": len(set(c["lesson_id"] for c in chunks)),
+        "total_estimated_tokens": total_tokens,
+        "avg_tokens_per_chunk": round(total_tokens / len(chunks), 1),
+    }
+    with open(f"{output_dir}/rag-manifest.json", "w") as f:
+        json.dump(manifest, f, indent=2)
+```
+
+The manifest is your build-over-build comparison tool. Track total chunks and average tokens — sudden changes indicate content structure issues.
+
 ## Examples
 
 **Input markdown:**

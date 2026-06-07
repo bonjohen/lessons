@@ -43,6 +43,96 @@ Lessons Hub has a CI pipeline that runs on every push: harvest lessons, validate
 
 - **Make it one command.** If preflight requires remembering which checks to run, developers won't run it. A single entry point (`/preflight`, `make preflight`, `npm run preflight`) with no arguments is the only version that gets used consistently.
 
+## Implementation Guide
+
+### Step 1: Inventory your CI checks
+
+Read your CI workflow file and list every check that can run locally. For a typical Python + static site project:
+
+```bash
+# Extract run commands from your GitHub Actions workflow
+grep "run:" .github/workflows/*.yml
+```
+
+Classify each check as **deterministic** (lint, format, unit tests — will produce the same result locally as in CI) or **environment-dependent** (integration tests against a CI database, deployment steps). Preflight only includes the deterministic checks.
+
+### Step 2: Create a preflight script
+
+Write a bash script (or npm script, Makefile target, etc.) that runs each check in sequence with `set -e` so it stops at the first failure:
+
+```bash
+#!/bin/bash
+set -e
+
+echo "=== Gate 1: Format ==="
+ruff format --check src/ tests/
+
+echo "=== Gate 2: Lint ==="
+ruff check src/ tests/
+
+echo "=== Gate 3: Tests ==="
+python -m pytest tests/ -x --timeout=60
+
+echo "=== PREFLIGHT PASS ==="
+```
+
+The flags must match your CI configuration exactly. If CI runs `ruff check --select E,F,W`, preflight must use the same flags.
+
+### Step 3: Add project-specific gates
+
+Beyond the standard lint/format/test gates, add checks for failure patterns specific to your project:
+
+**Script existence audit** (if your CI workflow references shell scripts):
+```bash
+echo "=== Gate 4: Script Audit ==="
+for workflow in .github/workflows/*.yml; do
+  grep -oP '(?<=run: \./)\S+' "$workflow" | while read script; do
+    [ -f "$script" ] || { echo "FAIL: $workflow references missing $script"; exit 1; }
+  done
+done
+```
+
+**Optional dependency scan** (if your project has lazy-imported packages):
+```bash
+echo "=== Gate 5: Optional Deps ==="
+OPTIONAL="boto3|azure|google.cloud"
+if grep -rn "^import \($OPTIONAL\)\|^from \($OPTIONAL\)" src/; then
+  echo "FAIL: Module-level import of optional dependency"
+  exit 1
+fi
+```
+
+### Step 4: Make it one command
+
+Register the preflight as a single, argument-free command that developers can run without thinking:
+
+```json
+// package.json
+{ "scripts": { "preflight": "bash scripts/preflight.sh" } }
+```
+```makefile
+# Makefile
+preflight:
+	bash scripts/preflight.sh
+```
+
+The fewer keystrokes, the more likely it gets used. `npm run preflight` or `make preflight` is the maximum acceptable friction.
+
+### Step 5: Wire preflight into your push workflow
+
+The highest-value integration point is right before `git push`. Options:
+
+- **Git pre-push hook:** Runs automatically on every push. Add to `.git/hooks/pre-push` or use a hook manager like Husky.
+- **CI/push skill:** If using an AI assistant, add preflight as a required step in the push workflow so it runs automatically.
+- **Manual habit:** Run preflight before pushing. This works for solo developers but doesn't scale to teams.
+
+```bash
+# .git/hooks/pre-push (make executable with chmod +x)
+#!/bin/bash
+echo "Running preflight..."
+npm run preflight || { echo "Preflight FAILED — push aborted"; exit 1; }
+```
+
 ## Examples
 
 ### Preflight Script Structure

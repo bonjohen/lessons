@@ -39,6 +39,96 @@ A RAG chatbot backend needed to support four LLM providers (Ollama, AWS Bedrock,
 
 - **No error handling needed in the adapter.** If someone configures `DEPLOYMENT_PROFILE=aws` without installing boto3, the `ImportError` from `__init__` is exactly the right error — clear, immediate, and actionable. Wrapping it in a try/except would obscure the problem.
 
+## Implementation Guide
+
+### Step 1: Identify which imports to defer
+
+Search your codebase for module-level imports of optional packages. These are imports that should only be required when a specific code path is used:
+
+```bash
+# Find all imports of optional SDKs at module level
+grep -rn "^import boto3\|^from azure\|^from google.cloud" src/
+```
+
+Any import at the top of a file that isn't needed by every deployment configuration is a candidate for deferral.
+
+### Step 2: Move imports into the constructor
+
+For each optional import, move it from module scope into the `__init__` method of the class that uses it:
+
+```python
+# Before: module-level (hard dependency)
+import boto3
+
+class BedrockAdapter:
+    def __init__(self):
+        self._client = boto3.client("bedrock-runtime")
+
+# After: lazy (soft dependency)
+class BedrockAdapter:
+    def __init__(self):
+        import boto3
+        self._client = boto3.client("bedrock-runtime")
+```
+
+If the SDK is used in multiple methods, import it once in `__init__` and store it as an instance attribute:
+
+```python
+class BedrockAdapter:
+    def __init__(self):
+        import boto3
+        self._boto3 = boto3
+        self._client = boto3.client("bedrock-runtime")
+
+    def invoke(self, prompt):
+        # Use self._client, no re-import needed
+        response = self._client.invoke_model(...)
+```
+
+### Step 3: Set up test mocking with sys.modules
+
+Standard `unittest.mock.patch` won't work for lazy imports because there's no module-level attribute to patch. Instead, pre-populate `sys.modules` before importing the class under test:
+
+```python
+import sys
+from unittest.mock import MagicMock
+
+# Create mock BEFORE importing the adapter
+mock_boto3 = MagicMock()
+mock_boto3.client.return_value = MagicMock()  # mock the client factory
+sys.modules.setdefault("boto3", mock_boto3)
+
+# Now import the adapter — it will find the mock in sys.modules
+from myapp.adapters.bedrock import BedrockAdapter  # noqa: E402
+
+def test_bedrock_adapter():
+    adapter = BedrockAdapter()  # Uses mock_boto3, not real SDK
+    assert mock_boto3.client.called
+```
+
+For SDKs with nested namespaces (Azure, Google Cloud), mock every level:
+
+```python
+mock_azure = MagicMock()
+for mod in ["azure", "azure.core", "azure.core.credentials",
+            "azure.search", "azure.search.documents"]:
+    sys.modules.setdefault(mod, mock_azure)
+```
+
+### Step 4: Declare optional dependencies in pyproject.toml
+
+Group optional packages as extras so users install only what they need:
+
+```toml
+[project.optional-dependencies]
+aws = ["boto3>=1.28"]
+azure = ["azure-search-documents>=11.4", "openai>=1.0"]
+gcp = ["google-cloud-aiplatform>=1.38"]
+dev = ["pytest", "ruff"]
+```
+
+Users install with `pip install myapp[aws]` for AWS support, or `pip install myapp[dev]` for development without any cloud SDK.
+
 ## Examples
 
 **Module-level import (breaks without SDK):**

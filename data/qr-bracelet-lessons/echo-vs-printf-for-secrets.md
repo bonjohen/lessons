@@ -51,6 +51,59 @@ printf "GOCSPX-abc123" | npx wrangler secret put GOOGLE_CLIENT_SECRET
 node -e "process.stdout.write('GOCSPX-abc123')" | npx wrangler secret put GOOGLE_CLIENT_SECRET
 ```
 
+## Implementation Guide
+
+### Step 1: Replace echo with printf in all secret-setting commands
+
+Search your scripts, documentation, and shell history for `echo` piped to secret-setting commands:
+
+```bash
+# Find echo-piped secrets in scripts and docs
+grep -rn "echo.*|.*secret\|echo.*| .*put\|echo.*| .*ssm" scripts/ docs/ *.md
+```
+
+Replace every instance with `printf`:
+
+```bash
+# Before (broken — stores "value\n")
+echo "$SECRET_VALUE" | npx wrangler secret put MY_SECRET
+
+# After (correct — stores "value")
+printf "%s" "$SECRET_VALUE" | npx wrangler secret put MY_SECRET
+```
+
+Use `printf "%s"` with a format string when the value is in a variable — this prevents `printf` from interpreting backslash sequences in the value itself.
+
+### Step 2: Re-set any secrets that may have been set with echo
+
+Since most secret managers don't let you read back stored values, re-set every secret using `printf` to be safe:
+
+```bash
+# Re-set all secrets with printf
+printf "%s" "your-client-id" | npx wrangler secret put GOOGLE_CLIENT_ID
+printf "%s" "your-client-secret" | npx wrangler secret put GOOGLE_CLIENT_SECRET
+printf "%s" "your-api-key" | npx wrangler secret put TWILIO_AUTH_TOKEN
+```
+
+If you're unsure whether a secret was set correctly, the fastest test is to use it — a trailing newline will cause authentication failures, and re-setting with `printf` is a one-command fix.
+
+### Step 3: Add a shell alias or wrapper to prevent recurrence
+
+Add a helper function to your shell profile that makes it impossible to accidentally use `echo`:
+
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+secret-put() {
+  if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: secret-put NAME VALUE"
+    return 1
+  fi
+  printf "%s" "$2" | npx wrangler secret put "$1"
+}
+```
+
+Usage: `secret-put GOOGLE_CLIENT_ID "790486..."` — always uses `printf`, never adds a newline.
+
 ## Applicability
 
 This applies to any CLI that reads secrets from stdin: `wrangler secret put`, `aws ssm put-parameter`, `vault kv put`, `kubectl create secret`. The newline problem is universal. It does NOT apply when the CLI reads from a file or prompts interactively — those typically trim whitespace.

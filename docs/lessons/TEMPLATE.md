@@ -29,6 +29,10 @@ One paragraph. Set the stage for an outsider: what kind of system, what scale, w
 - **Insight title** — explanation with evidence
 - **Another insight** — explanation
 
+## Implementation Guide
+
+*(Optional)* Step-by-step instructions for applying this pattern. Include code snippets, configuration examples, and commands. Must be self-contained — explain every concept inline.
+
 ## Examples
 
 *(Optional)* Before/after, good/bad comparisons.

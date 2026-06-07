@@ -31,6 +31,76 @@ A static knowledge library site included a chat panel that sent user questions t
 - **URL validation requires an allowlist, not a blocklist.** Checking `isSafeUrl()` with a prefix allowlist (`/` or `https://`) is more robust than trying to block `javascript:`, `data:`, `vbscript:`, and every other dangerous scheme. New schemes are added to browsers; your blocklist won't keep up.
 - **Structured reviews catch what tests miss.** The XSS was not caught during Phase 5 implementation, Phase 6 E2E tests, or Phase 7 acceptance criteria verification. A systematic grep for `innerHTML` across the entire codebase found it immediately. Pattern-based audits complement test suites — they find classes of bugs, not individual cases.
 
+## Implementation Guide
+
+### Step 1: Add an escapeHtml helper
+
+Create a function that converts HTML-special characters to their entity equivalents. The safest approach uses the DOM itself — create an element, set its `textContent` (which escapes automatically), then read back `innerHTML`:
+
+```js
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+```
+
+This handles `<`, `>`, `&`, `"`, and `'` without maintaining a manual replacement map. Use this for every string interpolated into HTML, whether it comes from the user or from an API response.
+
+### Step 2: Add a URL allowlist validator
+
+Block dangerous URL schemes (`javascript:`, `data:`, etc.) by only allowing known-safe prefixes. An allowlist is safer than a blocklist because new URI schemes get added to browsers over time:
+
+```js
+function isSafeUrl(url) {
+  if (typeof url !== "string") return false;
+  return url.startsWith("/") || url.startsWith("https://") || url.startsWith("http://");
+}
+```
+
+Apply this before rendering any URL from an API response as an `href`. Also apply `encodeURI()` to the URL value to handle special characters.
+
+### Step 3: Apply sanitization to all dynamic content insertion
+
+Audit every place your code inserts dynamic content into the DOM. Search for these patterns:
+
+```bash
+grep -rn "innerHTML\|\.html(\|document\.write\|insertAdjacentHTML" src/
+```
+
+For each match, apply the appropriate fix:
+
+- **Plain text display** (messages, titles): use `escapeHtml()` or `element.textContent = value`
+- **Rich text display** (markdown rendering): use a sanitization library like DOMPurify or sanitize-html
+- **Link hrefs**: validate with `isSafeUrl()` and encode with `encodeURI()`
+
+```js
+// Chat message rendering — sanitize both user and LLM text
+messages.innerHTML += `<p><strong>You:</strong> ${escapeHtml(query)}</p>`;
+messages.innerHTML += `<p><strong>Assistant:</strong> ${escapeHtml(data.answer)}</p>`;
+
+// Citation links — validate URL and escape title
+const safeLinks = data.citations
+  .filter(c => isSafeUrl(c.url))
+  .map(c => `<a href="${encodeURI(c.url)}">${escapeHtml(c.title)}</a>`)
+  .join(", ");
+```
+
+### Step 4: Add a grep-based audit to your CI or preflight checks
+
+Prevent regressions by flagging raw `innerHTML` usage in CI. Add a check that fails if `innerHTML` is used without a sanitizer in the same file:
+
+```bash
+# Flag files that use innerHTML but don't import/define a sanitizer
+for file in $(grep -rl "innerHTML" src/); do
+  if ! grep -q "escapeHtml\|sanitize\|DOMPurify\|textContent" "$file"; then
+    echo "WARNING: $file uses innerHTML without sanitization"
+  fi
+done
+```
+
+This won't catch every case, but it catches the most common one — adding `innerHTML` during a quick feature build without thinking about sanitization.
+
 ## Examples
 
 **Before (vulnerable):**

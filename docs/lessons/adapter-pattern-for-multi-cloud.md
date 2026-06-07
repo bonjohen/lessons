@@ -39,6 +39,113 @@ A RAG chatbot needed two external capabilities: embedding/chat (LLM) and similar
 
 - **Don't normalize what doesn't need normalizing.** Bedrock and Azure OpenAI both accept `messages: list[dict]` but with different structures. Rather than defining a universal message schema, each adapter translates from the simple `{role, content}` format the RAG pipeline produces. The translation is 5-10 lines per adapter, not worth abstracting further.
 
+## Implementation Guide
+
+### Step 1: Define the narrowest possible abstract interface
+
+Identify the external capability your application needs (LLM calls, storage, notifications, etc.) and define an abstract base class with only the methods your business logic actually calls:
+
+```python
+from abc import ABC, abstractmethod
+
+class LLMAdapter(ABC):
+    @abstractmethod
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        """Convert texts to embedding vectors."""
+
+    @abstractmethod
+    def chat(self, messages: list[dict]) -> str:
+        """Send messages, return the assistant's response."""
+```
+
+Resist adding methods for capabilities only some providers support (streaming, token counting). If you need those later, add them as optional methods with default implementations that raise `NotImplementedError`.
+
+### Step 2: Implement one adapter per provider
+
+Each adapter inherits from the ABC and handles all provider-specific quirks internally. The constructor is where you set up credentials and clients:
+
+```python
+class BedrockAdapter(LLMAdapter):
+    def __init__(self, model_id: str = "anthropic.claude-3-sonnet"):
+        import boto3  # Lazy import — only needed if this adapter is used
+        self._client = boto3.client("bedrock-runtime")
+        self._model_id = model_id
+
+    def embed(self, texts):
+        # Bedrock-specific embedding API call
+        ...
+
+    def chat(self, messages):
+        # Bedrock-specific message format translation
+        ...
+```
+
+Key rule: all adapters must return identical output formats. If one provider returns distances and another returns similarity scores, normalize inside the adapter.
+
+### Step 3: Build a factory for adapter selection
+
+Create a single dispatch point that maps a configuration value to the correct adapter pair. A dictionary lookup is usually sufficient:
+
+```python
+import os
+
+ADAPTERS = {
+    "local": (OllamaAdapter, ChromaDBAdapter),
+    "aws":   (BedrockAdapter, OpenSearchAdapter),
+    "azure": (AzureOpenAIAdapter, AzureSearchAdapter),
+    "gcp":   (VertexAIAdapter, VertexVectorSearchAdapter),
+}
+
+def get_adapters():
+    profile = os.getenv("DEPLOYMENT_PROFILE", "local")
+    llm_cls, vector_cls = ADAPTERS[profile]
+    return llm_cls(), vector_cls()
+```
+
+This file is the only place in the codebase that knows which concrete adapters exist. Everything else works with the abstract types.
+
+### Step 4: Inject adapters into business logic
+
+Business logic classes accept the abstract interface via constructor arguments. They never import concrete adapters:
+
+```python
+class Retriever:
+    def __init__(self, vector: VectorAdapter, llm: LLMAdapter):
+        self._vector = vector
+        self._llm = llm
+
+    def retrieve(self, query: str, top_k: int = 8) -> list[dict]:
+        embedding = self._llm.embed([query])[0]
+        return self._vector.query(embedding, top_k=top_k)
+```
+
+At application startup, wire them together:
+
+```python
+llm, vector = get_adapters()
+retriever = Retriever(vector=vector, llm=llm)
+```
+
+### Step 5: Test with mock adapters
+
+For unit tests, create lightweight mock implementations or use `MagicMock` with spec:
+
+```python
+from unittest.mock import MagicMock
+
+def test_retriever():
+    mock_llm = MagicMock(spec=LLMAdapter)
+    mock_llm.embed.return_value = [[0.1, 0.2, 0.3]]
+    mock_vector = MagicMock(spec=VectorAdapter)
+    mock_vector.query.return_value = [{"text": "result", "score": 0.9}]
+
+    retriever = Retriever(vector=mock_vector, llm=mock_llm)
+    results = retriever.retrieve("test query")
+    assert len(results) == 1
+```
+
+For integration tests against real providers, use the same factory with a test-specific profile.
+
 ## Examples
 
 **Business logic sees only the interface:**

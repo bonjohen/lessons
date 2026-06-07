@@ -32,6 +32,78 @@ GTMLeads stores signals in an SQLite database (WAL mode, foreign keys enabled) a
 - **BM25 ranking is good enough for most use cases.** FTS5's built-in `rank` column implements BM25 scoring. For a human-review queue where users refine results visually, BM25 is sufficient. Custom ranking adds complexity without proportional value.
 - **FTS5 is a projection, not a source of truth.** The FTS table can be rebuilt from the main table at any time (`INSERT INTO signal_fts(signal_fts) VALUES('rebuild')`). This means FTS index corruption is recoverable, unlike a separate search service where data loss might be permanent.
 
+## Implementation Guide
+
+### Step 1: Create the FTS5 virtual table
+
+In your schema migration, define an FTS5 virtual table that mirrors the text columns you want searchable. Use `content=''` to create a "contentless" FTS table (it stores only the index, not a copy of the data):
+
+```sql
+CREATE VIRTUAL TABLE IF NOT EXISTS signal_fts USING fts5(
+    title, signal_text, matched_keywords, citation_text,
+    content=''
+);
+```
+
+Alternatively, omit `content=''` to let FTS5 store its own copy of the data. Contentless tables are smaller but require explicit sync; content tables are larger but self-contained.
+
+### Step 2: Add sync triggers
+
+Create triggers on the main table so every insert, update, and delete is automatically reflected in the FTS index. The application code never writes to the FTS table directly:
+
+```sql
+-- Insert trigger
+CREATE TRIGGER signal_fts_insert AFTER INSERT ON signal BEGIN
+    INSERT INTO signal_fts(rowid, title, signal_text, matched_keywords, citation_text)
+    VALUES (NEW.signal_id, NEW.title, NEW.signal_text, NEW.matched_keywords, NEW.citation_text);
+END;
+
+-- Delete trigger (uses FTS5's special delete syntax)
+CREATE TRIGGER signal_fts_delete BEFORE DELETE ON signal BEGIN
+    INSERT INTO signal_fts(signal_fts, rowid, title, signal_text, matched_keywords, citation_text)
+    VALUES ('delete', OLD.signal_id, OLD.title, OLD.signal_text, OLD.matched_keywords, OLD.citation_text);
+END;
+
+-- Update trigger (delete old, insert new)
+CREATE TRIGGER signal_fts_update AFTER UPDATE ON signal BEGIN
+    INSERT INTO signal_fts(signal_fts, rowid, title, signal_text, matched_keywords, citation_text)
+    VALUES ('delete', OLD.signal_id, OLD.title, OLD.signal_text, OLD.matched_keywords, OLD.citation_text);
+    INSERT INTO signal_fts(rowid, title, signal_text, matched_keywords, citation_text)
+    VALUES (NEW.signal_id, NEW.title, NEW.signal_text, NEW.matched_keywords, NEW.citation_text);
+END;
+```
+
+Note the delete syntax: the first column is the FTS table name as a string literal (`'delete'`), not data. This is FTS5's content-sync protocol — getting it wrong silently corrupts the index.
+
+### Step 3: Write the search query
+
+Join the FTS table to the main table using `rowid` and use the `MATCH` operator for queries. FTS5 provides a built-in `rank` column with BM25 relevance scoring:
+
+```python
+def search_signals(db, query: str, limit: int = 20) -> list[dict]:
+    sql = """
+        SELECT s.*, signal_fts.rank
+        FROM signal s
+        JOIN signal_fts ON s.signal_id = signal_fts.rowid
+        WHERE signal_fts MATCH ?
+        ORDER BY signal_fts.rank
+        LIMIT ?
+    """
+    return db.execute(sql, (query, limit)).fetchall()
+```
+
+Always join on `rowid`, not on a named column. FTS5 uses `rowid` internally as its key.
+
+### Step 4: Handle index recovery
+
+If the FTS index gets corrupted (rare, but possible after crashes or schema changes), rebuild it from the main table:
+
+```sql
+INSERT INTO signal_fts(signal_fts) VALUES('rebuild');
+```
+
+This repopulates the index from scratch using the sync triggers' source data. Consider adding a `rebuild` command to your maintenance tooling.
+
 ## Applicability
 
 This pattern applies to any SQLite-based application that needs keyword search over text columns, up to tens of thousands of records. At that scale, FTS5 query performance is effectively instant (<10ms).

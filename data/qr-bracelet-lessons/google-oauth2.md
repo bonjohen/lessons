@@ -81,6 +81,110 @@ if (stateMatch[1] !== url.searchParams.get("state")) {
 5. Add redirect URIs for every environment
 6. Copy Client ID and Client Secret → `wrangler secret put`
 
+## Implementation Guide
+
+### Step 1: Register your application with Google
+
+Go to [console.cloud.google.com](https://console.cloud.google.com):
+
+1. Create a new project (or select an existing one).
+2. Navigate to **APIs & Services → OAuth consent screen**. Choose "External" for user type. Fill in the app name and support email.
+3. Go to **Audience → Publish App** to switch from Testing mode to Production. This is free and doesn't require Google review for `email` and `profile` scopes. Without this, only manually-added test users can sign in.
+4. Navigate to **Credentials → Create Credentials → OAuth Client ID**. Choose "Web application."
+5. Add **Authorized redirect URIs** for every environment — production, staging, and local development. Each must match character-for-character what your server sends in the `redirect_uri` parameter.
+6. Copy the **Client ID** and **Client Secret**. Store them securely (environment variables, secret manager, or encrypted config — never in source code).
+
+### Step 2: Build the login redirect
+
+When the user clicks "Continue with Google," redirect them to Google's authorization endpoint with your client ID, redirect URI, and a CSRF state parameter:
+
+```javascript
+// Generate CSRF state token
+const state = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+  .map(b => b.toString(16).padStart(2, "0")).join("");
+
+// Store state in an HttpOnly cookie for verification on callback
+const headers = new Headers();
+headers.append("Set-Cookie",
+  `oauth_state=${state}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=600`);
+
+// Build the Google auth URL
+const params = new URLSearchParams({
+  client_id: GOOGLE_CLIENT_ID,
+  redirect_uri: "https://yourapp.com/login/google/callback",
+  response_type: "code",
+  scope: "openid email profile",
+  state: state,
+});
+
+// Redirect the user to Google
+return Response.redirect(
+  `https://accounts.google.com/o/oauth2/v2/auth?${params}`, 302);
+```
+
+### Step 3: Handle the callback and exchange the code for tokens
+
+When Google redirects back to your callback URL, verify the state parameter, then exchange the authorization code for an access token:
+
+```javascript
+async function handleOAuthCallback(request) {
+  const url = new URL(request.url);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+
+  // Verify CSRF state matches the cookie
+  const cookies = request.headers.get("Cookie") || "";
+  const savedState = cookies.match(/oauth_state=([^;]+)/)?.[1];
+  if (!savedState || savedState !== state) {
+    return new Response("Invalid state", { status: 403 });
+  }
+
+  // Exchange authorization code for tokens
+  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code,
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      redirect_uri: "https://yourapp.com/login/google/callback",
+      grant_type: "authorization_code",
+    }),
+  });
+  const tokens = await tokenRes.json();
+
+  // Fetch user info with the access token
+  const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+    headers: { Authorization: `Bearer ${tokens.access_token}` },
+  });
+  const user = await userRes.json();
+  // user.email, user.sub (Google ID), user.email_verified
+
+  // Create or find user in your database, set session cookie, redirect to app
+}
+```
+
+### Step 4: Handle user creation and missing fields
+
+Google provides email, name, and a unique `sub` identifier, but not application-specific fields (phone number, preferences, etc.). After creating the user record, check for required fields and redirect to an onboarding flow if anything is missing:
+
+```javascript
+let dbUser = await db.getUserByEmail(user.email);
+if (!dbUser) {
+  dbUser = await db.createUser({
+    email: user.email,
+    google_id: user.sub,
+    auth_method: "google",
+  });
+}
+
+// Check for required fields the OAuth provider doesn't supply
+if (!dbUser.phone_number) {
+  return Response.redirect("/setup-phone", 302);
+}
+return Response.redirect("/dashboard", 302);
+```
+
 ## Applicability
 
 This flow works identically for Microsoft, Apple, GitHub, and most OAuth2 providers — only the URLs change. The pattern (redirect → code → token exchange → userinfo) is universal. Firebase Auth and Auth0 wrap this flow in SDKs, but for server-rendered apps, raw OAuth2 is simpler and has no dependencies.

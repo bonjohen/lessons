@@ -32,6 +32,102 @@ GTMLeads ingests signals from 10+ API sources (GitHub, SEC EDGAR, NVD, arXiv, Re
 - **The fuzzy level is a safety net, not a primary strategy.** Level 4 (title + date + metadata) catches the long tail of duplicates that slip through the first three levels. It has the highest false-positive risk, so it requires the most fields to match — five columns must all agree.
 - **Protect reviewed records from re-import.** Once a human has accepted or rejected a signal, the pipeline should never silently overwrite that decision with fresh data. The dedup function returns the existing signal's status so the upsert logic can make the right call.
 
+## Implementation Guide
+
+### Step 1: Define your match levels by strength
+
+Survey your data sources and identify which identifiers are available. Order them from most reliable to least:
+
+| Level | Match on | Strength | When to use |
+|-------|----------|----------|-------------|
+| 1 | Source-native ID (e.g. CVE-2024-1234) | Strongest | Source provides stable, globally unique IDs |
+| 2 | Canonical URL | Strong | Source provides persistent URLs but no unique IDs |
+| 3 | Content hash | Medium | Same text arrives from different queries or metadata contexts |
+| 4 | Fuzzy composite (title + date + metadata) | Weakest | Near-duplicates with minor content differences |
+
+Your specific levels will vary — the important thing is the ordering. Add levels as you discover new duplication patterns in production data.
+
+### Step 2: Implement the cascade with short-circuit evaluation
+
+Write a function that checks each level in order and returns on the first match. Use a simple if/elif chain — don't over-abstract this:
+
+```python
+import hashlib
+
+def find_duplicate(db, signal: dict) -> dict | None:
+    source = signal["source_id"]
+
+    # Level 1: External ID (strongest)
+    if signal.get("external_id"):
+        match = db.execute(
+            "SELECT * FROM signal WHERE source_id = ? AND external_id = ?",
+            (source, signal["external_id"])
+        ).fetchone()
+        if match:
+            return match
+
+    # Level 2: Canonical URL
+    if signal.get("url"):
+        match = db.execute(
+            "SELECT * FROM signal WHERE source_id = ? AND url = ?",
+            (source, signal["url"])
+        ).fetchone()
+        if match:
+            return match
+
+    # Level 3: Content hash
+    text = signal.get("signal_text", "")
+    normalized = " ".join(text.lower().split())  # Normalize whitespace
+    content_hash = hashlib.sha256(normalized.encode()).hexdigest()
+    match = db.execute(
+        "SELECT * FROM signal WHERE source_id = ? AND content_hash = ?",
+        (source, content_hash)
+    ).fetchone()
+    if match:
+        return match
+
+    # Level 4: Fuzzy composite (weakest — requires ALL fields to match)
+    match = db.execute(
+        """SELECT * FROM signal
+           WHERE source_id = ? AND template_id = ? AND topic_pack_id = ?
+             AND published_date = ? AND title = ?""",
+        (source, signal["template_id"], signal["topic_pack_id"],
+         signal.get("published_date"), signal.get("title"))
+    ).fetchone()
+    if match:
+        return match
+
+    return None  # No duplicate — this is a new record
+```
+
+### Step 3: Protect reviewed records from overwrite
+
+When a duplicate is found, check whether the existing record has been reviewed by a human before overwriting:
+
+```python
+def upsert_signal(db, signal: dict):
+    existing = find_duplicate(db, signal)
+    if existing:
+        if existing["status"] in ("accepted", "rejected"):
+            return existing  # Never overwrite human decisions
+        # Update the pending record with fresh data
+        db.execute("UPDATE signal SET ... WHERE signal_id = ?", (..., existing["signal_id"]))
+        return existing
+    # No duplicate — insert new
+    db.execute("INSERT INTO signal ...", (...))
+```
+
+### Step 4: Store the content hash at write time
+
+Compute and store the normalized content hash when inserting records, so Level 3 lookups are index-based rather than computed on the fly:
+
+```sql
+ALTER TABLE signal ADD COLUMN content_hash TEXT;
+CREATE INDEX idx_signal_content_hash ON signal(source_id, content_hash);
+```
+
+Compute the hash using the same normalization as the dedup function (lowercase, collapsed whitespace) and store it on insert.
+
 ## Examples
 
 **Dedup cascade in practice:**
