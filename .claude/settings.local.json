@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(npm run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(python -m pytest tests/ -q)",
+      "Bash(ruff format:*)",
+      "Bash(mkdir -p ~/.claude/state)",
+      "Bash(touch ~/.claude/state/push-authorized.flag)",
+      "Bash(git push:*)",
+      "Bash(gh run:*)"
+    ]
+  }
+}
