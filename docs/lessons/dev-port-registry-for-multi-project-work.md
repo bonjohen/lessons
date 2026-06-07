@@ -23,12 +23,12 @@ A single developer maintains seven active projects (lessons, JobClass, Certifica
 1. Initially, each project used its framework's default port. Running two Astro projects simultaneously required manually passing `--port` flags or killing the first server.
 2. Some projects had their ports configured in `astro.config.mjs` or `uvicorn` launch scripts, but the assignments were made independently — no single source of truth existed for which port belonged to which project.
 3. A port collision during a cross-project test session (lessons hub trying to fetch from a source project's dev server) wasted 20 minutes of debugging before the developer realized both were fighting over port 4321.
-4. A port registry was added to the global `~/.claude/CLAUDE.md` as a simple markdown table mapping each project to a frontend port (4331–4337) and a backend port (8011–8017). The range was chosen to avoid conflicts with common defaults (3000, 4321, 5173, 8000, 8080).
+4. A port registry was added to a global developer configuration file (a markdown file that AI assistants and developer tools read at the start of every session) as a simple table mapping each project to a frontend port (4331–4337) and a backend port (8011–8017). The range was chosen to avoid conflicts with common defaults (3000, 4321, 5173, 8000, 8080). The same table could live in a team wiki, a shared dotfile, or any other location that's checked before spinning up a dev server.
 5. Each project's config was updated to use its assigned ports. The global table ensures that any new project gets the next available slot, and any tool (including AI assistants) configuring a dev server knows which port to use.
 
 ## Key Insights
 
-- **The registry belongs in shared config, not in each project.** If each project defines its own port in isolation, there's no collision detection. The value of the registry is the single view across all projects. `~/.claude/CLAUDE.md` works well for this because it's read by every session regardless of which project is active.
+- **The registry belongs in shared config, not in each project.** If each project defines its own port in isolation, there's no collision detection. The value of the registry is the single view across all projects. A global config file, team wiki, or shared dotfile works well because it's visible regardless of which project is active.
 
 - **Use a dedicated range away from framework defaults.** Ports 4331+ for frontends and 8011+ for backends avoid collisions with Astro's default 4321, Vite's 5173, and Uvicorn's 8000. A developer can still spin up a quick prototype on defaults without conflicting with registered projects.
 

@@ -16,7 +16,7 @@ The Web Speech API provides free, zero-dependency text-to-speech in every modern
 
 ## Context
 
-A lessons-learned hub built with Astro (static output) needed a "read aloud" feature for lesson pages. A reference implementation existed in a standalone markdown reader app (mdreader) using vanilla JS and the Web Speech API. The goal was to port the concept into an Astro component, improve on it with paragraph highlighting and section navigation, and integrate it with the site's existing design system.
+A lessons-learned hub built with Astro (static output) needed a "read aloud" feature for lesson pages. A reference implementation existed in a standalone markdown reader app — a simple tool for rendering and reading markdown files aloud — using vanilla JS and the Web Speech API. The goal was to port the concept into an Astro component, improve on it with paragraph highlighting and section navigation, and integrate it with the site's existing design system.
 
 ## What Happened
 
@@ -38,7 +38,7 @@ A lessons-learned hub built with Astro (static output) needed a "read aloud" fea
 
 - **Script execution order in static sites is a class of bug.** Astro renders components in document order. An inline script in a component that appears before its target content will fail silently. `DOMContentLoaded` is the reliable fix, not script placement. This applies to any framework that renders components sequentially into static HTML.
 
-- **The Web Speech API is a "works on my machine" trap.** It works perfectly in desktop Chrome during development. Android, Safari, Firefox, and even Chrome on different OS versions all have different failure modes. The reference implementation (mdreader) had already solved most of these — porting without understanding *why* each workaround existed would have dropped them.
+- **The Web Speech API is a "works on my machine" trap.** It works perfectly in desktop Chrome during development. Android, Safari, Firefox, and even Chrome on different OS versions all have different failure modes. The reference implementation had already solved most of these — porting without understanding *why* each workaround existed would have dropped them.
 
 - **Progressive enhancement is the only safe approach.** The component checks for `window.speechSynthesis` and hides itself if unavailable. No error, no broken UI, no placeholder. Users on unsupported browsers never know the feature exists. This is better than showing a disabled button that implies something is broken.
 

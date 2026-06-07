@@ -16,13 +16,13 @@ When a content pipeline clones from multiple GitHub repositories, mixing public 
 
 ## Context
 
-Lessons Hub harvests markdown lesson files from multiple GitHub repositories into a single static site. The harvester (`scripts/harvest_lessons.py`) reads a registry (`data/repos.yml`), clones each repo to a temp directory, parses lesson files, and generates JSON for the Astro build. In CI, `LESSONS_REPO_TOKEN` is injected from a GitHub secret to authenticate clones. Locally, the developer may or may not have the token set.
+Lessons Hub harvests markdown lesson files from multiple GitHub repositories into a single static site. The harvester reads a YAML registry that lists every source repo — each entry specifies an ID, GitHub owner/repo, branch, and the path where lessons live (e.g. `docs/lessons`). An `enabled: true/false` flag controls whether the repo is included in the harvest. The harvester clones each enabled repo to a temp directory, parses lesson files, and generates JSON for the Astro build. In CI, `LESSONS_REPO_TOKEN` is injected from a GitHub secret to authenticate clones. Locally, the developer may or may not have the token set.
 
 The pipeline started with only public repos owned by the same user. Adding a private repo (MoreLessons) immediately broke the CI build because the harvester treats any clone failure as a fatal error.
 
 ## What Happened
 
-1. A new private repo (`MoreLessons`) was added to `data/repos.yml` with `enabled: true`.
+1. A new private repo (`MoreLessons`) was added to the registry with `enabled: true`.
 2. The commit was pushed. CI ran the harvest step.
 3. The harvester attempted to clone `MoreLessons`. The `LESSONS_REPO_TOKEN` secret existed but its scope did not include the new repo (fine-grained tokens are scoped per-repository).
 4. `git clone` failed with `could not read Username for 'https://github.com'` — the same error you'd get for a nonexistent repo, giving no hint that the real issue was token scope.

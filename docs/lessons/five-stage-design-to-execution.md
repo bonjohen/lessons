@@ -20,7 +20,7 @@ A lessons library project went through three major implementation cycles: V1 (st
 
 ## What Happened
 
-1. **Stage 1 (Design):** Explored the problem space — read code, logs, errors, external references. Produced a design document (`docs/[topic]_design.md`) describing purpose, scope, principles, user stories, and functional requirements. No code changes. This stage caught misunderstandings before they became wrong implementations.
+1. **Stage 1 (Design):** Explored the problem space — read code, logs, errors, external references. Produced a design document — a structured markdown file with numbered sections covering purpose, scope, core design principles, primary user stories, and functional requirements grouped by area. No code changes. This stage caught misunderstandings before they became wrong implementations.
 2. **Stage 2 (PDR):** Translated the design into physical specifications — what exists to reuse, new dependencies, package layout, data model, component specifications with file paths. The PDR is a build spec that could be handed to a different implementor.
 3. **Stage 3 (Plan):** Converted the PDR into ordered phases with task tables. Each phase has a goal, dependencies, and exit condition. Each row has 5 columns: PhaseNo, Status, Started (PST), Completed (PST), Description. Numbering is `{phase}.{row}` (e.g., 3.4). Phases end with explicit "stage and commit" rows.
 4. **Stage 4 (Execute):** Worked through rows sequentially. Each row flips from Open → Started (with timestamp), work is done and verified, then flips to Completed (with timestamp). The plan file is saved after every status change. When all rows in a phase complete, a Phase Summary block is written and a single commit captures the entire phase.
