@@ -258,9 +258,33 @@ _TAG_KEYWORDS: list[tuple[str, list[str]]] = [
     ("cloud", [r"\baws\b", r"\bazure\b", r"\bgcp\b", r"\bbedrock\b"]),
     ("ai", [r"\bllm\b", r"\brag\b", r"\bembedding\b", r"\bmachine learning\b"]),
     ("git", [r"\bgit\s+(push|pull|commit|branch|rebase)\b"]),
-    ("statistics", [r"\bbayesian\b", r"\bchi.squared\b", r"\bborda\b", r"\bkrippendorff\b", r"\belo\s+rating\b", r"\bbradley.terry\b", r"\bscoring\b.*\b(composite|heterogeneous)\b", r"\bbaseline\b", r"\bbias\s+detect", r"\bheuristic\b.*\bscor"]),
-    ("architecture", [r"\bstate\s+machine\b", r"\bpermission\b.*\b(union|role)\b", r"\barchitect\b"]),
-    ("ui", [r"\bdrag.and.drop\b", r"\binteraction\b.*\b(pattern|design)\b", r"\bui\s+state\b"]),
+    (
+        "statistics",
+        [
+            r"\bbayesian\b",
+            r"\bchi.squared\b",
+            r"\bborda\b",
+            r"\bkrippendorff\b",
+            r"\belo\s+rating\b",
+            r"\bbradley.terry\b",
+            r"\bscoring\b.*\b(composite|heterogeneous)\b",
+            r"\bbaseline\b",
+            r"\bbias\s+detect",
+            r"\bheuristic\b.*\bscor",
+        ],
+    ),
+    (
+        "architecture",
+        [r"\bstate\s+machine\b", r"\bpermission\b.*\b(union|role)\b", r"\barchitect\b"],
+    ),
+    (
+        "ui",
+        [
+            r"\bdrag.and.drop\b",
+            r"\binteraction\b.*\b(pattern|design)\b",
+            r"\bui\s+state\b",
+        ],
+    ),
 ]
 
 
