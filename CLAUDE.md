@@ -108,6 +108,10 @@ Required (after normalization): `title`. Recommended: `summary`, `date`, `phase`
 - **ERROR** (build fails): missing/invalid repos.yml, duplicate IDs, empty content, unreadable files, generated JSON invalid.
 - **WARNING** (build continues): missing summary/date/tags/phase/type, unknown controlled values, short content.
 
+## Commit Message Format
+
+Commits in this repo follow the global structured format (`What changed` / `Why` / `What we learned`), defined authoritatively in `~/.claude/CLAUDE.md` and detailed in `docs/commit-template.md`. It is especially load-bearing here: this project's lesson-extraction pipeline treats the `What we learned` section as raw lesson material, so capturing the reusable insight in the commit is part of the workflow, not optional polish. See `docs/lessons/structured-commits-as-lesson-inputs.md`.
+
 ## Security
 
 - Never expose `LESSONS_REPO_TOKEN` in logs, generated files, or error output.

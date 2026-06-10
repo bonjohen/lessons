@@ -19,7 +19,7 @@ what the user asked for, what gap existed>
 to someone facing a similar situation in a different project. This is the
 section that maps directly to lesson content.>
 
-Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 ```
 
 ## Type Prefixes
