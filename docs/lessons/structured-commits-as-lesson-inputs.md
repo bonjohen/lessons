@@ -27,8 +27,10 @@ A lessons-learned knowledge base harvests markdown lesson files from multiple Gi
 5. Three implementation options were evaluated:
    - `.gitmessage` (git's `commit.template` config) — only works when git opens an editor, not with `git commit -m`
    - `commit-msg` hook — could validate structure, but the message author is the one who needs guidance, not enforcement
-   - Feedback memory + versioned template doc — governs the AI assistant's behavior directly, which is where the messages originate
-6. The feedback memory approach was chosen because it matches the actual mechanism: the template rules live in a persistent memory file that the assistant loads every session, ensuring it follows the format on every commit without needing to look up an external reference.
+   - Feedback memory + versioned template doc — *assumed* to govern the AI assistant's behavior directly, since that is where the messages originate (this assumption proved wrong — see step 6)
+6. The feedback memory approach was chosen first — the template rules were written into a persistent auto-memory file the assistant loads every session. **This failed to install the behavior.** Auto-memory is surfaced to the assistant as *background context* ("here is something that may be relevant"), not as an authoritative directive. The format was followed inconsistently, and plain one-line commits still slipped through — the very problem the template was meant to solve. The rule was "written down" but not "installed."
+7. The corrected installation used two layers. (a) The rule was promoted into the **global instruction file** (`~/.claude/CLAUDE.md`), which every session in every project loads as an authoritative, override-level instruction — so the behavior applies everywhere, not just one project, and is treated as a directive rather than a hint. (b) A **`PostToolUse(Bash)` validation hook** was added as a safety net: it inspects each commit after the fact and prompts the assistant to amend when required sections are missing.
+8. The hook had to be `PostToolUse`, not `PreToolUse`. The commit message does not exist until `git commit` runs, and with `git commit -F -` (heredoc) the message is not even present in the command string for a pre-hook to read. The robust check ignores the command entirely and reads the resulting `HEAD` message via `git log -1 --pretty=%B` *after* the commit — which works identically for `-m`, `-F -`, and `-F <file>`.
 
 ## Key Insights
 
@@ -37,6 +39,12 @@ A lessons-learned knowledge base harvests markdown lesson files from multiple Gi
 - **Structure enables automation; prose does not.** A commit message with labeled sections (What changed / Why / What we learned) is parseable by a harvester. A freeform paragraph with the same information is not. The structure costs the author almost nothing but makes downstream extraction dramatically easier.
 
 - **The right enforcement mechanism depends on who writes the message.** `.gitmessage` and `commit-msg` hooks are designed for human developers using git interactively. When an AI assistant generates commit messages programmatically via `git commit -m`, the effective enforcement mechanism is the assistant's instruction set (memory/prompts), not git's hook system.
+
+- **Auto-memory is the wrong layer for must-follow behavior.** Persistent memory/notes files are surfaced to an assistant as *background context* — they answer "what might be relevant here?" not "what must you do?" A rule that must be obeyed every time belongs in the authoritative instruction file (for Claude Code, a `CLAUDE.md`), not in memory. We learned this the expensive way: the format lived only in memory and was therefore "installed" in name but not in effect. The first sign that a rule is in the wrong layer is that it's followed *sometimes*.
+
+- **Global behavior belongs in the global instruction file, not duplicated per project.** When a rule should hold everywhere, put it once in the global instruction file (`~/.claude/CLAUDE.md`, loaded in every project) and reduce per-project copies to a one-line pointer. Two divergent copies drift; one global source with pointers does not.
+
+- **A commit-message validator must run *after* the commit and read the result, not parse the command.** The message isn't known until `git commit` executes, and heredoc/`-F -` input never appears in the command string — so a pre-commit/pre-tool hook can't see it. Reading `HEAD` (`git log -1 --pretty=%B`) post-commit handles `-m`, `-F -`, and `-F <file>` uniformly. Because the commit has already happened, post-hoc validation can only *warn* and prompt an amend — not block. Design it to warn-and-amend, fail safe on any error, and guard against stale `HEAD` (a failed "nothing to commit" leaves the previous commit at `HEAD`).
 
 - **Not every commit has a lesson.** Formatting fixes, renames, and dependency bumps don't produce reusable insights. The template explicitly allows minimal messages for mechanical changes. Forcing structure on trivial commits creates noise that degrades the signal in the lesson pipeline.
 
@@ -99,16 +107,16 @@ diff — the insight that would save someone else time.>
 
 ### Step 2: Choose an enforcement mechanism
 
-The right mechanism depends on who writes the commit messages:
+The right mechanism depends on who writes the commit messages. **The distinction that matters most is authoritative *instruction* vs. passive *context*.** A rule that must be followed every time has to live where the author treats it as a directive — for an AI assistant, that is its instruction file, not a memory/notes file.
 
 | Scenario | Mechanism | How it works |
 |----------|-----------|--------------|
-| Human developers using `git commit` (editor) | `.gitmessage` template | Set `git config commit.template .gitmessage`. Git pre-fills the editor with the template. Passive — easy to ignore. |
-| Human developers using `git commit -m` | `commit-msg` hook | A script in `.git/hooks/commit-msg` validates the message structure and rejects commits that don't match. Active enforcement. |
-| AI assistant generating messages via `-m` | Persistent instruction (memory/prompt) | The assistant's instruction set includes the template as a behavioral rule. The template doc is the reference; the instruction ensures it's followed. |
-| Team with mixed workflows | Combination | `.gitmessage` for editor users + `commit-msg` hook for validation + CI check for messages that slip through. |
+| Human developers using `git commit` (editor) | `.gitmessage` template | `git config commit.template .gitmessage` pre-fills the editor. Passive — easy to ignore, and does nothing for `git commit -m`. |
+| Human developers using `git commit -m` | `commit-msg` git hook | A script in `.git/hooks/commit-msg` validates structure and rejects non-conforming commits. Active, but per-repo and aimed at humans. |
+| **AI assistant generating messages via `-m`/`-F`** | **Authoritative instruction file + post-commit validator** | Put the rule in the assistant's instruction file (`CLAUDE.md`) so it is a directive on every turn; add a `PostToolUse` hook that checks each commit and prompts an amend when sections are missing. |
+| Team with mixed workflows | Combination | `.gitmessage` for editor users + `commit-msg` git hook for validation + the assistant rule above for AI-authored commits. |
 
-For AI-assisted workflows, the persistent instruction approach is simplest and most effective. The assistant reads the template doc and follows it — no hook infrastructure needed.
+> **Failure mode this step exists to prevent.** The first attempt put the rule only in the assistant's *auto-memory*. It did not stick: memory is surfaced as background context, not a directive, so the format was applied inconsistently. The fix was to (1) move the rule into the **global instruction file** and (2) add a **post-commit validation hook**. "Wrote it down somewhere the assistant can see" is not the same as "installed as required behavior." The instructions below are deliberately precise because vagueness here is what caused the miss.
 
 **Setting up `.gitmessage` (for human developers):**
 
@@ -159,7 +167,7 @@ chmod +x .git/hooks/commit-msg
 
 Claude Code (Anthropic's AI coding assistant) uses two files to govern behavior: a **CLAUDE.md** project instruction file and an optional **memory file**. CLAUDE.md is a markdown file checked into the repo root that the assistant reads at the start of every session — it contains project-specific rules, conventions, and instructions that shape how the assistant works. Memory files are per-project persistent notes stored outside the repo that carry preferences and feedback across sessions. Either can carry commit template rules. CLAUDE.md is better for team-wide enforcement (it's in version control); memory is better for personal workflow preferences.
 
-**Option A: Add to CLAUDE.md (recommended for teams).** Add a section to your project's CLAUDE.md with the full template and rules inline. Because CLAUDE.md is loaded automatically at the start of every session, the assistant will follow these rules without any additional setup:
+**Option A: Add to a CLAUDE.md instruction file (the load-bearing install).** Put the full template and rules inline in a `CLAUDE.md`. Because `CLAUDE.md` is loaded automatically at the start of every session as an *authoritative instruction*, the assistant follows it without any extra setup. **Scope matters:** use the *project* `CLAUDE.md` for one repo, or the *global* `~/.claude/CLAUDE.md` to apply the rule to every existing and new project. For a behavior that should hold everywhere, install it globally and reduce per-project copies to a one-line pointer (this avoids divergent duplicates that drift apart):
 
 ```markdown
 ## Commit Message Format
@@ -190,7 +198,7 @@ Rules:
 - Always end with the co-author trailer.
 ```
 
-**Option B: Use a feedback memory file.** If you use Claude Code's auto-memory system (`~/.claude/projects/<project>/memory/`), create a memory file with the full rules inline. The memory file must include enough detail that the assistant can follow the template without reading any other file:
+**Option B: Feedback memory file — supplementary only, NOT for must-follow rules.** ⚠️ This is the option that failed for us. Claude Code's auto-memory (`~/.claude/projects/<project>/memory/`) is surfaced to the assistant as *background context*, not as an authoritative instruction — so a rule placed only here is applied inconsistently. Use memory to *reinforce* a rule that already lives in an instruction file (Option A), never as the sole home of a must-follow behavior. If you do use it as reinforcement, make the entry self-contained:
 
 ```markdown
 ---
@@ -236,7 +244,79 @@ Then add a one-line pointer in `MEMORY.md` (the memory index that loads every se
 
 The key is that the memory file is **self-contained** — it includes the full format, rules, and examples so the assistant never needs to look up an external reference to follow it.
 
-**Option C: Use a Claude Code hook (for validation).** Claude Code supports hooks — shell commands that run automatically before or after specific tool calls (like running a bash command). Hooks are configured in a JSON settings file. To enforce commit message format, add a `PostToolUse` hook that fires after every bash command. The hook script checks if the command was a `git commit`, and if so, inspects the message for required sections:
+**Option C: Add a Claude Code validation hook (the safety net).** Claude Code hooks are commands that run automatically around tool calls, configured in a JSON settings file. This is the catch-net for when the assistant forgets the instruction. The instructions below are the exact, working setup — the earlier version of this lesson described this option vaguely (it named a script that was never provided), which is part of why the format wasn't reliably enforced.
+
+**Why `PostToolUse`, not `PreToolUse`.** The commit message does not exist until `git commit` runs, and with `git commit -F -` (heredoc) the message never appears in the command string a pre-hook would inspect. So the hook fires *after* the Bash tool call and reads the resulting commit. Because the commit has already happened, the hook can only *warn* (exit code 2 surfaces the message back to the assistant so it can amend) — it cannot block. That is the honest scope of post-hoc validation.
+
+**Step C1 — write the hook script** at `~/.claude/hooks/check-commit-msg.py`. It reads `HEAD` rather than parsing the command, so it handles `-m`, `-F -`, and `-F <file>` identically; guards against stale `HEAD` (a failed "nothing to commit" leaves the prior commit in place); and fails safe (any error exits 0, never blocking work):
+
+```python
+#!/usr/bin/env python3
+"""PostToolUse(Bash) hook — structured-commit-message validator.
+Warns (does not block) when a non-trivial `git commit` produces a HEAD
+message missing the required sections. Reads HEAD so it works for -m,
+-F -, and -F <file> uniformly. Fails safe: any error exits 0."""
+import json, re, subprocess, sys, time
+
+# type -> (needs_why, needs_learned)
+ENFORCE = {"feat": (True, True), "refactor": (True, True),
+           "perf": (True, True), "fix": (True, False)}
+STALE_SECONDS = 180
+
+def git(repo, *args):
+    return subprocess.run(["git", "-C", repo, *args],
+                          capture_output=True, text=True, timeout=5).stdout
+
+def main():
+    try:
+        data = json.load(sys.stdin)
+    except Exception:
+        return 0
+    if data.get("tool_name") != "Bash":
+        return 0
+    cmd = (data.get("tool_input") or {}).get("command") or ""
+    if not re.search(r"\bgit\b[^|;&]*\bcommit\b", cmd):
+        return 0
+    if re.search(r"--dry-run|--amend|--no-edit", cmd):
+        return 0
+    # Resolve repo dir: honor `git -C <dir>`, else the hook's cwd.
+    repo = data.get("cwd") or "."
+    m = re.search(r"-C\s+(\"[^\"]+\"|'[^']+'|\S+)", cmd)
+    if m:
+        repo = m.group(1).strip("\"'")
+    try:
+        msg = git(repo, "log", "-1", "--pretty=%B")
+        ts = git(repo, "log", "-1", "--pretty=%ct").strip()
+    except Exception:
+        return 0
+    if not msg.strip() or not ts.isdigit():
+        return 0
+    if time.time() - int(ts) > STALE_SECONDS:   # HEAD wasn't just created
+        return 0
+    first = msg.strip().splitlines()[0]
+    tm = re.match(r"^([a-z]+)(\([^)]*\))?!?:", first)
+    if not tm or tm.group(1) not in ENFORCE:     # style/chore/docs/etc. exempt
+        return 0
+    needs_why, needs_learned = ENFORCE[tm.group(1)]
+    missing = []
+    if needs_why and not re.search(r"(?im)^\s*Why:", msg):
+        missing.append("Why:")
+    if needs_learned and not re.search(r"(?im)^\s*What we learned:", msg):
+        missing.append("What we learned:")
+    if not missing:
+        return 0
+    sys.stderr.write(
+        f"Structured-commit reminder: the last commit ({tm.group(1)}:) is "
+        f"missing section(s): {', '.join(missing)}. If this was a genuinely "
+        f"trivial change, ignore; otherwise amend the commit message.\n"
+        f"Subject was: {first}\n")
+    return 2
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+**Step C2 — register it** in the settings file (global: `~/.claude/settings.json`; per-project: `.claude/settings.json`). Merge into any existing `hooks` object; don't overwrite it:
 
 ```json
 {
@@ -245,10 +325,8 @@ The key is that the memory file is **self-contained** — it includes the full f
       {
         "matcher": "Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": "python ~/.claude/hooks/check-commit-msg.py"
-          }
+          { "type": "command",
+            "command": "python \"C:/Users/<you>/.claude/hooks/check-commit-msg.py\"" }
         ]
       }
     ]
@@ -256,14 +334,25 @@ The key is that the memory file is **self-contained** — it includes the full f
 }
 ```
 
-The hook script receives the tool call details on stdin as JSON, extracts the bash command, checks if it matches `git commit`, and warns (but doesn't block) if the message lacks `Why:` or `What we learned:` sections. This is heavier to set up but catches cases where the assistant forgets the template.
+`settings.json` changes are read at session start — a new session (or resume) is needed before the hook is active.
+
+**Step C3 — test it before trusting it.** Feed the hook a synthetic payload on stdin and check the exit code. A non-compliant `feat` must exit 2; a compliant one and a `chore` must exit 0:
+
+```bash
+T="C:/Users/<you>/AppData/Local/Temp/hooktest"; rm -rf "$T"; mkdir -p "$T"
+git -C "$T" init -q && git -C "$T" -c user.email=t@t -c user.name=t commit -q --allow-empty -m "feat: x"
+printf '{"tool_name":"Bash","cwd":"%s","tool_input":{"command":"git commit -m x"}}' "$T" \
+  | python "C:/Users/<you>/.claude/hooks/check-commit-msg.py"; echo "exit=$?"   # expect exit=2
+```
+
+> **Windows gotcha (cost us a debugging cycle).** The repo path passed to the hook must be a form the Windows `python`/`git` can resolve (forward-slash `C:/...` is fine). An MSYS-style path like `/tmp/...` from `mktemp -d` will make `git -C` fail, the hook will fail safe to exit 0, and the test will look like a false pass. If a test "passes" silently when you expected a warning, suspect the path before the logic.
 
 **Which option to pick:**
 
-- Starting from scratch → Option A. One file, no infrastructure, works immediately.
-- Already using Claude Code memory → Option B. Keeps CLAUDE.md clean; template lives in a dedicated doc.
-- Team environment where enforcement matters → Options A + C. Instructions plus validation.
-- Not using Claude Code → Skip all of these and use `.gitmessage` + `commit-msg` hook above.
+- AI-authored commits, any project → **Option A in the *global* instruction file** (`~/.claude/CLAUDE.md`), so the rule applies everywhere. This is the load-bearing install; without it nothing else reliably fires.
+- Want a safety net against the assistant forgetting → **add Option C** (post-commit validator). **A + C is the recommended pairing** for "this must happen every time."
+- Reinforcement only → Option B, *in addition to* A — never as the sole mechanism. (Putting the rule only here is the mistake that caused the original miss.)
+- Not using Claude Code (human authors) → `.gitmessage` + `commit-msg` git hook from the top of this step.
 
 ### Step 3: Wire commits into your knowledge pipeline
 

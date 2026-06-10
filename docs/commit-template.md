@@ -78,3 +78,13 @@ project's history.
 ```
 style: format lesson_core.py
 ```
+
+## Installation & Enforcement
+
+This format is **not self-enforcing** — it must be installed where the commit author treats it as a directive. For this project (AI-authored commits via Claude Code), it is installed in two layers:
+
+1. **Authoritative rule (required).** The format lives in the **global** instruction file `~/.claude/CLAUDE.md` under `## Commit Message Format`, so it applies to every existing and new project. This project's `CLAUDE.md` carries a pointer plus the project-specific reason it matters here (lesson extraction). Do **not** rely on Claude Code auto-memory as the sole home — memory is surfaced as *background context*, not a directive, so a rule placed only there is followed inconsistently. (That is exactly how this format was "installed" but not actually in effect the first time.)
+
+2. **Validation (recommended).** A `PostToolUse(Bash)` hook — `~/.claude/hooks/check-commit-msg.py`, registered in `~/.claude/settings.json` — reads the resulting `HEAD` message after each `git commit` and reminds the assistant to amend when a non-trivial commit is missing `Why:` (`feat`/`fix`/`refactor`/`perf`) or `What we learned:` (`feat`/`refactor`/`perf`). It warns, never blocks (the commit already happened), and fails safe on any error.
+
+For the full rationale and the complete hook script, see `docs/lessons/structured-commits-as-lesson-inputs.md` → Implementation Guide, Step 2.
